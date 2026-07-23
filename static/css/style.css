@@ -744,6 +744,18 @@ nav a {
     .services-table {
         min-width: 100%;
     }
+
+    .dashboard-table,
+    .services-table {
+        min-width: 0;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td,
+    .services-table th,
+    .services-table td {
+        white-space: normal;
+    }
 }
 
 .steps-grid {

@@ -862,6 +862,19 @@ a {
     min-width: 110px;
 }
 
+.chat-window {
+    padding: 14px;
+}
+
+.chat-message {
+    max-width: 100%;
+    width: fit-content;
+}
+
+.chat-window .empty-state {
+    min-height: 220px;
+}
+
 @media (max-width: 1080px) {
 
     .dashboard-shell,
