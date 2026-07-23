@@ -1,0 +1,258 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large">{{ user['nome'][0]|upper }}</div>
+            <div>
+                <h2>{{ user['nome'] }}</h2>
+                <p>{{ user['tipo']|capitalize }} • {{ user['cidade'] or 'Cidade não informada' }}</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview">Visão geral</a>
+            <a href="#solicitacoes">Solicitações</a>
+            <a href="#ativos">Serviços ativos</a>
+            <a href="#historico">Histórico</a>
+            <a href="#favoritos">Favoritos</a>
+            <a href="/chat">Chat</a>
+            <a href="/perfil">Configurações</a>
+        </nav>
+
+        <div class="sidebar-card">
+            <h3>Configurações</h3>
+            <ul>
+                <li><a href="/perfil">Editar perfil</a></li>
+                <li><a href="/perfil/alterar-senha">Alterar senha</a></li>
+                <li><a href="/perfil/excluir-conta" class="danger-link">Solicitar exclusão</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="section-header" id="overview">
+            <div>
+                <span class="section-badge">Dashboard</span>
+                <h1>Olá, {{ user['nome'].split(' ')[0] }}</h1>
+                <p>Este é o seu painel de cliente. Aqui você acompanha solicitações, serviços ativos, histórico e
+                    favoritos.</p>
+            </div>
+            <div class="hero-actions">
+                <a href="/profissionais" class="button button-primary">Buscar profissional</a>
+                <a href="/meus-servicos" class="button button-secondary">Ver serviços</a>
+            </div>
+        </section>
+
+        <div class="card-grid">
+            <article class="card card-stats">
+                <h3>Solicitações</h3>
+                <strong>{{ total_services }}</strong>
+                <span>Total enviado</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Em andamento</h3>
+                <strong>{{ in_progress_services }}</strong>
+                <span>Serviços ativos</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Concluídos</h3>
+                <strong>{{ completed_services }}</strong>
+                <span>Serviços finalizados</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Avaliações</h3>
+                <strong>{{ review_count }}</strong>
+                <span>Feitas por você</span>
+            </article>
+        </div>
+
+        <section class="dashboard-panel availability-panel">
+            <div class="panel-header">
+                <div><span class="panel-label"><i class="online-dot"></i> Disponíveis agora</span>
+                    <h2>Prestadores online</h2>
+                </div>
+                <p>Profissionais e empresas que estiveram ativos nos últimos minutos.</p>
+            </div>
+            <div class="online-dashboard-grid">
+                <div>
+                    <h3>Profissionais disponíveis</h3>{% for provider in online_professionals %}<a
+                        class="online-mini-card" href="/profissional/{{ provider.id }}"><span class="avatar">{{
+                            provider.nome[0]|upper }}</span><span><strong>{{ provider.nome }}</strong><small>{{
+                                provider.especialidade or 'Serviços profissionais' }} · {{ provider.cidade or 'Brasil'
+                                }}</small></span><i class="online-dot"></i></a>{% else %}<p class="provider-role">Nenhum
+                        profissional online agora.</p>{% endfor %}
+                </div>
+                <div>
+                    <h3>Empresas disponíveis</h3>{% for provider in online_companies %}<a class="online-mini-card"
+                        href="/empresa/{{ provider.id }}"><span class="avatar">{{ (provider.empresa_nome or
+                            provider.nome)[0]|upper }}</span><span><strong>{{ provider.empresa_nome or provider.nome
+                                }}</strong><small>{{ provider.especialidade or 'Empresa de serviços' }} · {{
+                                provider.cidade or 'Brasil' }}</small></span><i class="online-dot"></i></a>{% else %}<p
+                        class="provider-role">Nenhuma empresa online agora.</p>{% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-panel" id="solicitacoes">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Solicitações pendentes</span>
+                    <h2>Pendentes</h2>
+                </div>
+                <p>Profissionais escolhidos, descrição e status das suas solicitações.</p>
+            </div>
+            {% if pending_requests %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Profissional</th>
+                            <th>Categoria</th>
+                            <th>Descrição</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in pending_requests %}
+                        <tr>
+                            <td>{{ service.profissional_nome }}</td>
+                            <td>{{ service.categoria or '—' }}</td>
+                            <td>{{ service.descricao or '—' }}</td>
+                            <td>{{ service.data_solicitacao or '—' }}</td>
+                            <td><span class="status-pill status-pending">{{ service.status or 'Pendente' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Você não tem solicitações pendentes no momento.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="ativos">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Serviços em andamento</span>
+                    <h2>Ativos</h2>
+                </div>
+                <p>Acompanhe o andamento dos serviços e navegue até o chat para conversar com o profissional.</p>
+            </div>
+            {% if active_services %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Profissional</th>
+                            <th>Serviço</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in active_services %}
+                        <tr>
+                            <td>{{ service.profissional_nome }}</td>
+                            <td>{{ service.categoria or service.descricao or '—' }}</td>
+                            <td>{{ service.data_solicitacao or '—' }}</td>
+                            <td><span class="status-pill status-active">{{ service.status }}</span></td>
+                            <td><a href="/servico/{{ service.id }}/chat"
+                                    class="button button-secondary button-small">Chat</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Não há serviços ativos no momento.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="historico">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Histórico</span>
+                    <h2>Serviços concluídos</h2>
+                </div>
+                <p>Veja serviços finalizados, valores e suas avaliações.</p>
+            </div>
+            {% if history_services %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Profissional</th>
+                            <th>Serviço</th>
+                            <th>Valor</th>
+                            <th>Data</th>
+                            <th>Avaliação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in history_services %}
+                        <tr>
+                            <td>{{ service.profissional_nome }}</td>
+                            <td>{{ service.categoria or service.descricao or '—' }}</td>
+                            <td>{{ service.valor if service.valor else '—' }}</td>
+                            <td>{{ service.data_solicitacao or '—' }}</td>
+                            <td>{% if service.reviewed %}Avaliado{% else %}<a href="/avaliar/{{ service.id }}"
+                                    class="button button-secondary button-small">Avaliar</a>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Ainda não há serviços concluídos.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="favoritos">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Favoritos</span>
+                    <h2>Profissionais salvos</h2>
+                </div>
+                <p>Encontre rapidamente seus profissionais preferidos e solicite novos serviços.</p>
+            </div>
+            {% if favorites %}
+            <div class="provider-grid">
+                {% for provider in favorites %}
+                <article class="provider-card">
+                    <h3>{{ provider.nome }}</h3>
+                    <p>{{ provider.tipo|capitalize }}{% if provider.empresa_nome %} • {{ provider.empresa_nome }}{%
+                        endif %}</p>
+                    <p>{{ provider.bio or 'Sem descrição disponível.' }}</p>
+                    <div class="provider-meta">
+                        <span>{{ provider.cidade or 'Cidade não informada' }}</span>
+                        <span>Avaliação {{ provider.rating if provider.rating is not none else '—' }}</span>
+                    </div>
+                    <div class="provider-actions">
+                        <a href="/solicitar-servico/{{ provider.id }}"
+                            class="button button-primary button-small">Solicitar</a>
+                        <form action="/favorito/{{ provider.id }}/toggle" method="post" class="inline-form">
+                            <button type="submit" class="button button-danger button-small">Remover</button>
+                        </form>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Você ainda não favoritou nenhum profissional.</p>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}

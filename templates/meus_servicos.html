@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="form-card">
+    <div class="section-header">
+        <div>
+            <span>Meus serviços</span>
+            <h1>Gerencie suas solicitações e atendimentos</h1>
+        </div>
+    </div>
+
+    {% if services %}
+    <div class="table-wrapper">
+        <table class="services-table">
+            <thead>
+                <tr>
+                    <th>Parceiro</th>
+                    <th>Categoria</th>
+                    <th>Status</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td>{{ service.partner_name }} <span class="provider-role">({{ service.partner_role|capitalize
+                            }})</span></td>
+                    <td>{{ service.categoria or 'Sem categoria' }}</td>
+                    <td><span class="status-pill">{{ service.status or 'Pendente' }}</span></td>
+                    <td>{{ service.valor if service.valor else '—' }}</td>
+                    <td>{{ service.data_solicitacao or '—' }}</td>
+                    <td>
+                        {% if user_type in ['profissional', 'empresa'] %}
+                        {% if not provider_active %}
+                        <span class="status-pill status-warning">Aprovação pendente</span>
+                        {% elif service.status == 'Pendente' or service.status is none %}
+                        <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="new_status" value="Aceito">
+                            <button type="submit" class="button button-secondary button-small">Aceitar</button>
+                        </form>
+                        {% elif service.status == 'Aceito' %}
+                        <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="new_status" value="Em andamento">
+                            <button type="submit" class="button button-secondary button-small">Iniciar</button>
+                        </form>
+                        {% elif service.status == 'Em andamento' %}
+                        <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="new_status" value="Concluído">
+                            <button type="submit" class="button button-primary button-small">Concluir</button>
+                        </form>
+                        {% else %}
+                        <span class="status-pill">Concluído</span>
+                        {% endif %}
+                        {% elif service.can_review %}
+                        <a href="/avaliar/{{ service.id }}" class="button button-primary button-small">Avaliar</a>
+                        {% elif service.reviewed %}
+                        <span class="status-pill">Avaliado</span>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="card">
+            <h2>Você ainda não tem serviços registrados</h2>
+            <p>Quando você solicitar ou aceitar um serviço, ele aparecerá aqui para acompanhamento.</p>
+            <a href="/profissionais" class="button button-primary">Buscar profissionais</a>
+        </div>
+        {% endif %}
+</section>
+{% endblock %}

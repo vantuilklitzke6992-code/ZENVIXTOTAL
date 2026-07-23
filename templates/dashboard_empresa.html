@@ -1,0 +1,194 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+            {% if user['logo_empresa'] %}
+            <div class="avatar avatar-large avatar-image"
+                style="background-image:url('/static/uploads/{{ user['logo_empresa'] }}')"></div>
+            {% else %}
+            <div class="avatar avatar-large">{{ user['empresa_nome'][0]|upper if user['empresa_nome'] else
+                user['nome'][0]|upper }}</div>
+            {% endif %}
+            <div>
+                <h2>{{ user['empresa_nome'] or user['nome'] }}</h2>
+                <p>{{ user['tipo']|capitalize }}</p>
+                <span class="status-badge {{ 'status-active' if approval_status == 'Ativo' else 'status-pending' }}">{{
+                    approval_status }}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview">Visão geral</a>
+            <a href="#servicos">Serviços</a>
+            <a href="#solicitacoes">Solicitações</a>
+            <a href="#relatorios">Relatórios</a>
+            <a href="/chat">Chat</a>
+        </nav>
+
+        <div class="sidebar-card">
+            <h3>Informações</h3>
+            <p><strong>CNPJ:</strong> {{ user['cnpj'] or 'Não informado' }}</p>
+            <p><strong>Cidade:</strong> {{ user['cidade'] or 'Não informada' }}</p>
+            <p><strong>Contato:</strong> {{ user['telefone'] or 'Não informado' }}</p>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="section-header" id="overview">
+            <div>
+                <span class="section-badge">Empresa</span>
+                <h1>{{ user['empresa_nome'] or 'Painel da empresa' }}</h1>
+                <p>Gerencie serviços, solicitações e equipe com uma visão empresarial clara.</p>
+                <p class="presence-label online"><i class="online-dot"></i> Empresa disponível — clientes podem
+                    contratar seus serviços.</p>
+            </div>
+        </section>
+
+        <div class="card-grid">
+            <article class="card card-stats">
+                <h3>Solicitações recebidas</h3>
+                <strong>{{ total_requests }}</strong>
+                <span>Interesses atuais</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Ativos</h3>
+                <strong>{{ in_progress_services }}</strong>
+                <span>Em andamento</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Concluídos</h3>
+                <strong>{{ completed_services }}</strong>
+                <span>Finalizados</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Avaliação média</h3>
+                <strong>{{ rating if rating is not none else '—' }}</strong>
+                <span>Feedback dos clientes</span>
+            </article>
+        </div>
+
+        <section class="dashboard-panel" id="servicos">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Serviços</span>
+                    <h2>Cadastro de serviços</h2>
+                </div>
+                <p>Adicione, edite ou remova os serviços oferecidos pela empresa.</p>
+            </div>
+            <div class="grid-two-column">
+                <div class="card">
+                    <h3>Serviços cadastrados</h3>
+                    {% if company_services %}
+                    <ul class="offer-list">
+                        {% for offer in company_services %}
+                        <li>
+                            <div>
+                                <strong>{{ offer.titulo }}</strong>
+                                <p>{{ offer.descricao }}</p>
+                                <span>R$ {{ offer.valor or '—' }}</span>
+                            </div>
+                            <form action="/empresa/servico/{{ offer.id }}/remover" method="post" class="inline-form">
+                                <button type="submit" class="button button-danger button-small">Remover</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>Não há serviços cadastrados pela empresa.</p>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <h3>Adicionar serviço</h3>
+                    <form action="/empresa/servico/adicionar" method="post" class="dashboard-form">
+                        <div class="form-group">
+                            <label for="titulo">Título</label>
+                            <input id="titulo" name="titulo" type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descricao">Descrição</label>
+                            <textarea id="descricao" name="descricao" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="valor">Valor</label>
+                            <input id="valor" name="valor" type="number" step="0.01" placeholder="Opcional">
+                        </div>
+                        <button type="submit" class="button button-primary">Cadastrar serviço</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-panel" id="solicitacoes">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Solicitações</span>
+                    <h2>Clientes interessados</h2>
+                </div>
+                <p>Acompanhe solicitações recebidas e aceite novos serviços.</p>
+            </div>
+            {% if company_requests %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in company_requests %}
+                        <tr>
+                            <td>{{ service.cliente_nome }}</td>
+                            <td>{{ service.categoria or service.descricao or '—' }}</td>
+                            <td><span class="status-pill status-{{ service.status|lower|replace(' ', '-') }}">{{
+                                    service.status }}</span></td>
+                            <td>
+                                {% if service.status == 'Pendente' %}
+                                <form action="/servico/{{ service.id }}/atualizar-status" method="post"
+                                    class="inline-form">
+                                    <input type="hidden" name="new_status" value="Aceito">
+                                    <button type="submit" class="button button-primary button-small">Aceitar</button>
+                                </form>
+                                {% endif %}
+                                <span class="status-pill status-active">Tempo real</span>
+                                <a href="/servico/{{ service.id }}/chat"
+                                    class="button button-primary button-small">Abrir chat</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Nenhuma solicitação recebida ainda.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="relatorios">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Relatórios</span>
+                    <h2>Desempenho</h2>
+                </div>
+                <p>Visão rápida da quantidade de serviços e avaliações.</p>
+            </div>
+            <div class="grid-two-column">
+                <article class="card">
+                    <strong>{{ total_services }}</strong>
+                    <p>Total de serviços cadastrados</p>
+                </article>
+                <article class="card">
+                    <strong>{{ completed_services }}</strong>
+                    <p>Serviços concluídos</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

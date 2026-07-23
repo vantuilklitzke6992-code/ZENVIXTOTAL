@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="dashboard-shell chat-shell">
+    <aside class="chat-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large">C</div>
+            <div>
+                <h2>Chat do serviço</h2>
+                <p>Serviço #{{ service.id }}</p>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <p><strong>Cliente:</strong> {{ service.cliente_nome }}</p>
+            <p><strong>Profissional:</strong> {{ service.profissional_nome }}</p>
+            <p><strong>Status:</strong> {{ service.status }}</p>
+        </div>
+        <a href="/dashboard" class="button button-secondary">Voltar ao painel</a>
+    </aside>
+    <main class="chat-main">
+        <div class="chat-header">
+            <h1>Conversa do serviço</h1>
+            <p>Troque mensagens com o outro participante do serviço.</p>
+        </div>
+        <div class="chat-window" data-service-id="{{ service.id }}">
+            {% if messages %}
+            {% for message in messages %}
+            <div
+                class="chat-message {{ 'chat-message-sent' if message.remetente_id == session.get('user_id') else 'chat-message-received' }}">
+                <div class="chat-meta">
+                    <strong>{{ message.sender_name }}</strong>
+                    <span>{{ message.criado_em }}</span>
+                </div>
+                <p>{{ message.mensagem }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <p>Nenhuma mensagem ainda. Comece a conversar com seu parceiro de serviço.</p>
+            </div>
+            {% endif %}
+        </div>
+        <form id="chat-form" action="/servico/{{ service.id }}/chat" method="post" class="chat-form">
+            <textarea id="chat-message-input" name="mensagem" rows="3" placeholder="Digite sua mensagem..."
+                required></textarea>
+            <button type="submit" class="button button-primary">Enviar</button>
+        </form>
+    </main>
+</section>
+{% endblock %}

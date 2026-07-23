@@ -1,0 +1,76 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large">{{ user['nome'][0]|upper }}</div>
+            <div>
+                <h2>{{ user['nome'] }}</h2>
+                <p>{{ user['tipo']|capitalize }}</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}">Voltar ao painel</a>
+            <a href="{{ url_for('chat_index') }}" class="active">Chat</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="section-header">
+            <div>
+                <span class="section-badge">Chat</span>
+                <h1>Minhas conversas</h1>
+                <p>Você pode acompanhar as solicitações relacionadas ao seu perfil sem sair do fluxo atual.</p>
+            </div>
+        </section>
+
+        {% if service_conversations %}
+        <section class="dashboard-panel">
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Participante</th>
+                            <th>Serviço</th>
+                            <th>Última mensagem</th>
+                            <th>Data/Hora</th>
+                            <th>Mensagens</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in service_conversations %}
+                        <tr>
+                            <td>{{ item.participant_name }}</td>
+                            <td>{{ item.service_label }}</td>
+                            <td>{{ item.last_message }}</td>
+                            <td>{{ item.last_message_time }}</td>
+                            <td>{{ item.message_count }}</td>
+                            <td><a href="/servico/{{ item.service_id }}/chat"
+                                    class="button button-primary button-small">Abrir</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% else %}
+        <section class="dashboard-panel empty-state">
+            <p>Você ainda não possui conversas vinculadas a solicitações.</p>
+            {% if services %}
+            <div class="chat-service-list">
+                <p>Serviços ativos disponíveis para abrir o chat:</p>
+                <ul>
+                    {% for service in services %}
+                    <li><a href="/servico/{{ service.id }}/chat">{{ service.categoria or service.descricao }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

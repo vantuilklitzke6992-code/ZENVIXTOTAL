@@ -1,0 +1,187 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-shell dashboard-admin-shell">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large">A</div>
+            <div>
+                <h2>Administrador</h2>
+                <p>Zenvix Connect</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview">Visão geral</a>
+            <a href="#usuarios">Usuários</a>
+            <a href="#aprovacoes">Aprovações</a>
+            <a href="#categorias">Categorias</a>
+            <a href="/chat">Chat</a>
+        </nav>
+
+        <div class="sidebar-card">
+            <h3>Controle</h3>
+            <ul>
+                <li><strong>Total usuários</strong> {{ metrics.total_users }}</li>
+                <li><strong>Profissionais</strong> {{ metrics.active_providers }}</li>
+                <li><strong>Empresas</strong> {{ metrics.company_count }}</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="section-header" id="overview">
+            <div>
+                <span class="section-badge">Admin</span>
+                <h1>Painel administrativo</h1>
+                <p>Monitore aprovação de usuários, métricas do sistema e categorias do marketplace.</p>
+            </div>
+        </section>
+
+        <div class="card-grid">
+            <article class="card card-stats">
+                <h3>Total de usuários</h3>
+                <strong>{{ metrics.total_users }}</strong>
+            </article>
+            <article class="card card-stats">
+                <h3>Profissionais ativos</h3>
+                <strong>{{ metrics.active_providers }}</strong>
+            </article>
+            <article class="card card-stats">
+                <h3>Empresas cadastradas</h3>
+                <strong>{{ metrics.company_count }}</strong>
+            </article>
+            <article class="card card-stats">
+                <h3>Serviços realizados</h3>
+                <strong>{{ metrics.completed_services }}</strong>
+            </article>
+        </div>
+
+        <section class="dashboard-panel" id="usuarios">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Usuários</span>
+                    <h2>Clientes, profissionais e empresas</h2>
+                </div>
+                <p>Lista de usuários cadastrados e status de aprovação.</p>
+            </div>
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>E-mail</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in all_users %}
+                        <tr>
+                            <td>{{ user.nome }}</td>
+                            <td>{{ user.tipo|capitalize }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><span class="status-pill status-{{ user.approval_status|lower|replace(' ', '-') }}">{{
+                                    user.approval_status or 'Ativo' }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="dashboard-panel" id="aprovacoes">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Aprovação</span>
+                    <h2>Profissionais e empresas pendentes</h2>
+                </div>
+                <p>Visualize documentos, aprove ou recuse com motivo.</p>
+            </div>
+            {% if pending_users %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Cidade</th>
+                            <th>Documento</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in pending_users %}
+                        <tr>
+                            <td>{{ user.nome }}</td>
+                            <td>{{ user.tipo|capitalize }}</td>
+                            <td>{{ user.cidade or '—' }}</td>
+                            <td>
+                                {% set document_field = user.documento if user.tipo == 'profissional' else
+                                user.documento_empresa %}
+                                {% if document_field %}
+                                <a class="button button-secondary button-small"
+                                    href="/admin/documento/{{ user.id }}/{{ 'profissional' if user.tipo == 'profissional' else 'empresa' }}"
+                                    target="_blank" rel="noopener">Ver documento</a>
+                                {% else %}
+                                <span class="provider-role">Não enviado</span>
+                                {% endif %}
+                            </td>
+                            <td class="table-actions">
+                                <form action="/admin/aprovar-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <button type="submit" class="button button-primary button-small">Aprovar</button>
+                                </form>
+                                <form action="/admin/recusar-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <input type="hidden" name="motivo"
+                                        value="Documento incompleto ou informações insuficientes">
+                                    <button type="submit" class="button button-danger button-small">Recusar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Nenhum profissional ou empresa aguardando aprovação.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="categorias">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Categorias</span>
+                    <h2>Gerenciar categorias</h2>
+                </div>
+                <p>Adicione novas categorias para organizar os serviços do marketplace.</p>
+            </div>
+            <div class="grid-two-column">
+                <div class="card">
+                    <h3>Categorias existentes</h3>
+                    {% if categories %}
+                    <ul class="category-list">
+                        {% for category in categories %}
+                        <li>{{ category.nome }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>Sem categorias cadastradas.</p>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <h3>Nova categoria</h3>
+                    <form action="/admin/categorias" method="post" class="dashboard-form">
+                        <div class="form-group">
+                            <label for="categoria_nome">Nome da categoria</label>
+                            <input id="categoria_nome" name="categoria_nome" type="text" required>
+                        </div>
+                        <button type="submit" class="button button-primary">Adicionar categoria</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

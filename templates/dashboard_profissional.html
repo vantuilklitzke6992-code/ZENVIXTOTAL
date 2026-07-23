@@ -1,0 +1,255 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large">{{ user['nome'][0]|upper }}</div>
+            <div>
+                <h2>{{ user['nome'] }}</h2>
+                <p>{{ user['especialidade'] or user['tipo']|capitalize }}</p>
+                <span class="status-badge {{ 'status-active' if approval_status == 'Ativo' else 'status-pending' }}">{{
+                    approval_status }}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#overview">Visão geral</a>
+            <a href="#novas">Novas solicitações</a>
+            <a href="#ativos">Em andamento</a>
+            <a href="#agenda">Agenda</a>
+            <a href="#financeiro">Financeiro</a>
+            <a href="/chat">Chat</a>
+        </nav>
+
+        <div class="sidebar-card">
+            <h3>Perfil profissional</h3>
+            <p><strong>Especialidade:</strong> {{ user['especialidade'] or 'Não informada' }}</p>
+            <p><strong>Cidade:</strong> {{ user['cidade'] or 'Não informada' }}</p>
+            <p><strong>Avaliação:</strong> {{ rating if rating is not none else 'Sem avaliações' }}</p>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <section class="section-header" id="overview">
+            <div>
+                <span class="section-badge">Profissional</span>
+                <h1>Olá, {{ user['nome'].split(' ')[0] }}</h1>
+                <p>Aqui você gerencia solicitações, agenda e serviços concluídos.</p>
+                <p class="presence-label online"><i class="online-dot"></i> Você está online — clientes podem encontrar
+                    seu perfil.</p>
+            </div>
+            <div class="hero-actions">
+                <a href="/perfil" class="button button-secondary">Editar perfil</a>
+            </div>
+        </section>
+
+        <div class="card-grid">
+            <article class="card card-stats">
+                <h3>Novas solicitações</h3>
+                <strong>{{ pending_requests|length }}</strong>
+                <span>Para responder</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Aceitas</h3>
+                <strong>{{ accepted_services|length }}</strong>
+                <span>Serviços aceitos</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Em andamento</h3>
+                <strong>{{ in_progress_services|length }}</strong>
+                <span>Serviços ativos</span>
+            </article>
+            <article class="card card-stats">
+                <h3>Concluídos</h3>
+                <strong>{{ completed_services|length }}</strong>
+                <span>Finalizados</span>
+            </article>
+        </div>
+
+        <section class="dashboard-panel" id="novas">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Novas solicitações</span>
+                    <h2>Recebidas</h2>
+                </div>
+                <p>Clientes interessados, descrição do serviço e data desejada.</p>
+            </div>
+            {% if pending_requests %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Local</th>
+                            <th>Data</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in pending_requests %}
+                        <tr>
+                            <td>{{ service.cliente_nome }}</td>
+                            <td>{{ service.categoria or service.descricao or '—' }}</td>
+                            <td>{{ service.cidade or '—' }}</td>
+                            <td>{{ service.data_solicitacao or '—' }}</td>
+                            <td class="table-actions">
+                                <form action="/servico/{{ service.id }}/atualizar-status" method="post"
+                                    class="inline-form">
+                                    <input type="hidden" name="new_status" value="Aceito">
+                                    <button type="submit" class="button button-primary button-small">Aceitar</button>
+                                </form>
+                                <form action="/servico/{{ service.id }}/recusar" method="post" class="inline-form">
+                                    <button type="submit" class="button button-danger button-small">Recusar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Sem novas solicitações no momento.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="ativos">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Serviços ativos</span>
+                    <h2>Em andamento</h2>
+                </div>
+                <p>Inicie e conclua serviços conforme o fluxo de atendimento.</p>
+            </div>
+            {% if active_services %}
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in active_services %}
+                        <tr>
+                            <td>{{ service.cliente_nome }}</td>
+                            <td>{{ service.categoria or service.descricao or '—' }}</td>
+                            <td><span class="status-pill status-active">{{ service.status }}</span></td>
+                            <td>
+                                {% if service.status == 'Aceito' %}
+                                <form action="/servico/{{ service.id }}/atualizar-status" method="post"
+                                    class="inline-form">
+                                    <input type="hidden" name="new_status" value="Em andamento">
+                                    <button type="submit" class="button button-secondary button-small">Iniciar</button>
+                                </form>
+                                {% elif service.status == 'Em andamento' %}
+                                <form action="/servico/{{ service.id }}/atualizar-status" method="post"
+                                    class="inline-form">
+                                    <input type="hidden" name="new_status" value="Concluído">
+                                    <button type="submit" class="button button-primary button-small">Concluir</button>
+                                </form>
+                                {% endif %}
+                                <span class="status-pill status-active">Tempo real</span>
+                                <a href="/servico/{{ service.id }}/chat"
+                                    class="button button-primary button-small">Abrir chat</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>Você não tem serviços em andamento.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-panel" id="agenda">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Agenda</span>
+                    <h2>Disponibilidade</h2>
+                </div>
+                <p>Cadastre horários disponíveis e gerencie sua agenda.</p>
+            </div>
+            <div class="grid-two-column">
+                <div class="card">
+                    {% if availability %}
+                    <ul class="availability-list">
+                        {% for item in availability %}
+                        <li>
+                            <strong>{{ item.dia_semana }}</strong>
+                            <span>{{ item.horario_inicio }} - {{ item.horario_fim }}</span>
+                            <form action="/disponibilidade/{{ item.id }}/remover" method="post" class="inline-form">
+                                <button type="submit" class="button button-danger button-small">Remover</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>Sem horários definidos. Adicione sua agenda para receber solicitações com maior rapidez.</p>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <h3>Adicionar disponibilidade</h3>
+                    <form action="/disponibilidade/adicionar" method="post" class="dashboard-form">
+                        <div class="form-group">
+                            <label for="dia_semana">Dia da semana</label>
+                            <select id="dia_semana" name="dia_semana" required>
+                                <option value="">Selecione</option>
+                                <option>Segunda</option>
+                                <option>Terça</option>
+                                <option>Quarta</option>
+                                <option>Quinta</option>
+                                <option>Sexta</option>
+                                <option>Sábado</option>
+                                <option>Domingo</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="horario_inicio">Início</label>
+                                <input id="horario_inicio" name="horario_inicio" type="time" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="horario_fim">Fim</label>
+                                <input id="horario_fim" name="horario_fim" type="time" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="button button-primary">Salvar horário</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-panel" id="financeiro">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-label">Financeiro</span>
+                    <h2>Resumo de ganhos</h2>
+                </div>
+                <p>Controle simples de serviços realizados, valor recebido e comissão da plataforma.</p>
+            </div>
+            <div class="grid-two-column">
+                <article class="card">
+                    <h3>Ganhos totais</h3>
+                    <strong>R$ {{ earnings }}</strong>
+                    <p>Recebidos após comissão.</p>
+                </article>
+                <article class="card">
+                    <h3>Comissão da plataforma</h3>
+                    <strong>R$ {{ commission }}</strong>
+                    <p>Total retido pela Zenvix.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

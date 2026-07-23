@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Flask (Zenvix Connect)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "env": {
+                "FLASK_APP": "app.py",
+                "FLASK_ENV": "development"
+            },
+            "cwd": "${workspaceFolder}",
+            "purpose": [
+                "debug-in-terminal"
+            ],
+            "preLaunchTask": "Install Requirements If Missing"
+        }
+    ]
+}

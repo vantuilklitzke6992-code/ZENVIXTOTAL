@@ -1,0 +1,11 @@
+<header class="topbar site-header">
+    <a class="logo" href="/" aria-label="Zenvix Connect — início">Zenvix <span>Connect</span></a>
+    {% if not compact_header %}
+    <nav class="topbar-nav" aria-label="Navegação principal">
+        <a href="/#inicio">Início</a><a href="/#servicos">Serviços</a><a href="/profissionais">Profissionais</a><a href="/#empresas">Empresas</a><a href="/#como-funciona">Como funciona</a><a href="/#sobre">Sobre</a><a href="/#contato">Contato</a>
+    </nav>
+    {% endif %}
+    <nav class="header-actions" aria-label="Ações da conta">
+        {% if session.get('user_id') %}<a href="/dashboard" class="button button-primary">Meu painel</a><a href="/logout" class="button button-secondary">Sair</a>{% else %}<a href="/login" class="button button-ghost">Entrar</a><a href="/cadastro" class="button button-primary">Criar conta</a>{% endif %}
+    </nav>
+</header>
