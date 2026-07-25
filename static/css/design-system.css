@@ -832,6 +832,22 @@ a {
     color: var(--text);
 }
 
+.chat-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--brand-light);
+}
+
+.chat-phone a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.chat-phone a:hover {
+    text-decoration: underline;
+}
+
 .chat-message p {
     margin: 0;
     line-height: 1.65;

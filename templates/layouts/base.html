@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0F172A">
     <title>{% block title %}Zenvix Connect{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/design-system.css">
-    <link rel="stylesheet" href="/static/css/public.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ config.ASSET_VERSION }}">
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/design-system.css') }}?v={{ config.ASSET_VERSION }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}?v={{ config.ASSET_VERSION }}">
 </head>
 
 <body data-authenticated="{{ 'true' if session.get('user_id') else 'false' }}"
@@ -16,7 +17,7 @@
     endblock %}<main class="page-container {% block main_class %}{% endblock %}">{% include
         "components/flash_messages.html" %}{% block content %}{% endblock %}</main>
     <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v={{ config.ASSET_VERSION }}"></script>
 </body>
 
 </html>

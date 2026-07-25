@@ -72,7 +72,9 @@
                             <th>Nome</th>
                             <th>Tipo</th>
                             <th>E-mail</th>
+                            <th>Telefone</th>
                             <th>Status</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,8 +83,18 @@
                             <td>{{ user.nome }}</td>
                             <td>{{ user.tipo|capitalize }}</td>
                             <td>{{ user.email }}</td>
+                            <td>{{ user.telefone or '—' }}</td>
                             <td><span class="status-pill status-{{ user.approval_status|lower|replace(' ', '-') }}">{{
                                     user.approval_status or 'Ativo' }}</span></td>
+                            <td>
+                                {% if user.tipo != 'admin' %}
+                                <form action="/admin/remover-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <button type="submit" class="button button-danger button-small">Remover</button>
+                                </form>
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

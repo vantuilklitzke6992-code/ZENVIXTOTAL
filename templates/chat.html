@@ -12,7 +12,11 @@
         </div>
         <div class="sidebar-card">
             <p><strong>Cliente:</strong> {{ service.cliente_nome }}</p>
+            <p><strong>Telefone cliente:</strong> {% if client_phone %}<a href="tel:{{ client_phone }}">{{ client_phone
+                    }}</a>{% else %}—{% endif %}</p>
             <p><strong>Profissional:</strong> {{ service.profissional_nome }}</p>
+            <p><strong>Telefone profissional:</strong> {% if professional_phone %}<a
+                    href="tel:{{ professional_phone }}">{{ professional_phone }}</a>{% else %}—{% endif %}</p>
             <p><strong>Status:</strong> {{ service.status }}</p>
         </div>
         <a href="/dashboard" class="button button-secondary">Voltar ao painel</a>
@@ -29,6 +33,10 @@
                 class="chat-message {{ 'chat-message-sent' if message.remetente_id == session.get('user_id') else 'chat-message-received' }}">
                 <div class="chat-meta">
                     <strong>{{ message.sender_name }}</strong>
+                    {% if message.sender_phone %}
+                    <span class="chat-phone"><a href="tel:{{ message.sender_phone }}">{{ message.sender_phone
+                            }}</a></span>
+                    {% endif %}
                     <span>{{ message.criado_em }}</span>
                 </div>
                 <p>{{ message.mensagem }}</p>

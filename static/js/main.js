@@ -37,6 +37,7 @@
                 messageElement.innerHTML = `
                     <div class="chat-meta">
                         <strong>${data.usuario}</strong>
+                        ${data.telefone ? `<span class="chat-phone"><a href="tel:${data.telefone}">${data.telefone}</a></span>` : ""}
                         <span>${data.criado_em || "Agora"}</span>
                     </div>
                     <p>${data.mensagem}</p>
@@ -121,7 +122,7 @@
         stepNumber.textContent = currentStep;
         stepTotal.textContent = totalSteps;
         const percent = ((currentStep - 1) / (totalSteps - 1)) * 100;
-        stepProgress.style.width = `${percent}%`;
+        stepProgress.style.width = `${percent}% `;
     }
 
     function showStep(step) {

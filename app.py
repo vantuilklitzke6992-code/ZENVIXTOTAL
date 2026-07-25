@@ -24,6 +24,9 @@ def open_browser(port=PORT):
 
 
 app = Flask(__name__)
+app.config["ASSET_VERSION"] = "1.0"
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")  # Use env var in production
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -412,7 +415,7 @@ def get_messages_for_service(service_id):
     db = get_db()
     return db.execute(
         """
-        SELECT m.*, u.nome AS sender_name
+        SELECT m.*, u.nome AS sender_name, u.telefone AS sender_phone
         FROM mensagens m
         JOIN usuarios u ON m.remetente_id = u.id
         WHERE m.servico_id = ?
@@ -505,6 +508,10 @@ def get_chat_conversations_for_user(user_id):
                    WHEN s.cliente_id = ? THEN profissional.nome
                    ELSE cliente.nome
                END AS participant_name,
+               CASE
+                   WHEN s.cliente_id = ? THEN profissional.telefone
+                   ELSE cliente.telefone
+               END AS participant_phone,
                COALESCE(s.categoria, s.descricao, 'Solicitação') AS service_label,
                COUNT(m.id) AS message_count,
                MAX(m.criado_em) AS last_message_time
@@ -516,7 +523,7 @@ def get_chat_conversations_for_user(user_id):
         GROUP BY s.id
         ORDER BY last_message_time DESC
         """,
-        (user_id, user_id, user_id),
+        (user_id, user_id, user_id, user_id),
     ).fetchall()
 
     conversations = []
@@ -528,6 +535,47 @@ def get_chat_conversations_for_user(user_id):
         conversations.append({
             "service_id": row["service_id"],
             "participant_name": row["participant_name"] or "Participante",
+            "participant_phone": row["participant_phone"],
+            "service_label": row["service_label"] or "Solicitação",
+            "last_message": last_message["mensagem"] if last_message else "Sem mensagens",
+            "last_message_time": row["last_message_time"] or "—",
+            "message_count": row["message_count"] or 0,
+        })
+
+    return conversations
+
+
+def get_all_chat_conversations():
+    db = get_db()
+    rows = db.execute(
+        """
+        SELECT s.id AS service_id,
+               cliente.nome AS cliente_name,
+               cliente.telefone AS cliente_phone,
+               profissional.nome AS profissional_name,
+               profissional.telefone AS profissional_phone,
+               COALESCE(s.categoria, s.descricao, 'Solicitação') AS service_label,
+               COUNT(m.id) AS message_count,
+               MAX(m.criado_em) AS last_message_time
+        FROM servicos s
+        LEFT JOIN usuarios cliente ON s.cliente_id = cliente.id
+        LEFT JOIN usuarios profissional ON s.profissional_id = profissional.id
+        LEFT JOIN mensagens m ON m.servico_id = s.id
+        GROUP BY s.id
+        ORDER BY last_message_time DESC
+        """
+    ).fetchall()
+
+    conversations = []
+    for row in rows:
+        last_message = db.execute(
+            "SELECT mensagem FROM mensagens WHERE servico_id = ? ORDER BY id DESC LIMIT 1",
+            (row["service_id"],),
+        ).fetchone()
+        conversations.append({
+            "service_id": row["service_id"],
+            "participant_name": f"{row['cliente_name'] or 'Cliente'} / {row['profissional_name'] or 'Profissional'}",
+            "participant_phone": f"{row['cliente_phone'] or '—'} / {row['profissional_phone'] or '—'}",
             "service_label": row["service_label"] or "Solicitação",
             "last_message": last_message["mensagem"] if last_message else "Sem mensagens",
             "last_message_time": row["last_message_time"] or "—",
@@ -549,13 +597,21 @@ def chat_index():
         flash("Usuário não encontrado.", "error")
         return redirect(url_for("login"))
 
-    service_conversations = get_chat_conversations_for_user(session["user_id"])
-    services = get_services_for_user(session["user_id"], user["tipo"])
+    if session.get("user_type") == ADMIN_USER_TYPE:
+        service_conversations = get_all_chat_conversations()
+        services = []
+        admin_view = True
+    else:
+        service_conversations = get_chat_conversations_for_user(session["user_id"])
+        services = get_services_for_user(session["user_id"], user["tipo"])
+        admin_view = False
+
     return render_template(
         "chat/index.html",
         user=user,
         service_conversations=service_conversations,
         services=services,
+        admin_view=admin_view,
     )
 
 
@@ -1075,9 +1131,14 @@ def servico_chat(service_id):
         return redirect(url_for("dashboard"))
 
     user_id = session["user_id"]
-    if user_id not in (service["cliente_id"], service["profissional_id"]):
+    if user_id not in (service["cliente_id"], service["profissional_id"]) and session.get("user_type") != ADMIN_USER_TYPE:
         flash("Sem permissão para acessar este chat.", "error")
         return redirect(url_for("dashboard"))
+
+    client_user = get_user_by_id(service["cliente_id"])
+    professional_user = get_user_by_id(service["profissional_id"])
+    client_phone = client_user["telefone"] if client_user else None
+    professional_phone = professional_user["telefone"] if professional_user else None
 
     if request.method == "POST":
         mensagem = request.form.get("mensagem", "").strip()
@@ -1094,6 +1155,7 @@ def servico_chat(service_id):
                 "service_id": service_id,
                 "remetente_id": user_id,
                 "usuario": sender["nome"] if sender else "Usuário",
+                "telefone": sender["telefone"] if sender else None,
                 "mensagem": mensagem,
                 "criado_em": "Agora",
             }
@@ -1106,7 +1168,42 @@ def servico_chat(service_id):
             return redirect(url_for("servico_chat", service_id=service_id))
 
     messages = get_messages_for_service(service_id)
-    return render_template("chat.html", service=service, messages=messages)
+    return render_template(
+        "chat.html",
+        service=service,
+        messages=messages,
+        client_phone=client_phone,
+        professional_phone=professional_phone,
+    )
+
+
+@app.route("/admin/remover-usuario/<int:user_id>", methods=["POST"])
+def admin_remove_user(user_id):
+    if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
+        flash("Acesso restrito ao administrador.", "error")
+        return redirect(url_for("login"))
+
+    if user_id == session["user_id"]:
+        flash("Você não pode remover seu próprio usuário.", "error")
+        return redirect(url_for("admin_panel"))
+
+    user = get_user_by_id(user_id)
+    if not user:
+        flash("Usuário não encontrado.", "error")
+        return redirect(url_for("admin_panel"))
+
+    if user["tipo"] == ADMIN_USER_TYPE:
+        flash("Não é permitido remover outro administrador.", "error")
+        return redirect(url_for("admin_panel"))
+
+    db = get_db()
+    db.execute(
+        "UPDATE usuarios SET approval_status = 'Removado', status_online = 'offline' WHERE id = ?",
+        (user_id,),
+    )
+    db.commit()
+    flash("Usuário removido com sucesso.", "success")
+    return redirect(url_for("admin_panel"))
 
 
 @app.route("/disponibilidade/adicionar", methods=["POST"])
@@ -1614,8 +1711,8 @@ def handle_join_service(payload):
 
     # Allow only if the user is participant (cliente or profissional) or is admin/company
     if (
-        user_id == service.get("cliente_id")
-        or user_id == service.get("profissional_id")
+        user_id == service["cliente_id"]
+        or user_id == service["profissional_id"]
         or session.get("user_type") in (ADMIN_USER_TYPE, "empresa")
     ):
         join_room(f"service_{service_id}")

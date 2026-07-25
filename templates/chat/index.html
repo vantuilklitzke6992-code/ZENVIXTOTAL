@@ -33,6 +33,7 @@
                     <thead>
                         <tr>
                             <th>Participante</th>
+                            <th>Telefone</th>
                             <th>Serviço</th>
                             <th>Última mensagem</th>
                             <th>Data/Hora</th>
@@ -44,6 +45,7 @@
                         {% for item in service_conversations %}
                         <tr>
                             <td>{{ item.participant_name }}</td>
+                            <td>{{ item.participant_phone or '—' }}</td>
                             <td>{{ item.service_label }}</td>
                             <td>{{ item.last_message }}</td>
                             <td>{{ item.last_message_time }}</td>
