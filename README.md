@@ -1,33 +1,38 @@
 # Zenvix Connect
 
-Sistema inicial do marketplace de serviços usando Python, Flask e SQLite.
+Sistema de marketplace de serviços desenvolvido em Python, Flask, SQLite e Flask-SocketIO.
 
 ## Como executar
 
-### Usando o VS Code
-1. Abra a pasta `ZenvixConnect` no VS Code.
-2. Pressione `F5` ou vá em Run and Debug.
-3. O servidor Flask será iniciado automaticamente e o navegador será aberto em `http://127.0.0.1:5000/`.
+### 1. Criar ambiente virtual
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
 
-### Usando o terminal
-1. Instale as dependências:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Execute o aplicativo:
-   ```bash
-   python app.py
-   ```
-3. Abra no navegador:
-   ```
-   http://127.0.0.1:5000/
-   ```
+### 2. Instalar dependências
+```bash
+pip install -r requirements.txt
+```
 
-## O que foi criado
+### 3. Iniciar a aplicação
+```bash
+python app.py
+```
 
-- `app.py`: configuração do Flask, criação automática do banco SQLite e rota inicial.
-- `templates/index.html`: página inicial exibida pelo Flask.
-- `templates/base.html`: estrutura de layout compartilhada.
-- `static/css/style.css`: estilo básico para o tema do projeto.
-- `static/js/main.js`: arquivo JavaScript vazio para futuras interações.
-- `database.db`: gerado automaticamente na primeira execução.
+A aplicação ficará disponível em:
+```text
+http://127.0.0.1:5000/
+```
+
+## Estrutura principal
+
+- app.py: aplicação Flask, rotas, autenticação, dashboards e chat.
+- templates/: páginas HTML do sistema.
+- static/: arquivos CSS, JavaScript e uploads.
+- database.db: banco de dados SQLite do projeto.
+
+## Observações
+
+- O projeto foi organizado sem alterar rotas, templates principais, dashboards, autenticação ou o funcionamento do chat.
+- Para apresentação do TCC, o foco foi remover apenas artefatos de apoio e cache sem impactar a execução.
