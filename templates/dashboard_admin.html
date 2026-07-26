@@ -89,6 +89,7 @@
                             <td>
                                 {% if user.tipo != 'admin' %}
                                 <form action="/admin/remover-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <button type="submit" class="button button-danger button-small">Remover</button>
                                 </form>
                                 {% else %}
@@ -141,9 +142,11 @@
                             </td>
                             <td class="table-actions">
                                 <form action="/admin/aprovar-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <button type="submit" class="button button-primary button-small">Aprovar</button>
                                 </form>
                                 <form action="/admin/recusar-usuario/{{ user.id }}" method="post" class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="motivo"
                                         value="Documento incompleto ou informações insuficientes">
                                     <button type="submit" class="button button-danger button-small">Recusar</button>
@@ -185,6 +188,7 @@
                 <div class="card">
                     <h3>Nova categoria</h3>
                     <form action="/admin/categorias" method="post" class="dashboard-form">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                         <div class="form-group">
                             <label for="categoria_nome">Nome da categoria</label>
                             <input id="categoria_nome" name="categoria_nome" type="text" required>

@@ -97,10 +97,12 @@
                             <td class="table-actions">
                                 <form action="/servico/{{ service.id }}/atualizar-status" method="post"
                                     class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="new_status" value="Aceito">
                                     <button type="submit" class="button button-primary button-small">Aceitar</button>
                                 </form>
                                 <form action="/servico/{{ service.id }}/recusar" method="post" class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <button type="submit" class="button button-danger button-small">Recusar</button>
                                 </form>
                             </td>
@@ -145,12 +147,14 @@
                                 {% if service.status == 'Aceito' %}
                                 <form action="/servico/{{ service.id }}/atualizar-status" method="post"
                                     class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="new_status" value="Em andamento">
                                     <button type="submit" class="button button-secondary button-small">Iniciar</button>
                                 </form>
                                 {% elif service.status == 'Em andamento' %}
                                 <form action="/servico/{{ service.id }}/atualizar-status" method="post"
                                     class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="new_status" value="Concluído">
                                     <button type="submit" class="button button-primary button-small">Concluir</button>
                                 </form>
@@ -188,6 +192,7 @@
                             <strong>{{ item.dia_semana }}</strong>
                             <span>{{ item.horario_inicio }} - {{ item.horario_fim }}</span>
                             <form action="/disponibilidade/{{ item.id }}/remover" method="post" class="inline-form">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                 <button type="submit" class="button button-danger button-small">Remover</button>
                             </form>
                         </li>
@@ -200,6 +205,7 @@
                 <div class="card">
                     <h3>Adicionar disponibilidade</h3>
                     <form action="/disponibilidade/adicionar" method="post" class="dashboard-form">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                         <div class="form-group">
                             <label for="dia_semana">Dia da semana</label>
                             <select id="dia_semana" name="dia_semana" required>

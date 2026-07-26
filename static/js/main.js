@@ -34,14 +34,33 @@
                 const messageElement = document.createElement("div");
                 const isCurrentUser = Number(document.body.dataset.userId) === Number(data.remetente_id);
                 messageElement.className = `chat-message ${isCurrentUser ? "chat-message-sent" : "chat-message-received"}`;
-                messageElement.innerHTML = `
-                    <div class="chat-meta">
-                        <strong>${data.usuario}</strong>
-                        ${data.telefone ? `<span class="chat-phone"><a href="tel:${data.telefone}">${data.telefone}</a></span>` : ""}
-                        <span>${data.criado_em || "Agora"}</span>
-                    </div>
-                    <p>${data.mensagem}</p>
-                `;
+
+                const metaDiv = document.createElement("div");
+                metaDiv.className = "chat-meta";
+
+                const userSpan = document.createElement("strong");
+                userSpan.textContent = data.usuario;
+                metaDiv.appendChild(userSpan);
+
+                if (data.telefone) {
+                    const phoneSpan = document.createElement("span");
+                    phoneSpan.className = "chat-phone";
+                    const phoneLink = document.createElement("a");
+                    phoneLink.href = `tel:${data.telefone}`;
+                    phoneLink.textContent = data.telefone;
+                    phoneSpan.appendChild(phoneLink);
+                    metaDiv.appendChild(phoneSpan);
+                }
+
+                const timeSpan = document.createElement("span");
+                timeSpan.textContent = data.criado_em || "Agora";
+                metaDiv.appendChild(timeSpan);
+
+                messageElement.appendChild(metaDiv);
+
+                const messageP = document.createElement("p");
+                messageP.textContent = data.mensagem;
+                messageElement.appendChild(messageP);
 
                 const emptyState = chatWindow.querySelector(".empty-state");
                 if (emptyState) {
@@ -91,6 +110,85 @@
         }
 
         // END CHANGE
+
+        const conversationWindow = document.querySelector(".conversation-window");
+        const conversationForm = document.getElementById("conversation-form");
+        const conversationInput = document.getElementById("conversation-message-input");
+
+        if (conversationWindow && conversationForm && conversationInput) {
+            const conversationId = conversationWindow.dataset.conversationId;
+            if (conversationId) {
+                socket.emit("join_conversation", { conversation_id: conversationId });
+            }
+
+            const renderConversationMessage = (data) => {
+                const messageElement = document.createElement("div");
+                const isCurrentUser = Number(document.body.dataset.userId) === Number(data.remetente_id);
+                messageElement.className = `chat-message ${isCurrentUser ? "chat-message-sent" : "chat-message-received"}`;
+
+                const metaDiv = document.createElement("div");
+                metaDiv.className = "chat-meta";
+
+                const userSpan = document.createElement("strong");
+                userSpan.textContent = data.usuario;
+                metaDiv.appendChild(userSpan);
+
+                const timeSpan = document.createElement("span");
+                timeSpan.textContent = data.criado_em || "Agora";
+                metaDiv.appendChild(timeSpan);
+
+                messageElement.appendChild(metaDiv);
+
+                const messageP = document.createElement("p");
+                messageP.textContent = data.mensagem;
+                messageElement.appendChild(messageP);
+
+                const emptyState = conversationWindow.querySelector(".empty-state");
+                if (emptyState) {
+                    emptyState.remove();
+                }
+
+                conversationWindow.appendChild(messageElement);
+                conversationWindow.scrollTop = conversationWindow.scrollHeight;
+            };
+
+            socket.on("nova_mensagem_conversa", (data) => {
+                if (conversationId && Number(data.conversation_id) === Number(conversationId)) {
+                    renderConversationMessage(data);
+                }
+            });
+
+            conversationForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const message = conversationInput.value.trim();
+                if (!message) {
+                    return;
+                }
+
+                try {
+                    const formData = new FormData(conversationForm);
+                    const response = await fetch(conversationForm.action, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const payload = await response.json();
+                        renderConversationMessage(payload.payload);
+                        conversationInput.value = "";
+                    } else {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.warn("Envio de mensagem falhou:", error);
+                    window.location.reload();
+                }
+            });
+        }
     }
 
     const cadastroForm = document.getElementById("cadastro-form");

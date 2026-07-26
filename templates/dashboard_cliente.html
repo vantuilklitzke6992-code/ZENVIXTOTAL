@@ -241,6 +241,7 @@
                         <a href="/solicitar-servico/{{ provider.id }}"
                             class="button button-primary button-small">Solicitar</a>
                         <form action="/favorito/{{ provider.id }}/toggle" method="post" class="inline-form">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="button button-danger button-small">Remover</button>
                         </form>
                     </div>

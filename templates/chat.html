@@ -49,6 +49,7 @@
             {% endif %}
         </div>
         <form id="chat-form" action="/servico/{{ service.id }}/chat" method="post" class="chat-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
             <textarea id="chat-message-input" name="mensagem" rows="3" placeholder="Digite sua mensagem..."
                 required></textarea>
             <button type="submit" class="button button-primary">Enviar</button>

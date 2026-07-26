@@ -1,5 +1,5 @@
 ﻿from flask import Flask, render_template, g, request, redirect, url_for, session, flash, jsonify
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, join_room
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
@@ -7,6 +7,7 @@ import sqlite3
 import os
 import threading
 import webbrowser
+import secrets
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_PATH = os.path.join(BASE_DIR, "database.db")
@@ -18,10 +19,8 @@ ADMIN_USER_TYPE = "admin"
 DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 PORT = int(os.getenv("PORT", "5000"))
 
-
 def open_browser(port=PORT):
     webbrowser.open(f"http://127.0.0.1:{port}/")
-
 
 app = Flask(__name__)
 app.config["ASSET_VERSION"] = "1.0"
@@ -29,7 +28,38 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")  # Use env var in production
 socketio = SocketIO(app, cors_allowed_origins="*")
+online_users = set()
 
+@app.context_processor
+def inject_online_users():
+    return {"online_users": online_users}
+
+def generate_csrf_token():
+    """Generate a CSRF token for the session."""
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = secrets.token_urlsafe(32)
+    return session["_csrf_token"]
+
+def validate_csrf_token():
+    """Validate CSRF token from request. Returns True if valid, False otherwise."""
+    if request.method == "GET":
+        return True
+
+    token = session.get("_csrf_token")
+    if not token:
+        return False
+
+    # Check token from form data or headers
+    form_token = request.form.get("_csrf_token") or request.headers.get("X-CSRF-Token")
+    if not form_token:
+        return False
+
+    # Simple timing-safe comparison
+    return secrets.compare_digest(form_token, token)
+
+@app.context_processor
+def inject_csrf_token():
+    return {"csrf_token": generate_csrf_token()}
 
 def get_db():
     if "db" not in g:
@@ -37,19 +67,16 @@ def get_db():
         g.db.row_factory = sqlite3.Row
     return g.db
 
-
 def close_db(e=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
-
 
 def add_column_if_missing(table, column_name, column_def):
     db = get_db()
     columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
     if column_name not in columns:
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
-
 
 def init_db():
     db = get_db()
@@ -244,21 +271,17 @@ def init_db():
         )
         db.commit()
 
-
 # Ensures schema migrations and the default administrator exist for Flask, WSGI and tests.
 with app.app_context():
     init_db()
-
 
 def query_user_by_email(email):
     db = get_db()
     return db.execute("SELECT * FROM usuarios WHERE email = ?", (email,)).fetchone()
 
-
 def get_user_by_id(user_id):
     db = get_db()
     return db.execute("SELECT * FROM usuarios WHERE id = ?", (user_id,)).fetchone()
-
 
 def is_provider_active(user):
     return bool(
@@ -267,13 +290,11 @@ def is_provider_active(user):
         and (user["approval_status"] or "Ativo") == "Ativo"
     )
 
-
 def get_pending_users():
     db = get_db()
     return db.execute(
         "SELECT * FROM usuarios WHERE tipo IN ('profissional', 'empresa') AND approval_status = 'Pendente' ORDER BY tipo, nome"
     ).fetchall()
-
 
 def get_provider_rating(provider_id):
     db = get_db()
@@ -283,7 +304,6 @@ def get_provider_rating(provider_id):
     ).fetchone()
     avg_rating = row["avg_rating"]
     return (round(avg_rating, 1), row["total"]) if avg_rating is not None else (None, row["total"])
-
 
 # BEGIN CHANGE
 
@@ -310,7 +330,6 @@ def get_provider_recommendation_score(provider, requested_category=None):
         + category_bonus
     )
     return round(score, 2)
-
 
 # END CHANGE
 
@@ -350,7 +369,6 @@ def get_providers(search=None, category=None, city=None, online_only=False):
 
     return db.execute(query, tuple(params)).fetchall()
 
-
 def enrich_provider(provider):
     rating, rating_count = get_provider_rating(provider["id"])
     db = get_db()
@@ -367,11 +385,9 @@ def enrich_provider(provider):
     provider_data["recommendation_score"] = get_provider_recommendation_score(provider_data)
     return provider_data
 
-
 def get_online_providers(limit=None):
     providers = [enrich_provider(provider) for provider in get_providers(online_only=True)]
     return providers[:limit] if limit else providers
-
 
 def get_service_by_id(service_id):
     db = get_db()
@@ -385,9 +401,6 @@ def get_service_by_id(service_id):
         """,
         (service_id,),
     ).fetchone()
-
-
-
 
 def get_favorite_providers(client_id):
     db = get_db()
@@ -404,12 +417,10 @@ def get_favorite_providers(client_id):
     ).fetchall()
     return rows
 
-
 def get_user_review_count(user_id):
     db = get_db()
     row = db.execute("SELECT COUNT(*) AS total FROM avaliacoes WHERE cliente_id = ?", (user_id,)).fetchone()
     return row["total"] if row else 0
-
 
 def get_messages_for_service(service_id):
     db = get_db()
@@ -424,14 +435,12 @@ def get_messages_for_service(service_id):
         (service_id,),
     ).fetchall()
 
-
 def get_availability_for_user(user_id):
     db = get_db()
     return db.execute(
         "SELECT * FROM disponibilidade WHERE profissional_id = ? ORDER BY id DESC",
         (user_id,),
     ).fetchall()
-
 
 def get_company_services(company_id):
     db = get_db()
@@ -440,16 +449,13 @@ def get_company_services(company_id):
         (company_id,),
     ).fetchall()
 
-
 def get_categories():
     db = get_db()
     return db.execute("SELECT * FROM categorias ORDER BY nome").fetchall()
 
-
 def get_all_users():
     db = get_db()
     return db.execute("SELECT * FROM usuarios ORDER BY tipo, nome").fetchall()
-
 
 def get_system_metrics():
     db = get_db()
@@ -465,7 +471,6 @@ def get_system_metrics():
         "company_count": company_count,
         "completed_services": completed_services,
     }
-
 
 def get_services_for_user(user_id, user_type):
     db = get_db()
@@ -497,7 +502,6 @@ def get_services_for_user(user_id, user_type):
         """,
         (user_id, user_id),
     ).fetchall()
-
 
 def get_chat_conversations_for_user(user_id):
     db = get_db()
@@ -544,7 +548,6 @@ def get_chat_conversations_for_user(user_id):
 
     return conversations
 
-
 def get_all_chat_conversations():
     db = get_db()
     rows = db.execute(
@@ -584,6 +587,172 @@ def get_all_chat_conversations():
 
     return conversations
 
+def get_conversation_for_participants(user_id, other_user_id):
+    db = get_db()
+    rows = db.execute(
+        """
+        SELECT cp.conversa_id
+        FROM conversa_participantes cp
+        WHERE cp.usuario_id IN (?, ?)
+        GROUP BY cp.conversa_id
+        HAVING COUNT(DISTINCT cp.usuario_id) = 2
+        """,
+        (user_id, other_user_id),
+    ).fetchall()
+
+    for row in rows:
+        participants = [
+            participant["usuario_id"]
+            for participant in db.execute(
+                "SELECT usuario_id FROM conversa_participantes WHERE conversa_id = ?",
+                (row["conversa_id"],),
+            ).fetchall()
+        ]
+        if {user_id, other_user_id}.issubset(set(participants)):
+            return row["conversa_id"]
+    return None
+
+def get_conversation_messages(conversation_id):
+    db = get_db()
+    return db.execute(
+        """
+        SELECT cm.*, u.nome AS sender_name, u.tipo AS sender_type
+        FROM conversa_mensagens cm
+        LEFT JOIN usuarios u ON cm.remetente_id = u.id
+        WHERE cm.conversa_id = ?
+        ORDER BY cm.id ASC
+        """,
+        (conversation_id,),
+    ).fetchall()
+
+def get_unread_conversation_count(conversation_id, user_id):
+    db = get_db()
+    row = db.execute(
+        "SELECT COUNT(*) AS total FROM conversa_mensagens WHERE conversa_id = ? AND remetente_id != ? AND lida = 0",
+        (conversation_id, user_id),
+    ).fetchone()
+    return row["total"] if row else 0
+
+def mark_conversation_messages_read(conversation_id, user_id):
+    db = get_db()
+    db.execute(
+        "UPDATE conversa_mensagens SET lida = 1 WHERE conversa_id = ? AND remetente_id != ? AND lida = 0",
+        (conversation_id, user_id),
+    )
+    db.commit()
+
+@app.route("/conversar/<int:partner_id>")
+def iniciar_conversa(partner_id):
+    if "user_id" not in session:
+        flash("Faça login para conversar com este usuário.", "error")
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    if partner_id == user_id:
+        flash("Você não pode iniciar uma conversa consigo mesmo.", "error")
+        return redirect(url_for("dashboard"))
+
+    partner = get_user_by_id(partner_id)
+    if not partner:
+        flash("Usuário não encontrado.", "error")
+        return redirect(url_for("profissionais"))
+
+    # Validate partner eligibility
+    if partner["approval_status"] != "Ativo":
+        flash("Este usuário não está disponível para conversas.", "error")
+        return redirect(url_for("profissionais"))
+
+    user = get_user_by_id(user_id)
+    # Clients cannot talk with other clients
+    if user["tipo"] == "cliente" and partner["tipo"] == "cliente":
+        flash("Clientes não podem conversar entre si.", "error")
+        return redirect(url_for("profissionais"))
+
+    conversation_id = get_conversation_for_participants(user_id, partner_id)
+    if conversation_id is None:
+        db = get_db()
+        cursor = db.execute("INSERT INTO conversas (criado_em) VALUES (datetime('now'))")
+        conversation_id = cursor.lastrowid
+        db.execute("INSERT INTO conversa_participantes (conversa_id, usuario_id) VALUES (?, ?)", (conversation_id, user_id))
+        db.execute("INSERT INTO conversa_participantes (conversa_id, usuario_id) VALUES (?, ?)", (conversation_id, partner_id))
+        db.commit()
+        flash("Conversa iniciada. Você pode trocar mensagens antes da contratação.", "success")
+
+    return redirect(url_for("visualizar_conversa", conversation_id=conversation_id))
+
+@app.route("/conversa/<int:conversation_id>", methods=["GET", "POST"])
+def visualizar_conversa(conversation_id):
+    if "user_id" not in session:
+        flash("Faça login para acessar a conversa.", "error")
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    db = get_db()
+    participant = db.execute(
+        "SELECT 1 FROM conversa_participantes WHERE conversa_id = ? AND usuario_id = ?",
+        (conversation_id, user_id),
+    ).fetchone()
+    if not participant:
+        flash("Você não tem acesso a esta conversa.", "error")
+        return redirect(url_for("dashboard"))
+
+    conversation = db.execute("SELECT * FROM conversas WHERE id = ?", (conversation_id,)).fetchone()
+    if not conversation:
+        flash("Conversa não encontrada.", "error")
+        return redirect(url_for("dashboard"))
+
+    participants = [
+        row["usuario_id"]
+        for row in db.execute(
+            "SELECT usuario_id FROM conversa_participantes WHERE conversa_id = ? ORDER BY id",
+            (conversation_id,),
+        ).fetchall()
+    ]
+    other_user_id = next((item for item in participants if item != user_id), None)
+    partner = get_user_by_id(other_user_id) if other_user_id else None
+
+    if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return redirect(url_for("visualizar_conversa", conversation_id=conversation_id))
+
+        mensagem = request.form.get("mensagem", "").strip()
+        if not mensagem:
+            flash("Escreva uma mensagem para enviar.", "error")
+            return redirect(url_for("visualizar_conversa", conversation_id=conversation_id))
+
+        db.execute(
+            "INSERT INTO conversa_mensagens (conversa_id, remetente_id, mensagem, criado_em, lida) VALUES (?, ?, ?, datetime('now'), 0)",
+            (conversation_id, user_id, mensagem),
+        )
+        db.commit()
+
+        sender = get_user_by_id(user_id)
+        payload = {
+            "conversation_id": conversation_id,
+            "remetente_id": user_id,
+            "usuario": sender["nome"] if sender else "Usuário",
+            "mensagem": mensagem,
+            "criado_em": "Agora",
+        }
+        socketio.emit("nova_mensagem_conversa", payload, room=f"conversation_{conversation_id}")
+
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": True, "payload": payload})
+
+        return redirect(url_for("visualizar_conversa", conversation_id=conversation_id))
+
+    unread_count = get_unread_conversation_count(conversation_id, user_id)
+    mark_conversation_messages_read(conversation_id, user_id)
+    messages = get_conversation_messages(conversation_id)
+
+    return render_template(
+        "conversa.html",
+        conversation=conversation,
+        partner=partner,
+        messages=messages,
+        unread_count=unread_count,
+    )
 
 @app.route("/chat", strict_slashes=False)
 @app.route("/chat/", strict_slashes=False)
@@ -614,10 +783,8 @@ def chat_index():
         admin_view=admin_view,
     )
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def save_uploaded_file(file_storage):
     if not file_storage or file_storage.filename == "":
@@ -630,12 +797,10 @@ def save_uploaded_file(file_storage):
     file_storage.save(filepath)
     return filename
 
-
 def user_has_reviewed_service(service_id):
     db = get_db()
     row = db.execute("SELECT id FROM avaliacoes WHERE servico_id = ?", (service_id,)).fetchone()
     return row is not None
-
 
 @app.before_request
 def before_request():
@@ -649,15 +814,15 @@ def before_request():
                 (user["id"],),
             )
             db.commit()
+            # Ensure consistency between memory and DB
+            online_users.add(user["id"])
             session["approval_status"] = user["approval_status"] or "Ativo"
             session["user_name"] = user["nome"]
             session["user_type"] = user["tipo"]
 
-
 @app.teardown_appcontext
 def teardown_appcontext(exception):
     close_db(exception)
-
 
 @app.route("/")
 def home():
@@ -669,10 +834,13 @@ def home():
         online_providers=online_providers,
     )
 
-
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("auth/cadastro.html")
+
         tipo = request.form.get("tipo", "cliente")
         nome = request.form.get("nome", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -813,6 +981,9 @@ def cadastro():
             session["user_name"] = nome
             session["user_type"] = tipo
             session["approval_status"] = approval_status
+            online_users.add(user_id)
+            db.execute("UPDATE usuarios SET status_online = 'online', ultimo_acesso = datetime('now') WHERE id = ?", (user_id,))
+            db.commit()
             flash("Cadastro concluído com sucesso! Bem-vindo ao Zenvix Connect.", "success")
             return redirect(url_for("dashboard"))
 
@@ -821,10 +992,13 @@ def cadastro():
 
     return render_template("auth/cadastro.html", form_data={}, tipo="cliente", current_step=1)
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("auth/login.html")
+
         email = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")
 
@@ -842,6 +1016,7 @@ def login():
         session["user_name"] = user["nome"]
         session["user_type"] = user["tipo"]
         session["approval_status"] = user["approval_status"] or "Ativo"
+        online_users.add(user["id"])
         db = get_db()
         db.execute(
             "UPDATE usuarios SET status_online = 'online', ultimo_acesso = datetime('now') WHERE id = ?",
@@ -867,7 +1042,6 @@ def login():
 
     return render_template("auth/login.html")
 
-
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
@@ -876,23 +1050,23 @@ def forgot_password():
             flash("Informe seu e-mail para receber as instruções.", "error")
             return render_template("forgot_password.html")
 
-        user = query_user_by_email(email)
+        query_user_by_email(email)
         flash("Se o e-mail estiver cadastrado, enviaremos instruções de recuperação em breve.", "success")
         return redirect(url_for("login"))
 
     return render_template("forgot_password.html")
 
-
 @app.route("/logout")
 def logout():
     if session.get("user_id"):
+        user_id = session["user_id"]
+        online_users.discard(user_id)
         db = get_db()
-        db.execute("UPDATE usuarios SET status_online = 'offline' WHERE id = ?", (session["user_id"],))
+        db.execute("UPDATE usuarios SET status_online = 'offline' WHERE id = ?", (user_id,))
         db.commit()
     session.clear()
     flash("Você saiu da sessão.", "success")
     return redirect(url_for("home"))
-
 
 @app.route("/presenca/heartbeat", methods=["POST"])
 def presence_heartbeat():
@@ -905,7 +1079,6 @@ def presence_heartbeat():
     )
     db.commit()
     return {"authenticated": True, "online": True}
-
 
 @app.route("/dashboard")
 def dashboard():
@@ -925,7 +1098,6 @@ def dashboard():
 
     return redirect(url_for("home"))
 
-
 @app.route("/admin")
 def admin_panel():
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
@@ -944,7 +1116,6 @@ def admin_panel():
         categories=categories,
     )
 
-
 @app.route("/admin/documento/<int:user_id>/<document_type>")
 def admin_view_document(user_id, document_type):
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
@@ -960,9 +1131,12 @@ def admin_view_document(user_id, document_type):
 
     return send_from_directory(UPLOAD_FOLDER, os.path.basename(filename), as_attachment=False)
 
-
 @app.route("/admin/aprovar-usuario/<int:user_id>", methods=["POST"])
 def admin_approve_user(user_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("admin_panel"))
+
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
         return redirect(url_for("login"))
@@ -977,7 +1151,6 @@ def admin_approve_user(user_id):
     db.commit()
     flash("Usuário aprovado com sucesso.", "success")
     return redirect(url_for("admin_panel"))
-
 
 @app.route("/dashboard-cliente")
 def dashboard_cliente():
@@ -1019,7 +1192,6 @@ def dashboard_cliente():
         online_companies=online_companies,
     )
 
-
 @app.route("/dashboard-profissional")
 def dashboard_profissional():
     if "user_id" not in session:
@@ -1058,7 +1230,6 @@ def dashboard_profissional():
         online_now=True,
     )
 
-
 @app.route("/dashboard-empresa")
 def dashboard_empresa():
     if "user_id" not in session:
@@ -1093,9 +1264,12 @@ def dashboard_empresa():
         online_now=True,
     )
 
-
 @app.route("/favorito/<int:provider_id>/toggle", methods=["POST"])
 def toggle_favorite(provider_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_cliente"))
+
     if "user_id" not in session or session.get("user_type") != "cliente":
         flash("Apenas clientes podem gerenciar favoritos.", "error")
         return redirect(url_for("dashboard_cliente"))
@@ -1117,7 +1291,6 @@ def toggle_favorite(provider_id):
         flash("Profissional adicionado aos favoritos.", "success")
     db.commit()
     return redirect(url_for("dashboard_cliente"))
-
 
 @app.route("/servico/<int:service_id>/chat", methods=["GET", "POST"])
 def servico_chat(service_id):
@@ -1141,6 +1314,10 @@ def servico_chat(service_id):
     professional_phone = professional_user["telefone"] if professional_user else None
 
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return redirect(url_for("servico_chat", service_id=service_id))
+
         mensagem = request.form.get("mensagem", "").strip()
         if mensagem:
             db = get_db()
@@ -1176,9 +1353,12 @@ def servico_chat(service_id):
         professional_phone=professional_phone,
     )
 
-
 @app.route("/admin/remover-usuario/<int:user_id>", methods=["POST"])
 def admin_remove_user(user_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("admin_panel"))
+
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
         return redirect(url_for("login"))
@@ -1205,9 +1385,12 @@ def admin_remove_user(user_id):
     flash("Usuário removido com sucesso.", "success")
     return redirect(url_for("admin_panel"))
 
-
 @app.route("/disponibilidade/adicionar", methods=["POST"])
 def add_availability():
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_profissional"))
+
     if "user_id" not in session or session.get("user_type") != "profissional":
         flash("Apenas profissionais podem cadastrar disponibilidade.", "error")
         return redirect(url_for("dashboard_profissional"))
@@ -1229,9 +1412,12 @@ def add_availability():
     flash("Disponibilidade adicionada com sucesso.", "success")
     return redirect(url_for("dashboard_profissional"))
 
-
 @app.route("/disponibilidade/<int:availability_id>/remover", methods=["POST"])
 def remove_availability(availability_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_profissional"))
+
     if "user_id" not in session or session.get("user_type") != "profissional":
         flash("Apenas profissionais podem remover disponibilidade.", "error")
         return redirect(url_for("dashboard_profissional"))
@@ -1242,9 +1428,12 @@ def remove_availability(availability_id):
     flash("Disponibilidade removida.", "success")
     return redirect(url_for("dashboard_profissional"))
 
-
 @app.route("/empresa/servico/adicionar", methods=["POST"])
 def add_company_service():
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_empresa"))
+
     if "user_id" not in session or session.get("user_type") != "empresa":
         flash("Apenas empresas podem cadastrar serviços.", "error")
         return redirect(url_for("dashboard_empresa"))
@@ -1272,9 +1461,12 @@ def add_company_service():
     flash("Serviço cadastrado com sucesso.", "success")
     return redirect(url_for("dashboard_empresa"))
 
-
 @app.route("/empresa/servico/<int:service_id>/remover", methods=["POST"])
 def remove_company_service(service_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_empresa"))
+
     if "user_id" not in session or session.get("user_type") != "empresa":
         flash("Apenas empresas podem remover serviços.", "error")
         return redirect(url_for("dashboard_empresa"))
@@ -1285,9 +1477,12 @@ def remove_company_service(service_id):
     flash("Serviço removido.", "success")
     return redirect(url_for("dashboard_empresa"))
 
-
 @app.route("/admin/recusar-usuario/<int:user_id>", methods=["POST"])
 def admin_reject_user(user_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("admin_panel"))
+
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
         return redirect(url_for("login"))
@@ -1302,9 +1497,12 @@ def admin_reject_user(user_id):
     flash("Usuário recusado com sucesso.", "success")
     return redirect(url_for("admin_panel"))
 
-
 @app.route("/admin/categorias", methods=["POST"])
 def admin_add_category():
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("admin_panel"))
+
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
         return redirect(url_for("login"))
@@ -1323,9 +1521,12 @@ def admin_add_category():
         flash("Esta categoria já existe.", "error")
     return redirect(url_for("admin_panel"))
 
-
 @app.route("/servico/<int:service_id>/recusar", methods=["POST"])
 def recusar_servico(service_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("dashboard_profissional"))
+
     if "user_id" not in session or session.get("user_type") not in ("profissional", "empresa"):
         flash("Apenas prestadores podem recusar serviços.", "error")
         return redirect(url_for("dashboard_profissional"))
@@ -1341,7 +1542,6 @@ def recusar_servico(service_id):
     flash("Serviço recusado.", "success")
     return redirect(url_for("dashboard_profissional"))
 
-
 @app.route("/perfil", methods=["GET", "POST"])
 def perfil():
     if "user_id" not in session:
@@ -1350,6 +1550,10 @@ def perfil():
 
     user = get_user_by_id(session["user_id"])
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("perfil.html", user=user)
+
         nome = request.form.get("nome", "").strip()
         if not nome:
             flash("Informe seu nome para atualizar o perfil.", "error")
@@ -1373,7 +1577,6 @@ def perfil():
 
     return render_template("perfil.html", user=user)
 
-
 @app.route("/perfil/alterar-senha", methods=["GET", "POST"])
 def alterar_senha():
     if "user_id" not in session:
@@ -1381,6 +1584,10 @@ def alterar_senha():
         return redirect(url_for("login"))
 
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("alterar_senha.html")
+
         senha_atual = request.form.get("senha_atual", "")
         nova_senha = request.form.get("nova_senha", "")
         confirm_nova_senha = request.form.get("confirm_nova_senha", "")
@@ -1402,7 +1609,6 @@ def alterar_senha():
 
     return render_template("alterar_senha.html")
 
-
 @app.route("/perfil/excluir-conta", methods=["GET", "POST"])
 def excluir_conta():
     if "user_id" not in session:
@@ -1410,7 +1616,10 @@ def excluir_conta():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        motivo = request.form.get("motivo", "").strip()
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("excluir_conta.html")
+
         db = get_db()
         db.execute("UPDATE usuarios SET deletion_requested = 1 WHERE id = ?", (session["user_id"],))
         db.commit()
@@ -1418,7 +1627,6 @@ def excluir_conta():
         return redirect(url_for("dashboard_cliente" if session.get("user_type") == "cliente" else "dashboard"))
 
     return render_template("excluir_conta.html")
-
 
 @app.route("/profissionais")
 def profissionais():
@@ -1449,6 +1657,7 @@ def profissionais():
         if minimum_rating and (provider_data["rating"] is None or provider_data["rating"] < minimum_rating):
             continue
         provider_data["is_favorite"] = provider["id"] in favorite_ids
+        provider_data["online"] = bool(provider_data.get("online") or provider["id"] in online_users)
         providers.append(provider_data)
 
     providers.sort(key=lambda item: item["recommendation_score"], reverse=True)
@@ -1463,7 +1672,6 @@ def profissionais():
         min_rating=min_rating,
     )
 
-
 def render_public_provider_profile(provider_id, expected_type):
     provider = get_user_by_id(provider_id)
     if not provider or provider["tipo"] != expected_type or not is_provider_active(provider):
@@ -1471,18 +1679,22 @@ def render_public_provider_profile(provider_id, expected_type):
         return redirect(url_for("profissionais"))
     provider_data = enrich_provider(provider)
     company_services = get_company_services(provider_id) if expected_type == "empresa" else []
-    return render_template("public/perfil_prestador.html", provider=provider_data, company_services=company_services)
-
+    provider_data["online"] = bool(provider_data.get("online") or provider_id in online_users)
+    return render_template(
+        "public/perfil_prestador.html",
+        provider=provider_data,
+        prestador=provider_data,
+        company_services=company_services,
+        online_users=online_users,
+    )
 
 @app.route("/profissional/<int:provider_id>")
 def perfil_publico_profissional(provider_id):
     return render_public_provider_profile(provider_id, "profissional")
 
-
 @app.route("/empresa/<int:provider_id>")
 def perfil_publico_empresa(provider_id):
     return render_public_provider_profile(provider_id, "empresa")
-
 
 @app.route("/solicitar-servico/<int:provider_id>", methods=["GET", "POST"])
 def solicitar_servico(provider_id):
@@ -1503,6 +1715,10 @@ def solicitar_servico(provider_id):
         return redirect(url_for("profissionais"))
 
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("solicitar_servico.html", provider=provider)
+
         categoria = request.form.get("categoria", "").strip()
         descricao = request.form.get("descricao", "").strip()
         valor = request.form.get("valor", "").strip()
@@ -1548,7 +1764,6 @@ def solicitar_servico(provider_id):
 
     return render_template("solicitar_servico.html", provider=provider)
 
-
 @app.route("/meus-servicos")
 def meus_servicos():
     if "user_id" not in session:
@@ -1587,9 +1802,12 @@ def meus_servicos():
         provider_active=provider_active,
     )
 
-
 @app.route("/servico/<int:service_id>/atualizar-status", methods=["POST"])
 def atualizar_status_servico(service_id):
+    if not validate_csrf_token():
+        flash("Token de segurança inválido. Tente novamente.", "error")
+        return redirect(url_for("meus_servicos"))
+
     if "user_id" not in session:
         flash("Faça login para atualizar o serviço.", "error")
         return redirect(url_for("login"))
@@ -1633,7 +1851,6 @@ def atualizar_status_servico(service_id):
     flash(f"Status do serviço atualizado para {new_status}.", "success")
     return redirect(url_for("meus_servicos"))
 
-
 @app.route("/avaliar/<int:service_id>", methods=["GET", "POST"])
 def avaliar(service_id):
     if "user_id" not in session:
@@ -1654,6 +1871,10 @@ def avaliar(service_id):
         return redirect(url_for("meus_servicos"))
 
     if request.method == "POST":
+        if not validate_csrf_token():
+            flash("Token de segurança inválido. Tente novamente.", "error")
+            return render_template("avaliar.html", service=service)
+
         nota = request.form.get("nota", "")
         comentario = request.form.get("comentario", "").strip()
 
@@ -1677,25 +1898,44 @@ def avaliar(service_id):
 
     return render_template("avaliar.html", service=service)
 
-
 @socketio.on("connect")
 def handle_connect(auth=None):
     if session.get("user_id"):
         user = get_user_by_id(session["user_id"])
         if user:
+            online_users.add(user["id"])
+            db = get_db()
+            db.execute("UPDATE usuarios SET status_online = 'online', ultimo_acesso = datetime('now') WHERE id = ?", (user["id"],))
+            db.commit()
             join_room("global")
             join_room(f"user_{user['id']}")
             socketio.emit("usuario_online", {"id": user["id"], "nome": user["nome"], "tipo": user["tipo"]}, room="global")
 
+@socketio.on("join_conversation")
+def handle_join_conversation(payload):
+    conversation_id = payload.get("conversation_id") if payload else None
+    user_id = session.get("user_id")
+
+    if not user_id or not conversation_id:
+        return
+
+    db = get_db()
+    participant = db.execute(
+        "SELECT 1 FROM conversa_participantes WHERE conversa_id = ? AND usuario_id = ?",
+        (conversation_id, user_id),
+    ).fetchone()
+    if participant:
+        join_room(f"conversation_{conversation_id}")
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    if session.get("user_id"):
+    user_id = session.get("user_id")
+    if user_id:
+        online_users.discard(user_id)
         db = get_db()
-        db.execute("UPDATE usuarios SET status_online = 'offline', ultimo_acesso = datetime('now') WHERE id = ?", (session["user_id"],))
+        db.execute("UPDATE usuarios SET status_online = 'offline', ultimo_acesso = datetime('now') WHERE id = ?", (user_id,))
         db.commit()
-        socketio.emit("usuario_offline", {"id": session["user_id"]}, room="global")
-
+        socketio.emit("usuario_offline", {"id": user_id}, room="global")
 
 @socketio.on("join_service")
 def handle_join_service(payload):
@@ -1717,14 +1957,10 @@ def handle_join_service(payload):
     ):
         join_room(f"service_{service_id}")
 
-
-
-
 @socketio.on("mensagem_lida")
 def handle_mensagem_lida(payload):
     if session.get("user_id"):
         socketio.emit("mensagem_lida", payload, room="global")
-
 
 if __name__ == "__main__":
     threading.Timer(1.0, lambda: open_browser(PORT)).start()
@@ -1737,4 +1973,3 @@ if __name__ == "__main__":
                 f"Porta {PORT} já está em uso. Use outra porta definindo a variável de ambiente PORT ou encerrando o processo que ocupa essa porta."
             )
         raise
-

@@ -23,8 +23,10 @@
                 %}style="background-image:url('/static/uploads/{{ provider.foto_perfil or provider.logo_empresa }}')" {%
                 endif %}>{% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or
                 provider.nome)[0]|upper }}{% endif %}</div>
-            <div><span class="presence-label {{ 'online' if provider.online else 'offline' }}"><i
-                        class="online-dot"></i> {{ 'Online agora' if provider.online else 'Offline' }}</span>
+            <div><span
+                    class="presence-label {{ 'online' if provider.id in online_users or provider.online else 'offline' }}"><i
+                        class="online-dot"></i> {{ 'Online agora' if provider.id in online_users or provider.online else
+                    'Offline' }}</span>
                 <h2>{{ provider.empresa_nome or provider.nome }}</h2>
                 <p class="provider-role">{{ 'Empresa' if provider.tipo == 'empresa' else 'Profissional' }} · {{
                     provider.especialidade or 'Serviços gerais' }}</p>
@@ -40,7 +42,8 @@
             serviços concluídos · {{ provider.availability_count }} disponibilidade(s)</p>
         <div class="form-actions"><a
                 href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
-                class="button button-secondary">Ver perfil</a>{% if session.get('user_type') == 'cliente' %}<a
+                class="button button-secondary">Ver perfil</a>{% set is_authenticated = session.get('user_id') %}{% set
+            is_client = session.get('user_type') == 'cliente' %}{% if is_authenticated and is_client %}<a
                 href="/solicitar-servico/{{ provider.id }}" class="button button-primary">Solicitar</a>{% endif %}</div>
     </article>{% endfor %}</div>{% else %}<section class="form-card empty-state">
     <h2>Nenhum prestador encontrado.</h2>

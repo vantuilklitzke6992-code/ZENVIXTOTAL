@@ -2,8 +2,18 @@
 {% block title %}Excluir conta | Zenvix Connect{% endblock %}
 {% block content %}
 <section class="form-card">
-    <div class="section-header"><div><span class="section-badge">Conta</span><h1>Solicitar exclusão</h1><p>Seu pedido será registrado para análise pela equipe Zenvix.</p></div></div>
-    <div class="notice-card notice-warning"><h2>Atenção</h2><p>Esta ação solicita a exclusão e poderá limitar o acesso à sua conta após a análise.</p></div>
-    <form method="post" class="form-actions" style="margin-top: 20px;"><button class="button button-danger" type="submit">Confirmar solicitação</button><a class="button button-secondary" href="/perfil">Cancelar</a></form>
+    <div class="section-header">
+        <div><span class="section-badge">Conta</span>
+            <h1>Solicitar exclusão</h1>
+            <p>Seu pedido será registrado para análise pela equipe Zenvix.</p>
+        </div>
+    </div>
+    <div class="notice-card notice-warning">
+        <h2>Atenção</h2>
+        <p>Esta ação solicita a exclusão e poderá limitar o acesso à sua conta após a análise.</p>
+    </div>
+    <form method="post" class="form-actions" style="margin-top: 20px;"><input type="hidden" name="_csrf_token"
+            value="{{ csrf_token }}"><button class="button button-danger" type="submit">Confirmar solicitação</button><a
+            class="button button-secondary" href="/perfil">Cancelar</a></form>
 </section>
 {% endblock %}

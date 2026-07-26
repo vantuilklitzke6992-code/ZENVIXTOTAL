@@ -1,35 +1,45 @@
 {% extends "layouts/base.html" %}
-{% block title %}{{ provider.empresa_nome or provider.nome }} | Zenvix Connect{% endblock %}
+{% set profile = provider or prestador or {} %}
+{% block title %}{{ profile.empresa_nome or profile.nome }} | Zenvix Connect{% endblock %}
 {% block content %}
 <section class="public-profile">
     <div class="public-profile-cover"></div>
     <div class="public-profile-main">
-        <div class="public-profile-avatar {% if provider.foto_perfil or provider.logo_empresa %}avatar-image{% endif %}"
-            {% if provider.foto_perfil or provider.logo_empresa
-            %}style="background-image:url('/static/uploads/{{ provider.foto_perfil or provider.logo_empresa }}')" {%
-            endif %}>{% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or
-            provider.nome)[0]|upper }}{% endif %}</div>
+        <div class="public-profile-avatar {% if profile.foto_perfil or profile.logo_empresa %}avatar-image{% endif %}"
+            {% if profile.foto_perfil or profile.logo_empresa
+            %}style="background-image:url('/static/uploads/{{ profile.foto_perfil or profile.logo_empresa }}')" {% endif
+            %}>{% if not profile.foto_perfil and not profile.logo_empresa %}{{ (profile.empresa_nome or
+            profile.nome)[0]|upper }}{% endif %}</div>
         <div class="public-profile-title"><span
-                class="presence-label {{ 'online' if provider.online else 'offline' }}"><i class="online-dot"></i> {{
-                'Online agora' if provider.online else 'Offline' }}</span>
-            <h1>{{ provider.empresa_nome or provider.nome }}</h1>
-            <p>{{ provider.especialidade or ('Empresa de serviços' if provider.tipo == 'empresa' else 'Profissional') }}
-                · {{ provider.cidade or 'Cidade não informada' }}</p>
-        </div>{% if session.get('user_type') == 'cliente' %}<a href="/solicitar-servico/{{ provider.id }}"
-            class="button button-primary">Solicitar serviço</a>{% else %}<a href="/login"
-            class="button button-primary">Entrar para solicitar</a>{% endif %}
+                class="presence-label {{ 'online' if profile.id in online_users or profile.online else 'offline' }}"><i
+                    class="online-dot"></i> {{
+                'Online agora' if profile.id in online_users or profile.online else 'Offline' }}</span>
+            <h1>{{ profile.empresa_nome or profile.nome }}</h1>
+            <p>{{ profile.especialidade or ('Empresa de serviços' if profile.tipo == 'empresa' else 'Profissional') }}
+                · {{ profile.cidade or 'Cidade não informada' }}</p>
+        </div>{% set is_authenticated = session.get('user_id') %}{% if is_authenticated %}<div class="form-actions"
+            style="justify-content: flex-start; gap: 10px; margin-top: 12px; flex-wrap: wrap;"><a
+                href="{{ url_for('iniciar_conversa', partner_id=profile.id) }}"
+                class="button button-secondary">Conversar</a><a href="/solicitar-servico/{{ profile.id }}"
+                class="button button-secondary">Solicitar orçamento</a><a href="/solicitar-servico/{{ profile.id }}"
+                class="button button-primary">Contratar agora</a></div>{%
+        else %}<div class="form-actions"
+            style="justify-content: flex-start; gap: 10px; margin-top: 12px; flex-wrap: wrap;"><a href="/login"
+                class="button button-secondary">Entrar para conversar</a><a href="/login"
+                class="button button-secondary">Entrar para solicitar</a><a href="/login"
+                class="button button-primary">Entrar para contratar</a></div>{% endif %}
     </div>
     <div class="profile-stat-grid">
-        <div><strong>★ {{ provider.rating if provider.rating is not none else 'Novo' }}</strong><span>Avaliação
+        <div><strong>★ {{ profile.rating if profile.rating is not none else 'Novo' }}</strong><span>Avaliação
                 média</span></div>
-        <div><strong>{{ provider.rating_count }}</strong><span>Avaliações</span></div>
-        <div><strong>{{ provider.completed_services }}</strong><span>Serviços concluídos</span></div>
+        <div><strong>{{ profile.rating_count }}</strong><span>Avaliações</span></div>
+        <div><strong>{{ profile.completed_services }}</strong><span>Serviços concluídos</span></div>
     </div>
     <div class="profile-content-grid">
         <article class="card">
             <h2>Sobre</h2>
-            <p>{{ provider.bio or 'Este prestador ainda não adicionou uma descrição.' }}</p>
-        </article>{% if provider.tipo == 'empresa' %}<article class="card">
+            <p>{{ profile.bio or 'Este prestador ainda não adicionou uma descrição.' }}</p>
+        </article>{% if profile.tipo == 'empresa' %}<article class="card">
             <h2>Serviços da empresa</h2>{% if company_services %}<ul class="offer-list">{% for service in
                 company_services %}<li>
                     <div><strong>{{ service.titulo }}</strong>

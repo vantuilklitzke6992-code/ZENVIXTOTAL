@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Conversa | Zenvix Connect{% endblock %}
+{% block content %}
+<section class="dashboard-shell chat-shell">
+    <main class="chat-main">
+        <div class="chat-header">
+            <div>
+                <h1>Conversa privada</h1>
+                <p>Troque mensagens com {{ partner.nome if partner else 'o participante' }} antes da contratação.</p>
+            </div>
+            <a href="/profissionais" class="button button-secondary">Voltar</a>
+        </div>
+        <div class="chat-window conversation-window" data-conversation-id="{{ conversation.id }}">
+            {% if messages %}
+            {% for message in messages %}
+            <div
+                class="chat-message {{ 'chat-message-sent' if message.remetente_id == session.get('user_id') else 'chat-message-received' }}">
+                <div class="chat-meta">
+                    <strong>{{ message.sender_name or 'Usuário' }}</strong>
+                    <span>{{ message.criado_em }}</span>
+                </div>
+                <p>{{ message.mensagem }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <p>Nenhuma mensagem ainda. Comece a conversa.</p>
+            </div>
+            {% endif %}
+        </div>
+        <form id="conversation-form" action="/conversa/{{ conversation.id }}" method="post" class="chat-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <textarea id="conversation-message-input" name="mensagem" rows="3" placeholder="Escreva uma mensagem..."
+                required></textarea>
+            <button class="button button-primary" type="submit">Enviar</button>
+        </form>
+    </main>
+</section>
+{% endblock %}

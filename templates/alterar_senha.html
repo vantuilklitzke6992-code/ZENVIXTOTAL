@@ -2,11 +2,25 @@
 {% block title %}Alterar senha | Zenvix Connect{% endblock %}
 {% block content %}
 <section class="form-card">
-    <div class="section-header"><div><span class="section-badge">Segurança</span><h1>Alterar senha</h1><p>Use uma senha forte para manter sua conta protegida.</p></div></div>
+    <div class="section-header">
+        <div><span class="section-badge">Segurança</span>
+            <h1>Alterar senha</h1>
+            <p>Use uma senha forte para manter sua conta protegida.</p>
+        </div>
+    </div>
     <form method="post" class="dashboard-form">
-        <div class="form-group"><label for="senha_atual">Senha atual</label><input id="senha_atual" name="senha_atual" type="password" autocomplete="current-password" required></div>
-        <div class="form-row"><div class="form-group"><label for="nova_senha">Nova senha</label><input id="nova_senha" name="nova_senha" type="password" autocomplete="new-password" required></div><div class="form-group"><label for="confirm_nova_senha">Confirmar nova senha</label><input id="confirm_nova_senha" name="confirm_nova_senha" type="password" autocomplete="new-password" required></div></div>
-        <div class="form-actions"><button class="button button-primary" type="submit">Salvar nova senha</button><a class="button button-secondary" href="/perfil">Cancelar</a></div>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+        <div class="form-group"><label for="senha_atual">Senha atual</label><input id="senha_atual" name="senha_atual"
+                type="password" autocomplete="current-password" required></div>
+        <div class="form-row">
+            <div class="form-group"><label for="nova_senha">Nova senha</label><input id="nova_senha" name="nova_senha"
+                    type="password" autocomplete="new-password" required></div>
+            <div class="form-group"><label for="confirm_nova_senha">Confirmar nova senha</label><input
+                    id="confirm_nova_senha" name="confirm_nova_senha" type="password" autocomplete="new-password"
+                    required></div>
+        </div>
+        <div class="form-actions"><button class="button button-primary" type="submit">Salvar nova senha</button><a
+                class="button button-secondary" href="/perfil">Cancelar</a></div>
     </form>
 </section>
 {% endblock %}

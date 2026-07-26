@@ -4,6 +4,7 @@
 <section class="form-card">
     <h1>Meu perfil</h1>
     <form method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
         <div class="form-group">
             <label for="nome">Nome</label>
             <input id="nome" name="nome" type="text" value="{{ user['nome'] }}" required>

@@ -90,6 +90,7 @@
                                 <span>R$ {{ offer.valor or '—' }}</span>
                             </div>
                             <form action="/empresa/servico/{{ offer.id }}/remover" method="post" class="inline-form">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                 <button type="submit" class="button button-danger button-small">Remover</button>
                             </form>
                         </li>
@@ -102,6 +103,7 @@
                 <div class="card">
                     <h3>Adicionar serviço</h3>
                     <form action="/empresa/servico/adicionar" method="post" class="dashboard-form">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                         <div class="form-group">
                             <label for="titulo">Título</label>
                             <input id="titulo" name="titulo" type="text" required>
@@ -150,6 +152,7 @@
                                 {% if service.status == 'Pendente' %}
                                 <form action="/servico/{{ service.id }}/atualizar-status" method="post"
                                     class="inline-form">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                                     <input type="hidden" name="new_status" value="Aceito">
                                     <button type="submit" class="button button-primary button-small">Aceitar</button>
                                 </form>

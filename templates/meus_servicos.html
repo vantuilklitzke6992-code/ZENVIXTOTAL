@@ -37,16 +37,19 @@
                         <span class="status-pill status-warning">Aprovação pendente</span>
                         {% elif service.status == 'Pendente' or service.status is none %}
                         <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <input type="hidden" name="new_status" value="Aceito">
                             <button type="submit" class="button button-secondary button-small">Aceitar</button>
                         </form>
                         {% elif service.status == 'Aceito' %}
                         <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <input type="hidden" name="new_status" value="Em andamento">
                             <button type="submit" class="button button-secondary button-small">Iniciar</button>
                         </form>
                         {% elif service.status == 'Em andamento' %}
                         <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <input type="hidden" name="new_status" value="Concluído">
                             <button type="submit" class="button button-primary button-small">Concluir</button>
                         </form>

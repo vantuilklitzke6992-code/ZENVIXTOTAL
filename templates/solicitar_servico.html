@@ -6,6 +6,7 @@
     <p>Você está solicitando um serviço para <strong>{{ provider['nome'] }}</strong>{% if provider['empresa_nome'] %}
         ({{ provider['empresa_nome'] }}){% endif %}.</p>
     <form method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
         <div class="form-group">
             <label for="categoria">Categoria do serviço</label>
             <input id="categoria" name="categoria" type="text" required>
