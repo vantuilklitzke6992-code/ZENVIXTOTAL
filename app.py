@@ -8,6 +8,10 @@ import os
 import threading
 import webbrowser
 import secrets
+import json
+import re
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE_PATH = os.path.join(BASE_DIR, "database.db")
@@ -18,6 +22,61 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
 ADMIN_USER_TYPE = "admin"
 DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 PORT = int(os.getenv("PORT", "5000"))
+CEP_API_TIMEOUT = 5
+BRAZILIAN_STATES = {
+    "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas",
+    "BA": "Bahia", "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo",
+    "GO": "Goiás", "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul",
+    "MG": "Minas Gerais", "PA": "Pará", "PB": "Paraíba", "PR": "Paraná",
+    "PE": "Pernambuco", "PI": "Piauí", "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte",
+    "RS": "Rio Grande do Sul", "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina",
+    "SP": "São Paulo", "SE": "Sergipe", "TO": "Tocantins",
+}
+
+
+class CepValidationError(ValueError):
+    pass
+
+
+class CepServiceUnavailable(RuntimeError):
+    pass
+
+
+def normalize_cep(value):
+    normalized = (value or "").strip()
+    if not re.fullmatch(r"\d{5}-?\d{3}", normalized):
+        raise CepValidationError("Informe um CEP brasileiro válido com 8 dígitos.")
+    digits = normalized.replace("-", "")
+    if len(set(digits)) == 1:
+        raise CepValidationError("Informe um CEP brasileiro válido com 8 dígitos.")
+    return digits
+
+
+def lookup_cep(value):
+    cep = normalize_cep(value)
+    request = Request(
+        f"https://viacep.com.br/ws/{cep}/json/",
+        headers={"Accept": "application/json", "User-Agent": "ZenvixConnect/1.0"},
+    )
+    try:
+        with urlopen(request, timeout=CEP_API_TIMEOUT) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        raise CepServiceUnavailable("Não foi possível consultar o CEP agora.") from exc
+
+    returned_cep = re.sub(r"\D", "", str(data.get("cep", ""))) if isinstance(data, dict) else ""
+    uf = str(data.get("uf", "")).upper() if isinstance(data, dict) else ""
+    cidade = str(data.get("localidade", "")).strip() if isinstance(data, dict) else ""
+    if (
+        not isinstance(data, dict)
+        or data.get("erro")
+        or returned_cep != cep
+        or uf not in BRAZILIAN_STATES
+        or not cidade
+    ):
+        raise CepValidationError("CEP não encontrado ou sem Estado/Cidade válidos.")
+
+    return {"cep": cep, "uf": uf, "estado": BRAZILIAN_STATES[uf], "cidade": cidade}
 
 def open_browser(port=PORT):
     webbrowser.open(f"http://127.0.0.1:{port}/")
@@ -834,6 +893,16 @@ def home():
         online_providers=online_providers,
     )
 
+
+@app.route("/api/cep/<cep>")
+def consultar_cep(cep):
+    try:
+        return jsonify(lookup_cep(cep))
+    except CepValidationError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except CepServiceUnavailable as exc:
+        return jsonify({"error": str(exc)}), 503
+
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":
@@ -847,6 +916,7 @@ def cadastro():
         senha = request.form.get("senha", "")
         confirm_senha = request.form.get("confirm_senha", "")
         telefone = request.form.get("telefone", "").strip()
+        cep = request.form.get("cep", "").strip()
         estado = request.form.get("estado", "").strip()
         cidade = request.form.get("cidade", "").strip()
         bairro = request.form.get("bairro", "").strip()
@@ -866,6 +936,7 @@ def cadastro():
             "nome": nome,
             "email": email,
             "telefone": telefone,
+            "cep": cep,
             "estado": estado,
             "cidade": cidade,
             "bairro": bairro,
@@ -892,6 +963,25 @@ def cadastro():
         if query_user_by_email(email):
             flash("Este e-mail já está em uso. Faça login ou use outro e-mail.", "error")
             return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+
+        try:
+            address = lookup_cep(cep)
+        except CepValidationError as exc:
+            current_step = 3
+            flash(str(exc), "error")
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+        except CepServiceUnavailable as exc:
+            current_step = 3
+            flash(str(exc), "error")
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+
+        if estado.casefold() != address["estado"].casefold() or cidade.casefold() != address["cidade"].casefold():
+            current_step = 3
+            flash("Estado e cidade devem corresponder ao CEP informado.", "error")
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+
+        estado = address["estado"]
+        cidade = address["cidade"]
 
         if tipo == "cliente":
             if not estado or not cidade or not telefone:

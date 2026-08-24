@@ -210,8 +210,12 @@
     const step2Next = document.getElementById("step2-next");
     const step3Prev = document.getElementById("step3-prev");
     const validationMessage = document.getElementById("form-validation-message");
+    const cepInput = document.getElementById("cep");
+    const cepSearch = document.getElementById("cep-search");
+    const cepStatus = document.getElementById("cep-status");
 
     let currentStep = 1;
+    let cepValidated = false;
     const totalSteps = 3;
     const initialStep = parseInt(cadastroForm.dataset.currentStep, 10) || 1;
     const initialAccountType = cadastroForm.dataset.accountType || accountTypeInput.value || "cliente";
@@ -235,6 +239,42 @@
     function showValidation(message) {
         validationMessage.textContent = message;
         validationMessage.classList.remove("hidden");
+    }
+
+    function clearCepAddress() {
+        document.getElementById("estado").value = "";
+        document.getElementById("cidade").value = "";
+    }
+
+    async function consultCep() {
+        const value = cepInput.value.trim();
+        const validFormat = /^\d{5}-?\d{3}$/.test(value);
+        cepValidated = false;
+        clearCepAddress();
+
+        if (!validFormat) {
+            cepStatus.textContent = "Informe um CEP com 8 dígitos, com ou sem hífen.";
+            return;
+        }
+
+        cepSearch.disabled = true;
+        cepStatus.textContent = "Consultando CEP...";
+        try {
+            const response = await fetch(`/api/cep/${value.replace("-", "")}`);
+            const address = await response.json();
+            if (!response.ok) {
+                throw new Error(address.error || "CEP não encontrado.");
+            }
+            cepInput.value = address.cep.replace(/(\d{5})(\d{3})/, "$1-$2");
+            document.getElementById("estado").value = address.estado;
+            document.getElementById("cidade").value = address.cidade;
+            cepValidated = true;
+            cepStatus.textContent = `Localização encontrada: ${address.cidade} - ${address.uf}.`;
+        } catch (error) {
+            cepStatus.textContent = error.message || "Não foi possível consultar o CEP.";
+        } finally {
+            cepSearch.disabled = false;
+        }
     }
 
     function selectAccountType(type) {
@@ -300,6 +340,10 @@
         }
 
         if (step === 3) {
+            if (!cepValidated) {
+                showValidation("Consulte um CEP brasileiro válido antes de finalizar o cadastro.");
+                return false;
+            }
             const estado = document.getElementById("estado").value.trim();
             const cidade = document.getElementById("cidade").value.trim();
             const telefone = document.getElementById("telefone").value.trim();
@@ -368,6 +412,14 @@
     step3Prev.addEventListener("click", function () {
         showStep(2);
     });
+
+    cepInput.addEventListener("input", function () {
+        cepValidated = false;
+        clearCepAddress();
+        cepStatus.textContent = "";
+    });
+    cepSearch.addEventListener("click", consultCep);
+    cepInput.addEventListener("blur", consultCep);
 
     cadastroForm.addEventListener("submit", function (event) {
         if (!validateStep(3)) {

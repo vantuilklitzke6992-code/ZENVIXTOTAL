@@ -60,13 +60,20 @@ set current_step = current_step if current_step is defined else 1 %}
             <section class="step-card" data-step="3">
                 <div class="details-section">
                     <h3>Localização e contato</h3>
+                    <div class="form-group"><label for="cep">CEP brasileiro</label>
+                        <div class="form-row"><input class="form-control" id="cep" name="cep"
+                                value="{{ form_data.cep or '' }}" placeholder="00000-000" inputmode="numeric"
+                                autocomplete="postal-code" required><button type="button" id="cep-search"
+                                class="button button-secondary">Consultar CEP</button></div>
+                        <small id="cep-status" role="status"></small>
+                    </div>
                     <div class="form-row">
                         <div class="form-group"><label for="estado">Estado</label><input class="form-control"
                                 id="estado" name="estado" value="{{ form_data.estado or '' }}"
-                                placeholder="Ex.: Espírito Santo" required></div>
+                                placeholder="Preenchido pelo CEP" readonly required></div>
                         <div class="form-group"><label for="cidade">Cidade</label><input class="form-control"
-                                id="cidade" name="cidade" value="{{ form_data.cidade or '' }}" placeholder="Sua cidade"
-                                required></div>
+                                id="cidade" name="cidade" value="{{ form_data.cidade or '' }}"
+                                placeholder="Preenchida pelo CEP" readonly required></div>
                     </div>
                     <div class="form-group"><label for="bairro">Endereço ou bairro
                             <small>(opcional)</small></label><input class="form-control" id="bairro" name="bairro"
