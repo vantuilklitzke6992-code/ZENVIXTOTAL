@@ -137,6 +137,31 @@ def add_column_if_missing(table, column_name, column_def):
     if column_name not in columns:
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
 
+def init_default_professions():
+    """Initialize default professions/categories in the database."""
+    db = get_db()
+    default_professions = [
+        "Eletricista",
+        "Encanador",
+        "Faxineiro",
+        "Pintor",
+        "Pedreiro",
+        "Técnico de Informática",
+        "Mecânico",
+        "Jardineiro",
+        "Fotógrafo",
+        "Profissional de Limpeza",
+        "Outro"
+    ]
+
+    for profession in default_professions:
+        try:
+            db.execute("INSERT INTO categorias (nome) VALUES (?)", (profession,))
+        except:
+            # Categoria já existe (UNIQUE constraint)
+            pass
+    db.commit()
+
 def init_db():
     db = get_db()
     db.execute(
@@ -330,6 +355,9 @@ def init_db():
         )
         db.commit()
 
+    # Initialize default professions/categories
+    init_default_professions()
+
 # Ensures schema migrations and the default administrator exist for Flask, WSGI and tests.
 with app.app_context():
     init_db()
@@ -511,6 +539,12 @@ def get_company_services(company_id):
 def get_categories():
     db = get_db()
     return db.execute("SELECT * FROM categorias ORDER BY nome").fetchall()
+
+def is_valid_profession(profession):
+    """Validate if the given profession exists in the database."""
+    db = get_db()
+    result = db.execute("SELECT * FROM categorias WHERE nome = ?", (profession,)).fetchone()
+    return result is not None
 
 def get_all_users():
     db = get_db()
@@ -950,35 +984,42 @@ def cadastro():
 
         if not nome or not email or not senha or not confirm_senha:
             flash("Preencha os dados obrigatórios da conta.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         if "@" not in email or "." not in email:
             flash("Informe um e-mail válido.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         if senha != confirm_senha:
             flash("As senhas não conferem.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         if query_user_by_email(email):
             flash("Este e-mail já está em uso. Faça login ou use outro e-mail.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         try:
             address = lookup_cep(cep)
         except CepValidationError as exc:
             current_step = 3
             flash(str(exc), "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
         except CepServiceUnavailable as exc:
             current_step = 3
             flash(str(exc), "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         if estado.casefold() != address["estado"].casefold() or cidade.casefold() != address["cidade"].casefold():
             current_step = 3
             flash("Estado e cidade devem corresponder ao CEP informado.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         estado = address["estado"]
         cidade = address["cidade"]
@@ -987,7 +1028,8 @@ def cadastro():
             if not estado or not cidade or not telefone:
                 current_step = 3
                 flash("Preencha estado, cidade e telefone para finalizar seu cadastro.", "error")
-                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+                professions = get_categories()
+                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
             approval_status = "Ativo"
             cpf = None
             cnpj = None
@@ -997,7 +1039,13 @@ def cadastro():
             if not estado or not cidade or not telefone or not especialidade or not bio or not cpf:
                 current_step = 3
                 flash("Preencha todos os dados profissionais obrigatórios.", "error")
-                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+                professions = get_categories()
+                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
+            if not is_valid_profession(especialidade):
+                current_step = 3
+                flash("Selecione uma profissão válida da lista.", "error")
+                professions = get_categories()
+                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
             approval_status = "Pendente"
             empresa_nome = None
             cnpj = None
@@ -1006,7 +1054,8 @@ def cadastro():
             if not empresa_nome or not estado or not cidade or not telefone or not cnpj:
                 current_step = 3
                 flash("Preencha todos os dados da empresa obrigatórios.", "error")
-                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+                professions = get_categories()
+                return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
             approval_status = "Pendente"
             cpf = None
             documento = None
@@ -1014,11 +1063,13 @@ def cadastro():
         if foto_perfil_file and foto_perfil_file.filename != "" and not allowed_file(foto_perfil_file.filename):
             current_step = 3
             flash("Envie a foto de perfil em PDF, JPG ou PNG.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
         if logo_empresa_file and logo_empresa_file.filename != "" and not allowed_file(logo_empresa_file.filename):
             current_step = 3
             flash("Envie o logo da empresa em PDF, JPG ou PNG.", "error")
-            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step)
+            professions = get_categories()
+            return render_template("auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step, professions=professions)
 
         if documento:
             documento_filename = save_uploaded_file(documento)
@@ -1080,7 +1131,8 @@ def cadastro():
         flash("Seu cadastro foi enviado com sucesso. Aguarde aprovação para acessar o dashboard.", "success")
         return redirect(url_for("login"))
 
-    return render_template("auth/cadastro.html", form_data={}, tipo="cliente", current_step=1)
+    professions = get_categories()
+    return render_template("auth/cadastro.html", form_data={}, tipo="cliente", current_step=1, professions=professions)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

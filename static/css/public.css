@@ -253,7 +253,7 @@
 .category-grid {
     display: grid;
     gap: 15px;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 .marketplace-category {
@@ -299,7 +299,7 @@
 .featured-provider-grid {
     display: grid;
     gap: 17px;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .featured-provider {
@@ -364,7 +364,7 @@
 .how-grid {
     display: grid;
     gap: 38px;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .how-grid article {
@@ -701,10 +701,6 @@
     .auth-form-panel {
         margin: 0;
     }
-
-    .category-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }
 
 @media (max-width: 680px) {
@@ -748,15 +744,17 @@
         flex-direction: column;
     }
 
-    .category-grid,
-    .featured-provider-grid,
-    .how-grid,
-    .benefit-columns {
-        grid-template-columns: 1fr;
+    .category-grid {
+        gap: 12px;
+    }
+
+    .featured-provider-grid {
+        gap: 12px;
     }
 
     .how-grid {
         gap: 25px;
+        grid-template-columns: 1fr;
     }
 
     .how-grid article:not(:last-child)::after {
@@ -765,6 +763,10 @@
 
     .benefits-section {
         gap: 22px;
+    }
+
+    .benefit-columns {
+        grid-template-columns: 1fr;
     }
 
     .final-cta {
@@ -975,7 +977,9 @@
 
 .provider-filters {
     align-items: center;
-    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .online-filter {
@@ -1117,17 +1121,21 @@
 
 @media (max-width: 900px) {
     .provider-filters {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 }
 
 .provider-filters .button {
-    width: 100%;
+    width: auto;
 }
 
 @media (max-width: 650px) {
     .provider-filters {
         grid-template-columns: 1fr;
+    }
+
+    .provider-filters .button {
+        width: 100%;
     }
 
     .public-profile-main {
