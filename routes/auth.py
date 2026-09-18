@@ -285,7 +285,7 @@ def cadastro():
             "Seu cadastro foi enviado com sucesso. Aguarde aprovação para acessar o dashboard.",
             "success",
         )
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     return render_template(
         "auth/cadastro.html", form_data={}, tipo="cliente", current_step=1
@@ -334,6 +334,6 @@ def login():
         if user["tipo"] == "empresa":
             return redirect(url_for("dashboard_empresa"))
 
-        return redirect(url_for("home"))
+        return redirect(url_for("public.home"))
 
     return render_template("auth/login.html")

@@ -747,7 +747,7 @@ def mark_conversation_messages_read(conversation_id, user_id):
 def iniciar_conversa(partner_id):
     if "user_id" not in session:
         flash("Faça login para conversar com este usuário.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user_id = session["user_id"]
     if partner_id == user_id:
@@ -787,7 +787,7 @@ def iniciar_conversa(partner_id):
 def visualizar_conversa(conversation_id):
     if "user_id" not in session:
         flash("Faça login para acessar a conversa.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user_id = session["user_id"]
     db = get_db()
@@ -892,12 +892,12 @@ def visualizar_conversa(conversation_id):
 def chat_index():
     if "user_id" not in session:
         flash("Faça login para acessar o chat.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user = get_user_by_id(session["user_id"])
     if not user:
         flash("Usuário não encontrado.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     search = request.args.get("q", "").strip()
     phone = request.args.get("phone", "").strip()
@@ -1008,7 +1008,7 @@ def forgot_password():
             "Se o e-mail estiver cadastrado, enviaremos instruções de recuperação em breve.",
             "success",
         )
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     return render_template("forgot_password.html")
 
@@ -1025,7 +1025,7 @@ def logout():
         db.commit()
     session.clear()
     flash("Você saiu da sessão.", "success")
-    return redirect(url_for("home"))
+    return redirect(url_for("public.home"))
 
 
 @app.route("/presenca/heartbeat", methods=["POST"])
@@ -1045,7 +1045,7 @@ def presence_heartbeat():
 def dashboard():
     if "user_id" not in session:
         flash("Faça login para acessar seu painel.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user_type = session["user_type"]
     if user_type == "cliente":
@@ -1057,14 +1057,14 @@ def dashboard():
     if user_type == ADMIN_USER_TYPE:
         return redirect(url_for("admin_panel"))
 
-    return redirect(url_for("home"))
+    return redirect(url_for("public.home"))
 
 
 @app.route("/admin")
 def admin_panel():
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     search = request.args.get("q", "").strip()
     pending_users = get_pending_users()
@@ -1085,7 +1085,7 @@ def admin_panel():
 def admin_view_document(user_id, document_type):
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     field = {"profissional": "documento", "empresa": "documento_empresa"}.get(
         document_type
@@ -1109,7 +1109,7 @@ def admin_approve_user(user_id):
 
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user = get_user_by_id(user_id)
     if not user or user["tipo"] not in ("profissional", "empresa"):
@@ -1127,7 +1127,7 @@ def admin_approve_user(user_id):
 def dashboard_cliente():
     if "user_id" not in session:
         flash("Faça login para acessar seu painel.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
     if session.get("user_type") != "cliente":
         flash("Acesso restrito ao painel de cliente.", "error")
         return redirect(url_for("dashboard"))
@@ -1180,7 +1180,7 @@ def dashboard_cliente():
 def dashboard_profissional():
     if "user_id" not in session:
         flash("Faça login para acessar seu painel.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
     if session.get("user_type") != "profissional":
         flash("Acesso restrito ao painel de profissional.", "error")
         return redirect(url_for("dashboard"))
@@ -1233,7 +1233,7 @@ def dashboard_profissional():
 def dashboard_empresa():
     if "user_id" not in session:
         flash("Faça login para acessar seu painel.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
     if session.get("user_type") != "empresa":
         flash("Acesso restrito ao painel de empresa.", "error")
         return redirect(url_for("dashboard"))
@@ -1301,7 +1301,7 @@ def toggle_favorite(provider_id):
 def servico_chat(service_id):
     if "user_id" not in session:
         flash("Faça login para acessar o chat.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     if not service:
@@ -1400,7 +1400,7 @@ def admin_remove_user(user_id):
 
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if user_id == session["user_id"]:
         flash("Você não pode remover seu próprio usuário.", "error")
@@ -1535,7 +1535,7 @@ def admin_reject_user(user_id):
 
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     motivo = request.form.get("motivo", "").strip()
     db = get_db()
@@ -1556,7 +1556,7 @@ def admin_add_category():
 
     if "user_id" not in session or session.get("user_type") != ADMIN_USER_TYPE:
         flash("Acesso restrito ao administrador.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     nome = request.form.get("categoria_nome", "").strip()
     if not nome:
@@ -1602,7 +1602,7 @@ def recusar_servico(service_id):
 def perfil():
     if "user_id" not in session:
         flash("Faça login para editar seu perfil.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user = get_user_by_id(session["user_id"])
     if request.method == "POST":
@@ -1638,7 +1638,7 @@ def perfil():
 def alterar_senha():
     if "user_id" not in session:
         flash("Faça login para alterar a senha.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if request.method == "POST":
         if not validate_csrf_token():
@@ -1674,7 +1674,7 @@ def alterar_senha():
 def excluir_conta():
     if "user_id" not in session:
         flash("Faça login para solicitar exclusão.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if request.method == "POST":
         if not validate_csrf_token():
@@ -1706,7 +1706,7 @@ def excluir_conta():
 def profissionais():
     if "user_id" not in session:
         flash("Faça login para acessar os profissionais.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     search = request.args.get("q", "").strip()
     category = request.args.get("categoria", "").strip()
@@ -1798,7 +1798,7 @@ def perfil_publico_empresa(provider_id):
 def solicitar_servico(provider_id):
     if "user_id" not in session:
         flash("Faça login para solicitar um serviço.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if session.get("user_type") != "cliente":
         flash("Apenas clientes podem solicitar serviços.", "error")
@@ -1921,7 +1921,7 @@ def solicitar_servico(provider_id):
 def meus_servicos():
     if "user_id" not in session:
         flash("Faça login para ver seus serviços.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     user_id = session["user_id"]
     user_type = session["user_type"]
@@ -1967,7 +1967,7 @@ def propor_valor_servico(service_id):
 
     if "user_id" not in session:
         flash("Faça login para propor um novo valor.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     if not service:
@@ -2017,7 +2017,7 @@ def aceitar_proposta_valor(service_id, proposal_id):
 
     if "user_id" not in session:
         flash("Faça login para responder à proposta.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     proposal = get_value_proposal_by_id(proposal_id)
@@ -2095,7 +2095,7 @@ def recusar_proposta_valor(service_id, proposal_id):
 
     if "user_id" not in session:
         flash("Faça login para responder à proposta.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     proposal = get_value_proposal_by_id(proposal_id)
@@ -2143,7 +2143,7 @@ def atualizar_status_servico(service_id):
 
     if "user_id" not in session:
         flash("Faça login para atualizar o serviço.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if session.get("user_type") not in ("profissional", "empresa"):
         flash("Apenas prestadores podem atualizar o status do serviço.", "error")
@@ -2211,7 +2211,7 @@ def confirmar_conclusao_service(service_id):
 
     if "user_id" not in session:
         flash("Faça login para confirmar a conclusão.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     if not service:
@@ -2275,7 +2275,7 @@ def cancelar_servico(service_id):
 
     if "user_id" not in session:
         flash("Faça login para cancelar o serviço.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     if not service:
@@ -2309,7 +2309,7 @@ def cancelar_servico(service_id):
 def avaliar(service_id):
     if "user_id" not in session:
         flash("Faça login para avaliar um serviço.", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     service = get_service_by_id(service_id)
     if not service or service["cliente_id"] != session["user_id"]:
