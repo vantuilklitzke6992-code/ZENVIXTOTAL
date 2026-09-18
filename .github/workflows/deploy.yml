@@ -1,0 +1,56 @@
+name: Zenvix CI/CD
+
+on:
+  push:
+    branches:
+      - limpeza-tcc
+
+jobs:
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Executar testes
+        run: pytest
+
+  docker:
+    name: Build e publicação Docker
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir imagem
+        run: docker build -t ismaelklitzke/zenvix-connect:latest .
+
+      - name: Publicar imagem
+        run: docker push ismaelklitzke/zenvix-connect:latest
+
+  deploy:
+    name: Deploy no Render
+    needs: docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Acionar deploy do Render
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
