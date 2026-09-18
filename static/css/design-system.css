@@ -553,6 +553,31 @@ a {
     text-align: right;
 }
 
+.panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+}
+
+.dashboard-search-form {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr auto;
+    width: 100%;
+    max-width: 420px;
+}
+
+.dashboard-search-form .search-input {
+    min-width: 0;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
 /* Tables, states and badges */
 .table-wrapper {
     background: rgba(15, 23, 42, .34);
@@ -694,6 +719,14 @@ a {
     padding: 12px;
 }
 
+.availability-list li {
+    flex-wrap: wrap;
+}
+
+.availability-list li form {
+    margin-top: 8px;
+}
+
 .offer-list p {
     color: var(--text-muted);
     font-size: .85rem;
@@ -773,11 +806,36 @@ a {
     gap: 18px;
 }
 
+.chat-context-banner {
+    display: grid;
+    gap: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(14, 165, 233, .12), rgba(59, 130, 246, .08));
+}
+
+.chat-context-banner strong {
+    color: var(--brand-light);
+}
+
 .chat-header {
     display: grid;
     gap: 8px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+}
+
+.chat-header h1,
+.chat-header h2 {
+    margin: 0;
+}
+
+.chat-header p {
+    margin: 0;
+    color: var(--text-muted);
 }
 
 .chat-window {

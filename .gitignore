@@ -9,3 +9,5 @@ static/uploads/*
 !static/uploads/.gitkeep
 
 database_backup.db
+
+*.bak

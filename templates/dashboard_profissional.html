@@ -246,15 +246,16 @@
             <div class="grid-two-column">
                 <article class="card">
                     <h3>Ganhos totais</h3>
-                    <strong>R$ {{ earnings }}</strong>
+                    <strong>{{ earnings|brl }}</strong>
                     <p>Recebidos após comissão.</p>
                 </article>
                 <article class="card">
                     <h3>Comissão da plataforma</h3>
-                    <strong>R$ {{ commission }}</strong>
+                    <strong>{{ commission|brl }}</strong>
                     <p>Total retido pela Zenvix.</p>
                 </article>
             </div>
+            <p class="panel-note">Valores exibidos em real brasileiro (BRL).</p>
         </section>
     </main>
 </div>

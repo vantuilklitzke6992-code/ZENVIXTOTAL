@@ -8,9 +8,9 @@
 
         // BEGIN CHANGE
         const socket = io();
-        const chatWindow = document.querySelector(".chat-window");
-        const chatForm = document.getElementById("chat-form");
-        const chatInput = document.getElementById("chat-message-input");
+        const serviceChatWindow = document.querySelector('.chat-window[data-chat-context="service"]');
+        const serviceChatForm = document.getElementById("chat-form");
+        const serviceChatInput = document.getElementById("chat-message-input");
         const notificationBanner = document.getElementById("chat-notification");
 
         const showChatNotification = (message) => {
@@ -24,8 +24,56 @@
             }, 5000);
         };
 
-        if (chatWindow && chatForm && chatInput) {
-            const serviceId = chatWindow.dataset.serviceId;
+        const updateConversationListItem = (payload) => {
+            const item = document.querySelector(`.chat-list-item[data-conversation-id='${payload.conversation_id}']`);
+            if (!item) {
+                return;
+            }
+            const messagePreview = item.querySelector('.chat-summary p');
+            const timeLabel = item.querySelector('.chat-summary-top span');
+            const unreadBadge = item.querySelector('.status-pill');
+
+            if (messagePreview) {
+                messagePreview.textContent = payload.mensagem;
+            }
+            if (timeLabel) {
+                timeLabel.textContent = payload.criado_em || 'Agora';
+            }
+            if (unreadBadge) {
+                unreadBadge.textContent = Number(unreadBadge.textContent || 0) + 1;
+            } else if (item.querySelector('.chat-side-meta')) {
+                const badge = document.createElement('span');
+                badge.className = 'status-pill';
+                badge.textContent = '1';
+                item.querySelector('.chat-side-meta').appendChild(badge);
+            }
+        };
+
+        const clearConversationUnread = (payload) => {
+            const item = document.querySelector(`.chat-list-item[data-conversation-id='${payload.conversation_id}']`);
+            if (!item) {
+                return;
+            }
+            const unreadBadge = item.querySelector('.status-pill');
+            if (unreadBadge) {
+                unreadBadge.remove();
+            }
+        };
+
+        const updatePresenceLabel = (userId, online) => {
+            const items = document.querySelectorAll(`.chat-list-item[data-user-id='${userId}'], .chat-list-item[data-partner-id='${userId}']`);
+            items.forEach((item) => {
+                const label = item.querySelector('.presence-label');
+                if (label) {
+                    label.textContent = online ? 'Online' : 'Offline';
+                    label.classList.toggle('online', online);
+                    label.classList.toggle('offline', !online);
+                }
+            });
+        };
+
+        if (serviceChatWindow && serviceChatForm && serviceChatInput) {
+            const serviceId = serviceChatWindow.dataset.serviceId;
             if (serviceId) {
                 socket.emit("join_service", { service_id: serviceId });
             }
@@ -59,34 +107,37 @@
                 messageElement.appendChild(metaDiv);
 
                 const messageP = document.createElement("p");
-                messageP.textContent = data.mensagem;
+                messageP.textContent = String(data.mensagem ?? "");
                 messageElement.appendChild(messageP);
 
-                const emptyState = chatWindow.querySelector(".empty-state");
+                const emptyState = serviceChatWindow.querySelector(".empty-state");
                 if (emptyState) {
                     emptyState.remove();
                 }
 
-                chatWindow.appendChild(messageElement);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
+                serviceChatWindow.appendChild(messageElement);
+                serviceChatWindow.scrollTop = serviceChatWindow.scrollHeight;
             };
 
             socket.on("nova_mensagem", (data) => {
                 if (serviceId && Number(data.service_id) === Number(serviceId)) {
+                    if (Number(data.remetente_id) === Number(document.body.dataset.userId)) {
+                        return;
+                    }
                     renderMessage(data);
                 }
             });
 
-            chatForm.addEventListener("submit", async function (event) {
+            serviceChatForm.addEventListener("submit", async function (event) {
                 event.preventDefault();
-                const message = chatInput.value.trim();
+                const message = serviceChatInput.value.trim();
                 if (!message) {
                     return;
                 }
 
                 try {
-                    const formData = new FormData(chatForm);
-                    const response = await fetch(chatForm.action, {
+                    const formData = new FormData(serviceChatForm);
+                    const response = await fetch(serviceChatForm.action, {
                         method: "POST",
                         credentials: "same-origin",
                         headers: {
@@ -98,7 +149,7 @@
                     if (response.ok) {
                         const payload = await response.json();
                         renderMessage(payload.payload);
-                        chatInput.value = "";
+                        serviceChatInput.value = "";
                     } else {
                         window.location.reload();
                     }
@@ -111,7 +162,7 @@
 
         // END CHANGE
 
-        const conversationWindow = document.querySelector(".conversation-window");
+        const conversationWindow = document.querySelector('.conversation-window[data-chat-context="private"]');
         const conversationForm = document.getElementById("conversation-form");
         const conversationInput = document.getElementById("conversation-message-input");
 
@@ -119,6 +170,7 @@
             const conversationId = conversationWindow.dataset.conversationId;
             if (conversationId) {
                 socket.emit("join_conversation", { conversation_id: conversationId });
+                socket.emit("mensagem_lida", { conversation_id: conversationId, user_id: Number(document.body.dataset.userId) });
             }
 
             const renderConversationMessage = (data) => {
@@ -140,7 +192,7 @@
                 messageElement.appendChild(metaDiv);
 
                 const messageP = document.createElement("p");
-                messageP.textContent = data.mensagem;
+                messageP.textContent = String(data.mensagem ?? "");
                 messageElement.appendChild(messageP);
 
                 const emptyState = conversationWindow.querySelector(".empty-state");
@@ -154,6 +206,9 @@
 
             socket.on("nova_mensagem_conversa", (data) => {
                 if (conversationId && Number(data.conversation_id) === Number(conversationId)) {
+                    if (Number(data.remetente_id) === Number(document.body.dataset.userId)) {
+                        return;
+                    }
                     renderConversationMessage(data);
                 }
             });
@@ -189,6 +244,41 @@
                 }
             });
         }
+        socket.on('nova_notificacao', (data) => {
+            if (!data || !data.conversation_id) {
+                return;
+            }
+            updateConversationListItem(data);
+            showChatNotification(`🔔 Nova mensagem de ${data.usuario}`);
+        });
+
+        socket.on('mensagem_recebida', (data) => {
+            if (!data || !data.conversation_id) {
+                return;
+            }
+            updateConversationListItem(data);
+        });
+
+        socket.on('mensagem_lida', (payload) => {
+            if (!payload || !payload.conversation_id) {
+                return;
+            }
+            clearConversationUnread(payload);
+        });
+
+        socket.on('usuario_online', (data) => {
+            if (!data || !data.id) {
+                return;
+            }
+            updatePresenceLabel(data.id, true);
+        });
+
+        socket.on('usuario_offline', (data) => {
+            if (!data || !data.id) {
+                return;
+            }
+            updatePresenceLabel(data.id, false);
+        });
     }
 
     const cadastroForm = document.getElementById("cadastro-form");

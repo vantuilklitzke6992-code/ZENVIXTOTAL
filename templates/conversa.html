@@ -1,16 +1,69 @@
+{% set compact_header = true %}
 {% extends "base.html" %}
 {% block title %}Conversa | Zenvix Connect{% endblock %}
 {% block content %}
-<section class="dashboard-shell chat-shell">
+<section class="chat-shell">
+    <aside class="chat-sidebar">
+        <div class="sidebar-brand">
+            <div class="avatar avatar-large {% if partner and (partner.foto_perfil or partner.logo_empresa) %}avatar-image{% endif %}"
+                {% if partner and (partner.foto_perfil or partner.logo_empresa) %}
+                style="background-image:url('/static/uploads/{{ partner.foto_perfil or partner.logo_empresa }}')" {%
+                endif %}>
+                {% if not partner or (not partner.foto_perfil and not partner.logo_empresa) %}{{ (partner.empresa_nome
+                or partner.nome)[0]|upper if partner else 'U' }}{% endif %}
+            </div>
+            <div>
+                <h2>{{ partner.empresa_nome or partner.nome if partner else 'Conversa privada' }}</h2>
+                <p>{{ 'Online agora' if partner and partner.status_online == 'online' else 'Offline' }}</p>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <h3>Detalhes da conversa</h3>
+            {% if partner %}
+            <p><strong>Tipo:</strong> {{ partner.tipo|capitalize }}</p>
+            <p><strong>Telefone:</strong> {{ partner.telefone or '—' }}</p>
+            <p><strong>Status:</strong> {{ 'Online agora' if partner.status_online == 'online' else 'Offline' }}</p>
+            {% else %}
+            <p>Sem informações adicionais.</p>
+            {% endif %}
+        </div>
+        <div class="chat-sidebar-actions">
+            <a href="/chat" class="button button-secondary button-small">Voltar à lista</a>
+            {% if partner_is_provider %}
+            <a href="{{ url_for('solicitar_servico', provider_id=partner.id, conversation_id=conversation.id) }}"
+                class="button button-primary button-small">Solicitar serviço</a>
+            {% endif %}
+        </div>
+    </aside>
     <main class="chat-main">
         <div class="chat-header">
-            <div>
-                <h1>Conversa privada</h1>
-                <p>Troque mensagens com {{ partner.nome if partner else 'o participante' }} antes da contratação.</p>
+            <div class="chat-profile-summary">
+                <div class="avatar avatar-large {% if partner and (partner.foto_perfil or partner.logo_empresa) %}avatar-image{% endif %}"
+                    {% if partner and (partner.foto_perfil or partner.logo_empresa)
+                    %}style="background-image:url('/static/uploads/{{ partner.foto_perfil or partner.logo_empresa }}')"
+                    {% endif %}>
+                    {% if not partner or (not partner.foto_perfil and not partner.logo_empresa) %}{{
+                    (partner.empresa_nome or partner.nome)[0]|upper if partner else 'U' }}{% endif %}
+                </div>
+                <div>
+                    <h1>Conversa com {{ partner.empresa_nome or partner.nome if partner else 'o prestador' }}</h1>
+                    <p>Chat privado · pré-contratação · dúvidas e alinhamento inicial</p>
+                </div>
             </div>
-            <a href="/profissionais" class="button button-secondary">Voltar</a>
+            <div class="inline-stack">
+                <a href="/chat" class="button button-secondary">Voltar</a>
+                {% if partner_is_provider %}
+                <a href="{{ url_for('solicitar_servico', provider_id=partner.id, conversation_id=conversation.id) }}"
+                    class="button button-primary">Solicitar serviço</a>
+                {% endif %}
+            </div>
         </div>
-        <div class="chat-window conversation-window" data-conversation-id="{{ conversation.id }}">
+        <div class="chat-context-banner">
+            <strong>Pronto para contratar?</strong>
+            <p>Use esta conversa para esclarecer detalhes antes de criar um serviço e iniciar a contratação.</p>
+        </div>
+        <div class="chat-window conversation-window" data-conversation-id="{{ conversation.id }}"
+            data-chat-context="private">
             {% if messages %}
             {% for message in messages %}
             <div

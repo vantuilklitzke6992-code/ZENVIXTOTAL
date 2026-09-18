@@ -17,16 +17,64 @@
             <p><strong>Profissional:</strong> {{ service.profissional_nome }}</p>
             <p><strong>Telefone profissional:</strong> {% if professional_phone %}<a
                     href="tel:{{ professional_phone }}">{{ professional_phone }}</a>{% else %}—{% endif %}</p>
-            <p><strong>Status:</strong> {{ service.status }}</p>
+            <p><strong>Status:</strong> {{ service_effective_status }}</p>
+            <p><strong>Valor atual:</strong> R$ {{ "%.2f"|format(service.valor or 0) }}</p>
+            {% if service.motivo_cancelamento %}
+            <p><strong>Motivo do cancelamento:</strong> {{ service.motivo_cancelamento }}</p>
+            {% endif %}
+            {% if service.data_cancelamento %}
+            <p><strong>Cancelado em:</strong> {{ service.data_cancelamento }}</p>
+            {% endif %}
         </div>
         <a href="/dashboard" class="button button-secondary">Voltar ao painel</a>
     </aside>
     <main class="chat-main">
         <div class="chat-header">
-            <h1>Conversa do serviço</h1>
-            <p>Troque mensagens com o outro participante do serviço.</p>
+            <h1>Chat do serviço</h1>
+            <p>Serviço #{{ service.id }} · negociação, status e acompanhamento</p>
         </div>
-        <div class="chat-window" data-service-id="{{ service.id }}">
+        <div class="chat-context-banner">
+            <strong>Detalhes do serviço</strong>
+            <p>Status: {{ service_effective_status }} · Valor atual: R$ {{ "%.2f"|format(service.valor or 0) }}</p>
+        </div>
+        <div class="sidebar-card" style="margin-bottom: 1rem;">
+            <h3>Negociação de valor</h3>
+            {% if value_proposal %}
+            <p><strong>Estado:</strong> {{ value_proposal.estado }}</p>
+            <p><strong>Valor proposto:</strong> R$ {{ "%.2f"|format(value_proposal.valor_proposto or 0) }}</p>
+            {% if value_proposal.estado == 'Pendente' and can_respond_to_proposal %}
+            <div class="inline-stack">
+                <form action="/servico/{{ service.id }}/proposta-valor/{{ value_proposal.id }}/aceitar" method="post"
+                    class="inline-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="button button-primary button-small">Aceitar</button>
+                </form>
+                <form action="/servico/{{ service.id }}/proposta-valor/{{ value_proposal.id }}/recusar" method="post"
+                    class="inline-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="button button-secondary button-small">Recusar</button>
+                </form>
+            </div>
+            {% elif value_proposal.estado == 'Pendente' %}
+            <p>Aguardando resposta do outro participante.</p>
+            {% elif value_proposal.estado == 'Aceita' %}
+            <p>Proposta aceita e o valor foi atualizado.</p>
+            {% elif value_proposal.estado == 'Recusada' %}
+            <p>Proposta recusada. Você pode criar outra se necessário.</p>
+            {% endif %}
+            {% else %}
+            <p>Nenhuma proposta pendente no momento.</p>
+            {% endif %}
+            {% if can_manage_value %}
+            <form action="/servico/{{ service.id }}/propor-valor" method="post" class="inline-stack"
+                style="margin-top: 0.75rem;">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <input type="number" step="0.01" min="0" name="valor" placeholder="Novo valor" required>
+                <button type="submit" class="button button-secondary button-small">Propor valor</button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="chat-window" data-service-id="{{ service.id }}" data-chat-context="service">
             {% if messages %}
             {% for message in messages %}
             <div

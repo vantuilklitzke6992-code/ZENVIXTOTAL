@@ -1,8 +1,9 @@
+{% set compact_header = true %}
 {% extends "layouts/base.html" %}
 
 {% block content %}
-<div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
+<div class="chat-shell">
+    <aside class="chat-sidebar">
         <div class="sidebar-brand">
             <div class="avatar avatar-large">{{ user['nome'][0]|upper }}</div>
             <div>
@@ -17,60 +18,135 @@
         </nav>
     </aside>
 
-    <main class="dashboard-main">
+    <main class="chat-main">
         <section class="section-header">
             <div>
                 <span class="section-badge">Chat</span>
-                <h1>Minhas conversas</h1>
-                <p>Você pode acompanhar as solicitações relacionadas ao seu perfil sem sair do fluxo atual.</p>
+                <h1>Conversas rápidas</h1>
+                <p>Encontre outros usuários, inicie uma conversa e acompanhe as últimas interações em um fluxo simples.
+                </p>
             </div>
         </section>
 
-        {% if service_conversations %}
+        <form action="{{ url_for('chat_index') }}" method="get" class="chat-panel chat-search-panel">
+            <div class="chat-search-group">
+                <label for="search-user" class="chat-search-label">Buscar usuário</label>
+                <input id="search-user" name="q" value="{{ request.args.get('q', '') }}" placeholder="Buscar por nome"
+                    class="search-input">
+            </div>
+            <div class="chat-search-group">
+                <label for="search-phone" class="chat-search-label">Adicionar número de celular</label>
+                <input id="search-phone" name="phone" value="{{ request.args.get('phone', '') }}"
+                    placeholder="Adicionar número de celular" class="search-input">
+            </div>
+            <p class="chat-search-note">Digite o número de celular cadastrado no Zenvix Connect para iniciar uma
+                conversa. Não é envio de SMS; o sistema busca o usuário e abre o chat.</p>
+            <div class="chat-filters">
+                <span>Filtro:</span>
+                <button type="submit" name="filter" value="all"
+                    class="button button-secondary button-small {{ 'active' if request.args.get('filter', 'all') == 'all' else '' }}">Todas</button>
+                <button type="submit" name="filter" value="unread"
+                    class="button button-secondary button-small {{ 'active' if request.args.get('filter') == 'unread' else '' }}">Não
+                    lidas</button>
+            </div>
+            <div class="chat-search-actions">
+                <button type="submit" class="button button-primary">Buscar</button>
+            </div>
+        </form>
+
+        {% if phone_contact %}
+        <section class="dashboard-panel chat-result-panel">
+            <h2>Contato encontrado</h2>
+            <div class="chat-card">
+                <div class="chat-card-main">
+                    <div class="avatar avatar-large {% if phone_contact.foto_perfil or phone_contact.logo_empresa %}avatar-image{% endif %}"
+                        {% if phone_contact.foto_perfil or phone_contact.logo_empresa
+                        %}style="background-image:url('/static/uploads/{{ phone_contact.foto_perfil or phone_contact.logo_empresa }}')"
+                        {% endif %}>
+                        {% if not phone_contact.foto_perfil and not phone_contact.logo_empresa %}{{
+                        (phone_contact.empresa_nome or phone_contact.nome)[0]|upper }}{% endif %}
+                    </div>
+                    <div class="chat-card-info">
+                        <strong>{{ phone_contact.empresa_nome or phone_contact.nome }}</strong>
+                        <span>{{ phone_contact.telefone }}</span>
+                        <p class="chat-contact-status">{{ phone_contact.tipo|capitalize }} · {{ 'Online' if
+                            phone_contact.status_online == 'online' else 'Offline' }}</p>
+                    </div>
+                </div>
+                <div class="chat-card-action">
+                    <a href="{{ url_for('iniciar_conversa', partner_id=phone_contact.id) }}"
+                        class="button button-primary chat-contact-button">Conversar</a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if conversations %}
         <section class="dashboard-panel">
-            <div class="table-wrapper">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Participante</th>
-                            <th>Telefone</th>
-                            <th>Serviço</th>
-                            <th>Última mensagem</th>
-                            <th>Data/Hora</th>
-                            <th>Mensagens</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in service_conversations %}
-                        <tr>
-                            <td>{{ item.participant_name }}</td>
-                            <td>{{ item.participant_phone or '—' }}</td>
-                            <td>{{ item.service_label }}</td>
-                            <td>{{ item.last_message }}</td>
-                            <td>{{ item.last_message_time }}</td>
-                            <td>{{ item.message_count }}</td>
-                            <td><a href="/servico/{{ item.service_id }}/chat"
-                                    class="button button-primary button-small">Abrir</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <h2>Conversas recentes</h2>
+            <div class="chat-list">
+                {% for conversation in conversations %}
+                <a href="{{ url_for('visualizar_conversa', conversation_id=conversation.conversation_id) }}"
+                    class="chat-list-item" data-conversation-id="{{ conversation.conversation_id }}"
+                    data-partner-id="{{ conversation.partner_id }}">
+                    <div class="avatar avatar-large {% if conversation.partner_photo %}avatar-image{% endif %}" {% if
+                        conversation.partner_photo
+                        %}style="background-image:url('/static/uploads/{{ conversation.partner_photo }}')" {% endif %}>
+                        {% if not conversation.partner_photo %}{{ conversation.partner_name[0]|upper }}{% endif %}
+                    </div>
+                    <div class="chat-summary">
+                        <div class="chat-summary-top">
+                            <strong>{{ conversation.partner_name }}</strong>
+                            <span>{{ conversation.last_message_time or '—' }}</span>
+                        </div>
+                        <p>{{ conversation.last_message }}</p>
+                    </div>
+                    <div class="chat-side-meta">
+                        <span
+                            class="presence-label {{ 'online' if conversation.partner_status == 'online' else 'offline' }}">{{
+                            'Online' if conversation.partner_status == 'online' else 'Offline' }}</span>
+                        {% if conversation.unread_count %}<span class="status-pill">{{ conversation.unread_count
+                            }}</span>{% endif %}
+                    </div>
+                </a>
+                {% endfor %}
             </div>
         </section>
         {% else %}
         <section class="dashboard-panel empty-state">
-            <p>Você ainda não possui conversas vinculadas a solicitações.</p>
-            {% if services %}
-            <div class="chat-service-list">
-                <p>Serviços ativos disponíveis para abrir o chat:</p>
-                <ul>
-                    {% for service in services %}
-                    <li><a href="/servico/{{ service.id }}/chat">{{ service.categoria or service.descricao }}</a></li>
-                    {% endfor %}
-                </ul>
+            <p>Nenhuma conversa ainda. Você pode começar uma conversa com qualquer usuário do sistema.</p>
+        </section>
+        {% endif %}
+
+        {% if contacts %}
+        <section class="dashboard-panel">
+            <h2>Iniciar conversa</h2>
+            <div class="chat-list">
+                {% for contact in contacts %}
+                <a href="{{ url_for('iniciar_conversa', partner_id=contact.id) }}" class="chat-list-item"
+                    data-user-id="{{ contact.id }}">
+                    <div class="avatar avatar-large {% if contact.foto_perfil or contact.logo_empresa %}avatar-image{% endif %}"
+                        {% if contact.foto_perfil or contact.logo_empresa
+                        %}style="background-image:url('/static/uploads/{{ contact.foto_perfil or contact.logo_empresa }}')"
+                        {% endif %}>
+                        {% if not contact.foto_perfil and not contact.logo_empresa %}{{ (contact.empresa_nome or
+                        contact.nome)[0]|upper }}{% endif %}
+                    </div>
+                    <div class="chat-summary">
+                        <div class="chat-summary-top">
+                            <strong>{{ contact.empresa_nome or contact.nome }}</strong>
+                            <span>{{ 'Empresa' if contact.tipo == 'empresa' else 'Usuário' }}</span>
+                        </div>
+                        <p>{{ contact.tipo|capitalize }}</p>
+                    </div>
+                    <div class="chat-side-meta">
+                        <span
+                            class="presence-label {{ 'online' if contact.status_online == 'online' else 'offline' }}">{{
+                            'Online' if contact.status_online == 'online' else 'Offline' }}</span>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            {% endif %}
         </section>
         {% endif %}
     </main>

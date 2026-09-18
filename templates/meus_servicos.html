@@ -28,11 +28,18 @@
                     <td>{{ service.partner_name }} <span class="provider-role">({{ service.partner_role|capitalize
                             }})</span></td>
                     <td>{{ service.categoria or 'Sem categoria' }}</td>
-                    <td><span class="status-pill">{{ service.status or 'Pendente' }}</span></td>
+                    <td>
+                        <span class="status-pill">{{ service.effective_status or service.status or 'Pendente' }}</span>
+                        {% if service.effective_status == 'Cancelado' and service.motivo_cancelamento %}
+                        <br><small>{{ service.motivo_cancelamento }}</small>
+                        {% endif %}
+                    </td>
                     <td>{{ service.valor if service.valor else '—' }}</td>
                     <td>{{ service.data_solicitacao or '—' }}</td>
                     <td>
                         {% if user_type in ['profissional', 'empresa'] %}
+                        <a href="/servico/{{ service.id }}/chat" class="button button-secondary button-small">Abrir chat
+                            do serviço</a>
                         {% if not provider_active %}
                         <span class="status-pill status-warning">Aprovação pendente</span>
                         {% elif service.status == 'Pendente' or service.status is none %}
@@ -48,20 +55,44 @@
                             <button type="submit" class="button button-secondary button-small">Iniciar</button>
                         </form>
                         {% elif service.status == 'Em andamento' %}
-                        <form action="/servico/{{ service.id }}/atualizar-status" method="post" class="inline-form">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-                            <input type="hidden" name="new_status" value="Concluído">
-                            <button type="submit" class="button button-primary button-small">Concluir</button>
-                        </form>
-                        {% else %}
+                        <div class="inline-stack">
+                            <form action="/servico/{{ service.id }}/confirmar-conclusao" method="post"
+                                class="inline-form">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="button button-primary button-small">Confirmar
+                                    conclusão</button>
+                            </form>
+                            <form action="/servico/{{ service.id }}/cancelar" method="post" class="inline-form">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="motivo_cancelamento"
+                                    value="Cancelamento solicitado pelo prestador">
+                                <button type="submit" class="button button-secondary button-small">Cancelar</button>
+                            </form>
+                        </div>
+                        {% elif service.status == 'Aguardando confirmação' %}
+                        <span class="status-pill">Aguardando confirmação</span>
+                        {% elif service.status == 'Concluído' %}
                         <span class="status-pill">Concluído</span>
+                        {% elif service.status == 'Cancelado' %}
+                        <span class="status-pill status-warning">Cancelado</span>
+                        {% else %}
+                        <span class="status-pill">{{ service.status or 'Pendente' }}</span>
                         {% endif %}
                         {% elif service.can_review %}
                         <a href="/avaliar/{{ service.id }}" class="button button-primary button-small">Avaliar</a>
+                        <a href="/servico/{{ service.id }}/chat" class="button button-secondary button-small">Abrir chat
+                            do serviço</a>
                         {% elif service.reviewed %}
                         <span class="status-pill">Avaliado</span>
+                        {% elif service.status == 'Aguardando confirmação' %}
+                        <span class="status-pill">Aguardando confirmação</span>
+                        {% elif service.status == 'Concluído' %}
+                        <span class="status-pill">Concluído</span>
+                        {% elif service.status == 'Cancelado' %}
+                        <span class="status-pill status-warning">Cancelado</span>
                         {% else %}
-                        —
+                        <a href="/servico/{{ service.id }}/chat" class="button button-secondary button-small">Abrir chat
+                            do serviço</a>
                         {% endif %}
                     </td>
                 </tr>

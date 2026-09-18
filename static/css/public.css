@@ -113,6 +113,55 @@
 
 .marketplace-search .form-control {
     min-width: 0;
+    background: rgba(15, 23, 42, .92);
+    border: 1px solid rgba(148, 163, 184, .18);
+    border-radius: 14px;
+    color: var(--text);
+    padding: 12px 14px;
+}
+
+.marketplace-search .form-control:focus {
+    border-color: rgba(14, 165, 233, .85);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, .12);
+    outline: none;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0 16px;
+}
+
+.hero-actions .button {
+    min-width: 170px;
+}
+
+.hero-metrics {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-bottom: 20px;
+}
+
+.hero-metric {
+    background: rgba(14, 165, 233, .08);
+    border: 1px solid rgba(14, 165, 233, .18);
+    border-radius: 16px;
+    color: #E2E8F0;
+    padding: 14px 16px;
+}
+
+.hero-metric strong {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.hero-metric span {
+    color: #94A3B8;
+    font-size: .9rem;
 }
 
 .hero-trust {
@@ -278,10 +327,11 @@
     background: rgba(14, 165, 233, .13);
     border-radius: 10px;
     display: grid;
-    font-size: 1.2rem;
-    height: 38px;
+    font-size: 1.35rem;
+    height: 42px;
+    line-height: 1;
     place-items: center;
-    width: 38px;
+    width: 42px;
 }
 
 .marketplace-category h3 {

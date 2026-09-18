@@ -1,3 +1,4 @@
+{% set compact_header = true %}
 {% extends "layouts/base.html" %}
 
 {% block content %}
@@ -18,15 +19,6 @@
             <a href="#categorias">Categorias</a>
             <a href="/chat">Chat</a>
         </nav>
-
-        <div class="sidebar-card">
-            <h3>Controle</h3>
-            <ul>
-                <li><strong>Total usuários</strong> {{ metrics.total_users }}</li>
-                <li><strong>Profissionais</strong> {{ metrics.active_providers }}</li>
-                <li><strong>Empresas</strong> {{ metrics.company_count }}</li>
-            </ul>
-        </div>
     </aside>
 
     <main class="dashboard-main">
@@ -65,6 +57,13 @@
                 </div>
                 <p>Lista de usuários cadastrados e status de aprovação.</p>
             </div>
+            <div class="panel-actions">
+                <form method="get" class="dashboard-search-form">
+                    <input name="q" value="{{ search }}" placeholder="Buscar por nome, e-mail ou tipo"
+                        class="search-input" type="search">
+                    <button type="submit" class="button button-secondary button-small">Buscar</button>
+                </form>
+            </div>
             <div class="table-wrapper">
                 <table class="dashboard-table">
                     <thead>
@@ -86,15 +85,20 @@
                             <td>{{ user.telefone or '—' }}</td>
                             <td><span class="status-pill status-{{ user.approval_status|lower|replace(' ', '-') }}">{{
                                     user.approval_status or 'Ativo' }}</span></td>
-                            <td>
-                                {% if user.tipo != 'admin' %}
-                                <form action="/admin/remover-usuario/{{ user.id }}" method="post" class="inline-form">
-                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-                                    <button type="submit" class="button button-danger button-small">Remover</button>
-                                </form>
-                                {% else %}
-                                —
-                                {% endif %}
+                            <td class="table-actions">
+                                <div class="button-group">
+                                    {% if user.tipo in ['profissional', 'empresa'] %}
+                                    <a href="/{{ 'empresa' if user.tipo == 'empresa' else 'profissional' }}/{{ user.id }}"
+                                        class="button button-secondary button-small">Ver</a>
+                                    {% endif %}
+                                    {% if user.tipo != 'admin' %}
+                                    <form action="/admin/remover-usuario/{{ user.id }}" method="post"
+                                        class="inline-form">
+                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                        <button type="submit" class="button button-danger button-small">Remover</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
