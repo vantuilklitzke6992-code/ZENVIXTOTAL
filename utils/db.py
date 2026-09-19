@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from flask import g
 
@@ -100,6 +101,66 @@ def normalize_usuarios_schema():
             f"INSERT INTO usuarios ({columns_to_copy}) SELECT {columns_to_copy} FROM usuarios_old"
         )
     db.execute("DROP TABLE usuarios_old")
+
+
+def repair_usuarios_foreign_keys():
+    db = get_db()
+    tables = db.execute(
+        "SELECT name, sql FROM sqlite_master "
+        "WHERE type = 'table' AND sql IS NOT NULL AND sql LIKE '%usuarios_old%'"
+    ).fetchall()
+    if not tables:
+        return
+
+    foreign_keys_enabled = db.execute("PRAGMA foreign_keys").fetchone()[0]
+    legacy_alter_table = db.execute("PRAGMA legacy_alter_table").fetchone()[0]
+    db.commit()
+    db.execute("PRAGMA foreign_keys = OFF")
+    db.execute("PRAGMA legacy_alter_table = ON")
+
+    try:
+        db.execute("BEGIN")
+        for table in tables:
+            table_name = table["name"]
+            temporary_name = f"__fk_repair_{table_name}"
+            table_sql = re.sub(
+                r"usuarios_old", "usuarios", table["sql"], flags=re.IGNORECASE
+            )
+            objects = db.execute(
+                "SELECT type, name, sql FROM sqlite_master "
+                "WHERE tbl_name = ? AND type IN ('index', 'trigger') "
+                "AND sql IS NOT NULL",
+                (table_name,),
+            ).fetchall()
+            columns = [
+                row["name"] for row in db.execute(f'PRAGMA table_info("{table_name}")')
+            ]
+            quoted_columns = ", ".join(f'"{column}"' for column in columns)
+
+            for obj in objects:
+                db.execute(f'DROP {obj["type"].upper()} "{obj["name"]}"')
+            db.execute(f'ALTER TABLE "{table_name}" RENAME TO "{temporary_name}"')
+            db.execute(table_sql)
+            db.execute(
+                f'INSERT INTO "{table_name}" ({quoted_columns}) '
+                f'SELECT {quoted_columns} FROM "{temporary_name}"'
+            )
+            db.execute(f'DROP TABLE "{temporary_name}"')
+            for obj in objects:
+                db.execute(
+                    re.sub(
+                        rf"(?i)\b{re.escape(temporary_name)}\b",
+                        table_name,
+                        obj["sql"],
+                    )
+                )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.execute(f"PRAGMA legacy_alter_table = {legacy_alter_table}")
+        db.execute(f"PRAGMA foreign_keys = {foreign_keys_enabled}")
 
 
 def init_db():
@@ -312,6 +373,7 @@ def init_db():
         )
         """)
     normalize_usuarios_schema()
+    repair_usuarios_foreign_keys()
     add_column_if_missing("usuarios", "bio", "TEXT")
     add_column_if_missing("usuarios", "especialidade", "TEXT")
     add_column_if_missing("usuarios", "empresa_nome", "TEXT")
