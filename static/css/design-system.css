@@ -61,8 +61,8 @@ a {
     font-weight: 650;
     gap: 8px;
     justify-content: center;
-    line-height: 1;
-    min-height: 42px;
+    line-height: 1.2;
+    min-height: 44px;
     padding: 0 17px;
     text-decoration: none;
     transition: background var(--ease), border-color var(--ease), box-shadow var(--ease), transform var(--ease);
@@ -97,8 +97,8 @@ a {
 
 .button-primary:hover,
 .btn-primary:hover {
-    background: #0284C7;
-    border-color: #0284C7;
+    background: var(--brand-light);
+    border-color: var(--brand-light);
     box-shadow: 0 10px 22px rgba(14, 165, 233, .3);
 }
 
@@ -130,15 +130,58 @@ a {
 
 .button-small,
 .btn-sm {
-    min-height: 34px;
+    min-height: 36px;
     border-radius: 8px;
     font-size: .8125rem;
     padding: 0 11px;
 }
 
+.button-large,
+.btn-lg {
+    min-height: 50px;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    padding: 0 20px;
+}
+
 .button-full,
 .btn-block {
     width: 100%;
+}
+
+/* Responsive button sizing */
+@media (min-width: 1200px) {
+    .button,
+    .btn {
+        min-height: 44px;
+    }
+
+    .button-small,
+    .btn-sm {
+        min-height: 36px;
+    }
+
+    .button-large,
+    .btn-lg {
+        min-height: 50px;
+    }
+}
+
+@media (min-width: 761px) and (max-width: 1199px) {
+    .button,
+    .btn {
+        min-height: 42px;
+    }
+
+    .button-small,
+    .btn-sm {
+        min-height: 35px;
+    }
+
+    .button-large,
+    .btn-lg {
+        min-height: 48px;
+    }
 }
 
 /* Navigation and page shell */
@@ -1098,7 +1141,22 @@ a {
 
     .button,
     .btn {
-        min-height: 40px;
+        min-height: 44px;
+        font-size: .9375rem;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .button-small,
+    .btn-sm {
+        min-height: 38px;
+        font-size: .8rem;
+    }
+
+    .button-large,
+    .btn-lg {
+        min-height: 46px;
+        font-size: .95rem;
     }
 
     .table-wrapper {
