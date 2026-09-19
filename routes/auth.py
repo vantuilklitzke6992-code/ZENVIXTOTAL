@@ -18,6 +18,13 @@ import os
 auth_bp = Blueprint("auth", __name__)
 
 
+def _registration_error_redirect(form_data, tipo, current_step):
+    session["cadastro_form_data"] = form_data
+    session["cadastro_tipo"] = tipo
+    session["cadastro_current_step"] = current_step
+    return redirect(url_for("auth.cadastro"))
+
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
@@ -47,7 +54,7 @@ def cadastro():
     if request.method == "POST":
         if not validate_csrf_token():
             flash("Token de segurança inválido. Tente novamente.", "error")
-            return render_template("auth/cadastro.html")
+            return redirect(url_for("auth.cadastro"))
 
         tipo = request.form.get("tipo", "cliente")
         nome = request.form.get("nome", "").strip()
@@ -87,30 +94,15 @@ def cadastro():
 
         if not nome or not email or not senha or not confirm_senha:
             flash("Preencha os dados obrigatórios da conta.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
 
         if "@" not in email or "." not in email:
             flash("Informe um e-mail válido.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
 
         if senha != confirm_senha:
             flash("As senhas não conferem.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
 
         db = get_db()
         existing = db.execute(
@@ -120,12 +112,7 @@ def cadastro():
             flash(
                 "Este e-mail já está em uso. Faça login ou use outro e-mail.", "error"
             )
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
 
         if tipo == "cliente":
             if not estado or not cidade or not telefone:
@@ -134,12 +121,7 @@ def cadastro():
                     "Preencha estado, cidade e telefone para finalizar seu cadastro.",
                     "error",
                 )
-                return render_template(
-                    "auth/cadastro.html",
-                    form_data=form_data,
-                    tipo=tipo,
-                    current_step=current_step,
-                )
+                return _registration_error_redirect(form_data, tipo, current_step)
             approval_status = "Ativo"
             cpf = None
             cnpj = None
@@ -156,12 +138,7 @@ def cadastro():
             ):
                 current_step = 3
                 flash("Preencha todos os dados profissionais obrigatórios.", "error")
-                return render_template(
-                    "auth/cadastro.html",
-                    form_data=form_data,
-                    tipo=tipo,
-                    current_step=current_step,
-                )
+                return _registration_error_redirect(form_data, tipo, current_step)
             approval_status = "Pendente"
             empresa_nome = None
             cnpj = None
@@ -170,12 +147,7 @@ def cadastro():
             if not empresa_nome or not estado or not cidade or not telefone or not cnpj:
                 current_step = 3
                 flash("Preencha todos os dados da empresa obrigatórios.", "error")
-                return render_template(
-                    "auth/cadastro.html",
-                    form_data=form_data,
-                    tipo=tipo,
-                    current_step=current_step,
-                )
+                return _registration_error_redirect(form_data, tipo, current_step)
             approval_status = "Pendente"
             cpf = None
             documento = None
@@ -183,12 +155,7 @@ def cadastro():
         if documento and documento.filename and not allowed_file(documento.filename):
             current_step = 3
             flash("Envie o documento em PDF, JPG ou PNG.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
         if (
             documento_empresa
             and documento_empresa.filename
@@ -196,12 +163,7 @@ def cadastro():
         ):
             current_step = 3
             flash("Envie o documento da empresa em PDF, JPG ou PNG.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
         if (
             foto_perfil_file
             and foto_perfil_file.filename
@@ -209,12 +171,7 @@ def cadastro():
         ):
             current_step = 3
             flash("Envie a foto de perfil em PDF, JPG ou PNG.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
         if (
             logo_empresa_file
             and logo_empresa_file.filename
@@ -222,12 +179,7 @@ def cadastro():
         ):
             current_step = 3
             flash("Envie o logo da empresa em PDF, JPG ou PNG.", "error")
-            return render_template(
-                "auth/cadastro.html",
-                form_data=form_data,
-                tipo=tipo,
-                current_step=current_step,
-            )
+            return _registration_error_redirect(form_data, tipo, current_step)
 
         documento_filename = save_uploaded_file(documento)
         documento_empresa_filename = save_uploaded_file(documento_empresa)
@@ -287,8 +239,11 @@ def cadastro():
         )
         return redirect(url_for("auth.login"))
 
+    form_data = session.pop("cadastro_form_data", {})
+    tipo = session.pop("cadastro_tipo", "cliente")
+    current_step = session.pop("cadastro_current_step", 1)
     return render_template(
-        "auth/cadastro.html", form_data={}, tipo="cliente", current_step=1
+        "auth/cadastro.html", form_data=form_data, tipo=tipo, current_step=current_step
     )
 
 
@@ -297,20 +252,20 @@ def login():
     if request.method == "POST":
         if not validate_csrf_token():
             flash("Token de segurança inválido. Tente novamente.", "error")
-            return render_template("auth/login.html")
+            return redirect(url_for("auth.login"))
 
         email = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")
 
         if not email or not senha:
             flash("Informe e-mail e senha para acessar.", "error")
-            return render_template("auth/login.html")
+            return redirect(url_for("auth.login"))
 
         db = get_db()
         user = db.execute("SELECT * FROM usuarios WHERE email = ?", (email,)).fetchone()
         if not user or not check_password_hash(user["senha"], senha):
             flash("E-mail ou senha inválidos.", "error")
-            return render_template("auth/login.html")
+            return redirect(url_for("auth.login"))
 
         session.clear()
         session["user_id"] = user["id"]
