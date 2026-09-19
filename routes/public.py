@@ -7,8 +7,21 @@ public_bp = Blueprint('public', __name__)
 
 @public_bp.route('/', endpoint='home')
 def home():
-    featured_providers = [enrich_provider(provider) for provider in get_providers()[:3]]
+    providers = [enrich_provider(provider) for provider in get_providers()]
+
+    featured_providers = sorted(
+        (
+            provider
+            for provider in providers
+            if provider["rating_count"] > 0
+            or provider["completed_services"] > 0
+        ),
+        key=lambda provider: provider["recommendation_score"],
+        reverse=True,
+    )[:3]
+
     online_providers = get_online_providers(limit=4)
+
     return render_template(
         'public/home.html',
         featured_providers=featured_providers,
