@@ -1620,7 +1620,6 @@ nav a {
 .hero-image {
     min-height: 320px;
 }
-}
 
 @media (max-width: 480px) {
     .topbar {
@@ -1690,7 +1689,6 @@ nav a {
 .auth-actions-row .link-muted:hover {
     color: #E5E7EB;
 }
-
 
 .account-type-grid {
     display: grid;

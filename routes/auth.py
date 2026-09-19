@@ -34,10 +34,18 @@ def allowed_file(filename):
     }
 
 
-def save_uploaded_file(file_storage):
+def allowed_image_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in {
+        "png",
+        "jpg",
+        "jpeg",
+    }
+
+
+def save_uploaded_file(file_storage, file_validator=allowed_file):
     if not file_storage or file_storage.filename == "":
         return None
-    if not allowed_file(file_storage.filename):
+    if not file_validator(file_storage.filename):
         return None
     filename = secure_filename(file_storage.filename)
     upload_folder = current_app.config.get("UPLOAD_FOLDER")
@@ -167,24 +175,24 @@ def cadastro():
         if (
             foto_perfil_file
             and foto_perfil_file.filename
-            and not allowed_file(foto_perfil_file.filename)
+            and not allowed_image_file(foto_perfil_file.filename)
         ):
             current_step = 3
-            flash("Envie a foto de perfil em PDF, JPG ou PNG.", "error")
+            flash("Envie a foto de perfil em JPG ou PNG.", "error")
             return _registration_error_redirect(form_data, tipo, current_step)
         if (
             logo_empresa_file
             and logo_empresa_file.filename
-            and not allowed_file(logo_empresa_file.filename)
+            and not allowed_image_file(logo_empresa_file.filename)
         ):
             current_step = 3
-            flash("Envie o logo da empresa em PDF, JPG ou PNG.", "error")
+            flash("Envie o logo da empresa em JPG ou PNG.", "error")
             return _registration_error_redirect(form_data, tipo, current_step)
 
         documento_filename = save_uploaded_file(documento)
         documento_empresa_filename = save_uploaded_file(documento_empresa)
-        foto_perfil = save_uploaded_file(foto_perfil_file)
-        logo_empresa = save_uploaded_file(logo_empresa_file)
+        foto_perfil = save_uploaded_file(foto_perfil_file, allowed_image_file)
+        logo_empresa = save_uploaded_file(logo_empresa_file, allowed_image_file)
 
         senha_segura = generate_password_hash(senha)
         db.execute(
