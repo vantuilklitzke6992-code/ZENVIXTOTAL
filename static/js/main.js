@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     if (document.body.dataset.authenticated === "true") {
         const sendHeartbeat = () => fetch("/presenca/heartbeat", {
             method: "POST", credentials: "same-origin", keepalive: true
@@ -249,7 +249,7 @@
                 return;
             }
             updateConversationListItem(data);
-            showChatNotification(`🔔 Nova mensagem de ${data.usuario}`);
+            showChatNotification(`?? Nova mensagem de ${data.usuario}`);
         });
 
         socket.on('mensagem_recebida', (data) => {
@@ -300,11 +300,62 @@
     const step2Next = document.getElementById("step2-next");
     const step3Prev = document.getElementById("step3-prev");
     const validationMessage = document.getElementById("form-validation-message");
+    const stateSelect = document.getElementById("estado");
+    const citySelect = document.getElementById("cidade");
+    const brazilianLocationsElement = document.getElementById("brazilian-locations-data");
+    const brazilianLocations = brazilianLocationsElement ? JSON.parse(brazilianLocationsElement.textContent || "{}") : {};
 
     let currentStep = 1;
     const totalSteps = 3;
     const initialStep = parseInt(cadastroForm.dataset.currentStep, 10) || 1;
     const initialAccountType = cadastroForm.dataset.accountType || accountTypeInput.value || "cliente";
+
+    function populateCityOptions(selectedStateName) {
+        if (!stateSelect || !citySelect) {
+            return;
+        }
+
+        const stateEntry = Object.values(brazilianLocations).find((entry) => entry && entry.nome === selectedStateName);
+        const cities = stateEntry ? stateEntry.cidades || [] : [];
+
+        citySelect.innerHTML = cities.length
+            ? '<option value="">Selecione a cidade</option>' + cities.map((cidade) => `
+                <option value="${cidade}" ${citySelect.dataset.initialCity === cidade ? "selected" : ""}>${cidade}</option>`).join("")
+            : '<option value="">Selecione o estado primeiro</option>';
+
+        citySelect.disabled = !cities.length;
+        const currentCity = citySelect.dataset.initialCity || "";
+        const validCity = cities.includes(currentCity);
+        if (selectedStateName && !validCity && citySelect.value === "") {
+            citySelect.value = "";
+        }
+        if (selectedStateName && validCity) {
+            citySelect.value = currentCity;
+        }
+        if (!selectedStateName) {
+            citySelect.value = "";
+        }
+        citySelect.dataset.initialCity = "";
+    }
+
+    if (stateSelect && citySelect) {
+        const initialState = stateSelect.dataset.initialState || stateSelect.value || "";
+        const initialCity = citySelect.dataset.initialCity || "";
+        if (initialState) {
+            stateSelect.value = initialState;
+            citySelect.dataset.initialCity = initialCity;
+            populateCityOptions(initialState);
+        }
+
+        stateSelect.addEventListener("change", function () {
+            const selectedState = this.value;
+            citySelect.dataset.initialCity = "";
+            populateCityOptions(selectedState);
+            if (selectedState) {
+                citySelect.focus();
+            }
+        });
+    }
 
     function updateStepper() {
         stepNumber.textContent = currentStep;
@@ -342,7 +393,7 @@
         clientFields.forEach((el) => el.classList.toggle("hidden", type !== "cliente"));
         const accountLabel = document.querySelector(".form-group label[for='nome']");
         if (type === "empresa") {
-            accountLabel.textContent = "Nome do responsável";
+            accountLabel.textContent = "Nome do respons�vel";
         } else {
             accountLabel.textContent = "Nome";
         }
@@ -372,17 +423,17 @@
             }
 
             if (!nome || !email || !senha || !confirmSenha) {
-                showValidation("Preencha todos os campos obrigatórios desta etapa.");
+                showValidation("Preencha todos os campos obrigat�rios desta etapa.");
                 return false;
             }
 
             if (!email.includes("@") || !email.includes(".")) {
-                showValidation("Informe um e-mail válido.");
+                showValidation("Informe um e-mail v�lido.");
                 return false;
             }
 
             if (senha !== confirmSenha) {
-                showValidation("As senhas não conferem.");
+                showValidation("As senhas n�o conferem.");
                 return false;
             }
 
@@ -395,7 +446,7 @@
             const telefone = document.getElementById("telefone").value.trim();
 
             if (!estado || !cidade || !telefone) {
-                showValidation("Preencha os campos obrigatórios desta etapa.");
+                showValidation("Preencha os campos obrigat�rios desta etapa.");
                 return false;
             }
 
@@ -409,7 +460,7 @@
                 const cpf = document.getElementById("cpf").value.trim();
 
                 if (!especialidade || !bio || !cpf) {
-                    showValidation("Preencha todos os dados profissionais obrigatórios para continuar.");
+                    showValidation("Preencha todos os dados profissionais obrigat�rios para continuar.");
                     return false;
                 }
                 return true;
@@ -430,6 +481,72 @@
 
         return true;
     }
+
+    document.querySelectorAll("[data-trigger-file]").forEach((button) => {
+        button.addEventListener("click", function () {
+            const inputId = this.dataset.triggerFile;
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.click();
+            }
+        });
+    });
+
+    document.querySelectorAll("[data-trigger-image]").forEach((button) => {
+        button.addEventListener("click", function () {
+            const targetId = this.dataset.triggerImage;
+            const input = document.getElementById(targetId);
+            if (input) {
+                input.click();
+            }
+        });
+    });
+
+    const syncFileSelection = (input) => {
+        if (!input) {
+            return;
+        }
+
+        const label = document.querySelector(`[data-file-label-for="${input.id}"]`);
+        const fileName = input.files && input.files[0] ? input.files[0].name : "Nenhum arquivo selecionado";
+
+        if (label) {
+            label.textContent = fileName;
+        }
+
+        const preview = document.querySelector(`[data-image-preview-for="${input.id}"]`);
+        if (preview && input.files && input.files[0] && input.files[0].type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+                preview.classList.remove("hidden");
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else if (preview) {
+            preview.classList.add("hidden");
+            preview.removeAttribute("src");
+        }
+    };
+
+    document.querySelectorAll("[data-real-file-input]").forEach((input) => {
+        input.addEventListener("change", function () {
+            syncFileSelection(this);
+        });
+    });
+
+    document.querySelectorAll("[data-aux-file-input]").forEach((input) => {
+        input.addEventListener("change", function () {
+            const targetInputId = this.dataset.auxFileInput;
+            const targetInput = document.getElementById(targetInputId);
+            if (!targetInput || !this.files || !this.files[0]) {
+                return;
+            }
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(this.files[0]);
+            targetInput.files = dataTransfer.files;
+            syncFileSelection(targetInput);
+        });
+    });
 
     accountTypeCards.forEach((card) => {
         card.addEventListener("click", function () {

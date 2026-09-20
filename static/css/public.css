@@ -1349,3 +1349,12 @@
         width: 100%;
     }
 }
+
+.site-header .logo img,
+.public-footer .logo img {
+    display: block;
+    height: 80px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+}

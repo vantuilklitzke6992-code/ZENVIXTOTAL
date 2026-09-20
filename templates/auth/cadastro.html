@@ -4,111 +4,257 @@ set current_step = current_step if current_step is defined else 1 %}
 {% block title %}Criar conta | Zenvix Connect{% endblock %}{% block main_class %}auth-page{% endblock %}
 {% block content %}
 <div class="auth-layout registration-layout">
-    <section class="auth-brand-panel">
-        <div class="auth-brand-content"><span class="eyebrow">Criar sua conta</span>
-            <h1>Uma nova forma de encontrar e oferecer serviços.</h1>
-            <p>Leva poucos minutos. Escolha seu perfil e informe apenas o que precisamos para começar.</p>
-            <div class="auth-benefits"><span>✓ Cadastro gratuito</span><span>✓ Fluxo simples e protegido</span><span>✓
-                    Feito para você crescer</span></div>
-        </div>
-    </section>
-    <section class="auth-form-panel">
-        <div class="auth-form-header"><span class="eyebrow">Cadastro em etapas</span>
-            <h1>Crie sua conta</h1>
-            <p>Preencha seus dados e avance com segurança.</p>
-        </div>
-        <div class="stepper"><span class="stepper-label">Etapa <strong id="step-number">1</strong> de <strong
-                    id="step-total">3</strong></span>
-            <div class="stepper-bar"><span id="step-progress" class="stepper-progress"></span></div>
-        </div>
-        <form id="cadastro-form" action="/cadastro" method="post" enctype="multipart/form-data" class="auth-form"
-            data-current-step="{{ current_step }}" data-account-type="{{ tipo }}"><input type="hidden"
-                name="_csrf_token" value="{{ csrf_token }}"><input type="hidden" name="tipo" id="account-type-input"
-                value="{{ tipo }}">
-            <p class="form-validation-message hidden" id="form-validation-message" role="alert"></p>
-            <section class="step-card step-card-active" data-step="1">
-                <div class="account-type-grid">{% for key, icon, title, text in [('cliente','👤','Cliente','Encontre
-                    profissionais para o que precisar.'),('profissional','🛠','Profissional','Receba pedidos e divulgue
-                    seu trabalho.'),('empresa','🏢','Empresa','Organize serviços e amplie sua presença.')] %}<button
-                        type="button" class="account-type-card {{ 'active' if tipo == key }}"
-                        data-account-type="{{ key }}"><span class="account-type-icon">{{ icon }}</span><span><strong>{{
-                                title }}</strong><small>{{ text }}</small></span></button>{% endfor %}</div><button
-                    type="button" id="step1-next" class="button button-primary button-full">Continuar</button>
-            </section>
-            <section class="step-card" data-step="2">
-                <div class="form-group company-only hidden"><label for="empresa_nome">Nome da empresa</label><input
-                        class="form-control" id="empresa_nome" name="empresa_nome"
-                        value="{{ form_data.empresa_nome or '' }}" placeholder="Nome da empresa"></div>
-                <div class="form-group"><label for="nome">Nome</label><input class="form-control" id="nome" name="nome"
-                        value="{{ form_data.nome or '' }}" autocomplete="name" placeholder="Seu nome completo" required>
+        <section class="auth-brand-panel">
+                <div class="auth-brand-content"><span class="eyebrow">Criar sua conta</span>
+                        <h1>Uma nova forma de encontrar e oferecer serviços.</h1>
+                        <p>Leva poucos minutos. Escolha seu perfil e informe apenas o que precisamos para começar.</p>
+                        <div class="auth-benefits"><span>✓ Cadastro gratuito</span><span>✓ Fluxo simples e
+                                        protegido</span><span>✓
+                                        Feito para você crescer</span></div>
                 </div>
-                <div class="form-group"><label for="email">E-mail</label><input class="form-control" id="email"
-                        name="email" value="{{ form_data.email or '' }}" autocomplete="email" type="email"
-                        placeholder="voce@email.com" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="senha">Senha</label><input class="form-control" id="senha"
-                            name="senha" autocomplete="new-password" type="password" placeholder="Crie uma senha"
-                            required></div>
-                    <div class="form-group"><label for="confirm_senha">Confirmar senha</label><input
-                            class="form-control" id="confirm_senha" name="confirm_senha" autocomplete="new-password"
-                            type="password" placeholder="Repita sua senha" required></div>
+        </section>
+        <section class="auth-form-panel">
+                <div class="auth-form-header"><span class="eyebrow">Cadastro em etapas</span>
+                        <h1>Crie sua conta</h1>
+                        <p>Preencha seus dados e avance com segurança.</p>
                 </div>
-                <div class="step-actions"><button type="button" id="step2-prev"
-                        class="button button-secondary">Voltar</button><button type="button" id="step2-next"
-                        class="button button-primary">Próximo</button></div>
-            </section>
-            <section class="step-card" data-step="3">
-                <div class="details-section">
-                    <h3>Localização e contato</h3>
-                    <div class="form-row">
-                        <div class="form-group"><label for="estado">Estado</label><input class="form-control"
-                                id="estado" name="estado" value="{{ form_data.estado or '' }}"
-                                placeholder="Ex.: Espírito Santo" required></div>
-                        <div class="form-group"><label for="cidade">Cidade</label><input class="form-control"
-                                id="cidade" name="cidade" value="{{ form_data.cidade or '' }}" placeholder="Sua cidade"
-                                required></div>
-                    </div>
-                    <div class="form-group"><label for="bairro">Endereço ou bairro
-                            <small>(opcional)</small></label><input class="form-control" id="bairro" name="bairro"
-                            value="{{ form_data.bairro or '' }}" placeholder="Bairro ou referência"></div>
-                    <div class="form-group"><label for="telefone">Telefone</label><input class="form-control"
-                            id="telefone" name="telefone" value="{{ form_data.telefone or '' }}"
-                            placeholder="(00) 00000-0000" required></div>
+                <div class="registration-brand-mark" aria-label="Zenvix Connect">
+                        <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Logo oficial da Zenvix"
+                                class="registration-logo">
                 </div>
-                <div class="details-section professional-only hidden">
-                    <h3>Dados profissionais</h3>
-                    <div class="form-group"><label for="especialidade">Especialidade</label><input class="form-control"
-                            id="especialidade" name="especialidade" value="{{ form_data.especialidade or '' }}"
-                            placeholder="Ex.: Eletricista"></div>
-                    <div class="form-group"><label for="cpf">CPF</label><input class="form-control" id="cpf" name="cpf"
-                            value="{{ form_data.cpf or '' }}" placeholder="000.000.000-00"></div>
-                    <div class="form-group"><label for="documento">Documento de comprovação</label><input
-                            class="form-control" id="documento" name="documento" type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"></div>
-                    <div class="form-group"><label for="bio">Descrição</label><textarea class="form-control" id="bio"
-                            name="bio"
-                            placeholder="Conte brevemente sobre seu trabalho">{{ form_data.bio or '' }}</textarea></div>
-                    <div class="form-group"><label for="foto_perfil">Foto de perfil
-                            <small>(opcional)</small></label><input class="form-control" id="foto_perfil"
-                            name="foto_perfil" type="file" accept=".jpg,.jpeg,.png"></div>
+                <script id="brazilian-locations-data"
+                        type="application/json">{{ brazilian_locations | tojson | safe }}</script>
+                <div class="stepper"><span class="stepper-label">Etapa <strong id="step-number">1</strong> de <strong
+                                        id="step-total">3</strong></span>
+                        <div class="stepper-bar"><span id="step-progress" class="stepper-progress"></span></div>
                 </div>
-                <div class="details-section company-only hidden">
-                    <h3>Dados da empresa</h3>
-                    <div class="form-group"><label for="cnpj">CNPJ</label><input class="form-control" id="cnpj"
-                            name="cnpj" value="{{ form_data.cnpj or '' }}" placeholder="00.000.000/0000-00"></div>
-                    <div class="form-group"><label for="documento_empresa">Documento da empresa</label><input
-                            class="form-control" id="documento_empresa" name="documento_empresa" type="file"
-                            accept=".pdf,.jpg,.jpeg,.png"></div>
-                    <div class="form-group"><label for="logo_empresa">Logo <small>(opcional)</small></label><input
-                            class="form-control" id="logo_empresa" name="logo_empresa" type="file"
-                            accept=".jpg,.jpeg,.png"></div>
-                </div>
-                <div class="step-actions"><button type="button" id="step3-prev"
-                        class="button button-secondary">Voltar</button><button type="submit"
-                        class="button button-primary">Finalizar cadastro</button></div>
-            </section>
-        </form>
-        <p class="auth-form-footer">Já possui uma conta? <a href="/login">Entrar</a></p>
-    </section>
+                <form id="cadastro-form" action="/cadastro" method="post" enctype="multipart/form-data"
+                        class="auth-form" data-current-step="{{ current_step }}" data-account-type="{{ tipo }}"><input
+                                type="hidden" name="_csrf_token" value="{{ csrf_token }}"><input type="hidden"
+                                name="tipo" id="account-type-input" value="{{ tipo }}">
+                        <p class="form-validation-message hidden" id="form-validation-message" role="alert"></p>
+                        <section class="step-card step-card-active" data-step="1">
+                                <div class="account-type-grid">{% for key, icon, title, text in
+                                        [('cliente','👤','Cliente','Encontre
+                                        profissionais para o que precisar.'),('profissional','🛠','Profissional','Receba
+                                        pedidos e divulgue
+                                        seu trabalho.'),('empresa','🏢','Empresa','Organize serviços e amplie sua
+                                        presença.')] %}<button type="button"
+                                                class="account-type-card {{ 'active' if tipo == key }}"
+                                                data-account-type="{{ key }}"><span class="account-type-icon">{{ icon
+                                                        }}</span><span><strong>{{
+                                                                title }}</strong><small>{{ text
+                                                                }}</small></span></button>{% endfor %}</div><button
+                                        type="button" id="step1-next"
+                                        class="button button-primary button-full">Continuar</button>
+                        </section>
+                        <section class="step-card" data-step="2">
+                                <div class="form-group company-only hidden"><label for="empresa_nome">Nome da
+                                                empresa</label><input class="form-control" id="empresa_nome"
+                                                name="empresa_nome" value="{{ form_data.empresa_nome or '' }}"
+                                                placeholder="Nome da empresa"></div>
+                                <div class="form-group"><label for="nome">Nome</label><input class="form-control"
+                                                id="nome" name="nome" value="{{ form_data.nome or '' }}"
+                                                autocomplete="name" placeholder="Seu nome completo" required>
+                                </div>
+                                <div class="form-group"><label for="email">E-mail</label><input class="form-control"
+                                                id="email" name="email" value="{{ form_data.email or '' }}"
+                                                autocomplete="email" type="email" placeholder="voce@email.com" required>
+                                </div>
+                                <div class="form-row">
+                                        <div class="form-group"><label for="senha">Senha</label><input
+                                                        class="form-control" id="senha" name="senha"
+                                                        autocomplete="new-password" type="password"
+                                                        placeholder="Crie uma senha" required></div>
+                                        <div class="form-group"><label for="confirm_senha">Confirmar senha</label><input
+                                                        class="form-control" id="confirm_senha" name="confirm_senha"
+                                                        autocomplete="new-password" type="password"
+                                                        placeholder="Repita sua senha" required></div>
+                                </div>
+                                <div class="step-actions"><button type="button" id="step2-prev"
+                                                class="button button-secondary">Voltar</button><button type="button"
+                                                id="step2-next" class="button button-primary">Próximo</button></div>
+                        </section>
+                        <section class="step-card" data-step="3">
+                                <div class="details-section">
+                                        <h3>Localização e contato</h3>
+                                        <div class="form-row">
+                                                <div class="form-group"><label for="estado">Estado</label>
+                                                        <select class="form-control" id="estado" name="estado"
+                                                                data-initial-state="{{ form_data.estado or '' }}"
+                                                                required>
+                                                                <option value="">Selecione o estado</option>
+                                                                {% for uf, state_data in brazilian_locations.items() %}
+                                                                <option value="{{ state_data.nome }}" data-uf="{{ uf }}"
+                                                                        {% if form_data.estado==state_data.nome
+                                                                        %}selected{% endif %}>{{ state_data.nome }} ({{
+                                                                        uf }})</option>
+                                                                {% endfor %}
+                                                        </select>
+                                                </div>
+                                                <div class="form-group"><label for="cidade">Cidade</label>
+                                                        <select class="form-control" id="cidade" name="cidade"
+                                                                data-initial-city="{{ form_data.cidade or '' }}"
+                                                                required disabled>
+                                                                <option value="">Selecione o estado primeiro</option>
+                                                        </select>
+                                                </div>
+                                        </div>
+                                        <div class="form-group"><label for="bairro">Endereço ou bairro
+                                                        <small>(opcional)</small></label><input class="form-control"
+                                                        id="bairro" name="bairro" value="{{ form_data.bairro or '' }}"
+                                                        placeholder="Bairro ou referência"></div>
+                                        <div class="form-group"><label for="telefone">Telefone</label><input
+                                                        class="form-control" id="telefone" name="telefone"
+                                                        value="{{ form_data.telefone or '' }}"
+                                                        placeholder="(00) 00000-0000" required></div>
+                                </div>
+                                <div class="details-section professional-only hidden">
+                                        <h3>Dados profissionais</h3>
+                                        <div class="form-group"><label for="especialidade">Especialidade</label>
+                                                {% if categorias %}
+                                                <select class="form-control" id="especialidade" name="especialidade"
+                                                        required>
+                                                        <option value="">Selecione uma especialidade</option>
+                                                        {% for categoria in categorias %}
+                                                        <option value="{{ categoria }}" {% if
+                                                                form_data.especialidade==categoria %}selected{% endif
+                                                                %}>{{ categoria }}</option>
+                                                        {% endfor %}
+                                                </select>
+                                                {% else %}
+                                                <select class="form-control" id="especialidade" name="especialidade"
+                                                        disabled required>
+                                                        <option value="">Nenhuma categoria disponível</option>
+                                                </select>
+                                                {% endif %}
+                                        </div>
+                                        <div class="form-group"><label for="cpf">CPF</label><input class="form-control"
+                                                        id="cpf" name="cpf" value="{{ form_data.cpf or '' }}"
+                                                        placeholder="000.000.000-00"></div>
+                                        <div class="form-group">
+                                                <label for="documento">Documento de comprovação</label>
+                                                <div class="custom-file-field">
+                                                        <input class="hidden-file-input" id="documento" name="documento"
+                                                                type="file" accept=".pdf,.jpg,.jpeg,.png"
+                                                                data-real-file-input>
+                                                        <button type="button" class="file-picker-button"
+                                                                data-trigger-file="documento">
+                                                                <span class="file-picker-icon">＋</span>
+                                                                <span class="file-picker-text">Anexar documento</span>
+                                                        </button>
+                                                        <span class="file-picker-name"
+                                                                data-file-label-for="documento">Nenhum arquivo
+                                                                selecionado</span>
+                                                </div>
+                                        </div>
+                                        <div class="form-group"><label for="bio">Descrição</label><textarea
+                                                        class="form-control" id="bio" name="bio"
+                                                        placeholder="Conte brevemente sobre seu trabalho">{{ form_data.bio or '' }}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                                <label for="foto_perfil">Foto de perfil
+                                                        <small>(opcional)</small></label>
+                                                <div class="image-picker-stack">
+                                                        <div class="image-picker-actions">
+                                                                <button type="button" class="image-choice-button"
+                                                                        data-trigger-image="foto_perfil_camera">
+                                                                        <span aria-hidden="true">📷</span>
+                                                                        <span>Tirar foto</span>
+                                                                </button>
+                                                                <button type="button"
+                                                                        class="image-choice-button secondary"
+                                                                        data-trigger-image="foto_perfil_gallery">
+                                                                        <span aria-hidden="true">🖼️</span>
+                                                                        <span>Escolher da galeria</span>
+                                                                </button>
+                                                        </div>
+                                                        <input class="hidden-file-input" id="foto_perfil"
+                                                                name="foto_perfil" type="file" accept=".jpg,.jpeg,.png"
+                                                                data-real-file-input>
+                                                        <input class="hidden-file-input" id="foto_perfil_camera"
+                                                                type="file" accept="image/*" capture="user"
+                                                                data-aux-file-input="foto_perfil">
+                                                        <input class="hidden-file-input" id="foto_perfil_gallery"
+                                                                type="file"
+                                                                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                                                data-aux-file-input="foto_perfil">
+                                                        <div class="file-picker-meta">
+                                                                <span class="file-picker-name"
+                                                                        data-file-label-for="foto_perfil">Nenhuma imagem
+                                                                        selecionada</span>
+                                                                <img class="image-preview hidden"
+                                                                        data-image-preview-for="foto_perfil"
+                                                                        alt="Prévia da foto de perfil">
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="details-section company-only hidden">
+                                        <h3>Dados da empresa</h3>
+                                        <div class="form-group"><label for="cnpj">CNPJ</label><input
+                                                        class="form-control" id="cnpj" name="cnpj"
+                                                        value="{{ form_data.cnpj or '' }}"
+                                                        placeholder="00.000.000/0000-00"></div>
+                                        <div class="form-group">
+                                                <label for="documento_empresa">Documento da empresa</label>
+                                                <div class="custom-file-field">
+                                                        <input class="hidden-file-input" id="documento_empresa"
+                                                                name="documento_empresa" type="file"
+                                                                accept=".pdf,.jpg,.jpeg,.png" data-real-file-input>
+                                                        <button type="button" class="file-picker-button"
+                                                                data-trigger-file="documento_empresa">
+                                                                <span class="file-picker-icon">＋</span>
+                                                                <span class="file-picker-text">Anexar documento</span>
+                                                        </button>
+                                                        <span class="file-picker-name"
+                                                                data-file-label-for="documento_empresa">Nenhum arquivo
+                                                                selecionado</span>
+                                                </div>
+                                        </div>
+                                        <div class="form-group">
+                                                <label for="logo_empresa">Logo <small>(opcional)</small></label>
+                                                <div class="image-picker-stack">
+                                                        <div class="image-picker-actions">
+                                                                <button type="button" class="image-choice-button"
+                                                                        data-trigger-image="logo_empresa_camera">
+                                                                        <span aria-hidden="true">📷</span>
+                                                                        <span>Tirar foto</span>
+                                                                </button>
+                                                                <button type="button"
+                                                                        class="image-choice-button secondary"
+                                                                        data-trigger-image="logo_empresa_gallery">
+                                                                        <span aria-hidden="true">🖼️</span>
+                                                                        <span>Escolher imagem</span>
+                                                                </button>
+                                                        </div>
+                                                        <input class="hidden-file-input" id="logo_empresa"
+                                                                name="logo_empresa" type="file" accept=".jpg,.jpeg,.png"
+                                                                data-real-file-input>
+                                                        <input class="hidden-file-input" id="logo_empresa_camera"
+                                                                type="file" accept="image/*" capture="user"
+                                                                data-aux-file-input="logo_empresa">
+                                                        <input class="hidden-file-input" id="logo_empresa_gallery"
+                                                                type="file"
+                                                                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                                                data-aux-file-input="logo_empresa">
+                                                        <div class="file-picker-meta">
+                                                                <span class="file-picker-name"
+                                                                        data-file-label-for="logo_empresa">Nenhuma
+                                                                        imagem selecionada</span>
+                                                                <img class="image-preview hidden"
+                                                                        data-image-preview-for="logo_empresa"
+                                                                        alt="Prévia do logo da empresa">
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                <div class="step-actions"><button type="button" id="step3-prev"
+                                                class="button button-secondary">Voltar</button><button type="submit"
+                                                class="button button-primary">Finalizar cadastro</button></div>
+                        </section>
+                </form>
+                <p class="auth-form-footer">Já possui uma conta? <a href="/login">Entrar</a></p>
+        </section>
 </div>
 {% endblock %}
