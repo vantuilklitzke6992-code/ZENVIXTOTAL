@@ -7,10 +7,31 @@
             href="/#contato">Contato</a>
     </nav>
     {% endif %}
-    <nav class="header-actions" aria-label="Ações da conta">
-        {% if session.get('user_id') %}<a href="/chat" class="button button-secondary">Chat</a><a href="/dashboard"
-            class="button button-primary">Meu painel</a><a href="/logout" class="button button-secondary">Sair</a>{%
-        else %}<a href="/login" class="button button-ghost">Entrar</a><a href="/cadastro"
-            class="button button-primary">Criar conta</a>{% endif %}
+    <nav class="header-actions {{ 'header-actions-authenticated' if session.get('user_id') else 'header-actions-visitor' }}" aria-label="Ações da conta">
+        {% if session.get('user_id') %}<a href="/chat" class="button button-secondary header-chat">Chat</a><a href="/dashboard"
+            class="button button-primary header-dashboard">Meu painel</a><a href="/logout" class="button button-secondary header-logout">Sair</a>{%
+        else %}<a href="/login" class="button button-ghost header-login">Entrar</a><a href="/cadastro"
+            class="button button-primary header-signup">Criar conta</a>{% endif %}
     </nav>
+    {% if session.get('user_id') %}
+    <div class="header-mobile-account" aria-label="Ações da conta">
+        <a href="/chat" class="header-mobile-icon" aria-label="Abrir chat e notificações de mensagens" title="Chat">
+            <span aria-hidden="true">🔔</span>
+        </a>
+        <a href="/perfil" class="header-mobile-avatar {% if header_user and (header_user.foto_perfil or header_user.logo_empresa) %}avatar-image{% endif %}"
+            aria-label="Abrir meu perfil" title="Meu perfil"
+            {% if header_user and (header_user.foto_perfil or header_user.logo_empresa) %}style="background-image:url('/static/uploads/{{ header_user.logo_empresa or header_user.foto_perfil }}')"{% endif %}>
+            {% if not header_user or (not header_user.foto_perfil and not header_user.logo_empresa) %}{{ ((header_user.empresa_nome or header_user.nome) if header_user else session.get('user_name', '?'))[0]|upper }}{% endif %}
+        </a>
+    </div>
+    {% endif %}
 </header>
+{% if not compact_header %}
+<nav class="mobile-bottom-nav" aria-label="Navegação móvel">
+    <a href="/" class="{{ 'active' if request.path == '/' else '' }}"><span aria-hidden="true">⌂</span>Início</a>
+    <a href="/profissionais" class="{{ 'active' if request.path == '/profissionais' else '' }}"><span aria-hidden="true">⌕</span>Buscar</a>
+    <a href="/dashboard" class="{{ 'active' if request.path.startswith('/dashboard') else '' }}"><span aria-hidden="true">▣</span>Pedidos</a>
+    <a href="/chat" class="{{ 'active' if request.path.startswith('/chat') or '/conversa/' in request.path else '' }}"><span aria-hidden="true">◌</span>Chat</a>
+    <a href="/perfil" class="{{ 'active' if request.path == '/perfil' else '' }}"><span aria-hidden="true">●</span>Perfil</a>
+</nav>
+{% endif %}

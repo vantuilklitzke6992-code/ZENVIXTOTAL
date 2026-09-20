@@ -78,18 +78,19 @@
             <div class="online-dashboard-grid">
                 <div>
                     <h3>Profissionais disponíveis</h3>{% for provider in online_professionals %}<a
-                        class="online-mini-card" href="/profissional/{{ provider.id }}"><span class="avatar">{{
-                            provider.nome[0]|upper }}</span><span><strong>{{ provider.nome }}</strong><small>{{
-                                provider.especialidade or 'Serviços profissionais' }} · {{ provider.cidade or 'Brasil'
-                                }}</small></span><i class="online-dot"></i></a>{% else %}<p class="provider-role">Nenhum
+                        class="online-mini-card" href="/profissional/{{ provider.id }}"><span class="avatar {% if provider.foto_perfil %}avatar-image{% endif %}"
+                            {% if provider.foto_perfil %}style="background-image:url('/static/uploads/{{ provider.foto_perfil }}')"{% endif %}>{{
+                            '' if provider.foto_perfil else provider.nome[0]|upper }}</span><span><strong>{{ provider.nome }}</strong><small>{{
+                                provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{ provider.cidade }}{% endif
+                                %}</small></span><i class="online-dot" aria-label="Disponível agora"></i></a>{% else %}<p class="provider-role">Nenhum
                         profissional online agora.</p>{% endfor %}
                 </div>
                 <div>
                     <h3>Empresas disponíveis</h3>{% for provider in online_companies %}<a class="online-mini-card"
-                        href="/empresa/{{ provider.id }}"><span class="avatar">{{ (provider.empresa_nome or
-                            provider.nome)[0]|upper }}</span><span><strong>{{ provider.empresa_nome or provider.nome
-                                }}</strong><small>{{ provider.especialidade or 'Empresa de serviços' }} · {{
-                                provider.cidade or 'Brasil' }}</small></span><i class="online-dot"></i></a>{% else %}<p
+                        href="/empresa/{{ provider.id }}"><span class="avatar {% if provider.logo_empresa or provider.foto_perfil %}avatar-image{% endif %}"
+                            {% if provider.logo_empresa or provider.foto_perfil %}style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>{{ '' if provider.logo_empresa or provider.foto_perfil else (provider.empresa_nome or provider.nome)[0]|upper }}</span><span><strong>{{ provider.empresa_nome or provider.nome
+                                }}</strong><small>{{ provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{
+                                provider.cidade }}{% endif %}</small></span><i class="online-dot" aria-label="Disponível agora"></i></a>{% else %}<p
                         class="provider-role">Nenhuma empresa online agora.</p>{% endfor %}
                 </div>
             </div>
@@ -228,18 +229,20 @@
             {% if favorites %}
             <div class="provider-grid">
                 {% for provider in favorites %}
-                <article class="provider-card">
-                    <h3>{{ provider.nome }}</h3>
-                    <p>{{ provider.tipo|capitalize }}{% if provider.empresa_nome %} • {{ provider.empresa_nome }}{%
-                        endif %}</p>
-                    <p>{{ provider.bio or 'Sem descrição disponível.' }}</p>
+                <article class="provider-card provider-favorite-card">
+                    <div class="avatar provider-result-avatar {% if provider.foto_perfil or provider.logo_empresa %}avatar-image{% endif %}"
+                        role="img" aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
+                        {% if provider.foto_perfil or provider.logo_empresa %}style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>{% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or provider.nome)[0]|upper }}{% endif %}</div>
+                    <div><h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
+                    <p>{{ provider.especialidade or 'Especialidade não informada' }}</p></div>
+                    {% if provider.bio %}<p>{{ provider.bio }}</p>{% endif %}
                     <div class="provider-meta">
                         <span>{{ provider.cidade or 'Cidade não informada' }}</span>
-                        <span>Avaliação {{ provider.rating if provider.rating is not none else '—' }}</span>
+                        {% if provider.rating is not none and provider.rating_count %}<span>★ {{ provider.rating }} ({{ provider.rating_count }} avaliações)</span>{% endif %}
                     </div>
                     <div class="provider-actions">
                         <a href="/solicitar-servico/{{ provider.id }}"
-                            class="button button-primary button-small">Solicitar</a>
+                            class="button button-primary button-small">Pedir orçamento</a>
                         <form action="/favorito/{{ provider.id }}/toggle" method="post" class="inline-form">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="button button-danger button-small">Remover</button>

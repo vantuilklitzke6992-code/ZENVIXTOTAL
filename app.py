@@ -40,6 +40,13 @@ def get_user_by_id(user_id):
     return db.execute("SELECT * FROM usuarios WHERE id = ?", (user_id,)).fetchone()
 
 
+@app.context_processor
+def inject_header_user():
+    """Provides the signed-in user's existing avatar fields to the shared header."""
+    user_id = session.get("user_id")
+    return {"header_user": get_user_by_id(user_id) if user_id else None}
+
+
 def is_provider_active(user):
     return bool(
         user

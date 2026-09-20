@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Profissionais e empresas | Zenvix Connect{% endblock %}
+{% block main_class %}marketplace-page{% endblock %}
 {% block content %}
 <section class="form-card provider-search-card"><span class="eyebrow">Marketplace</span>
     <h1>Encontre quem pode ajudar</h1>
-    <p>Profissionais e empresas ativos, avaliados e prontos para receber solicitações.</p>
+    <p>Use os filtros para encontrar profissionais e empresas cadastrados na plataforma.</p>
     <form action="/profissionais" method="get" class="search-form provider-filters"><input name="q" value="{{ search }}"
             placeholder="Nome ou serviço" class="search-input"><input name="categoria" value="{{ category }}"
             placeholder="Categoria" class="search-input"><input name="cidade" value="{{ city }}" placeholder="Cidade"
@@ -15,38 +16,41 @@
                 }}> Somente online agora</label><button type="submit" class="button button-primary">Buscar</button>
     </form>
 </section>
+<div class="marketplace-results-shell">
 {% if providers %}<div class="grid-section provider-result-grid">{% for provider in providers %}<article
         class="provider-card provider-result-card">
         <div class="provider-result-head">
             <div class="avatar provider-result-avatar {% if provider.foto_perfil or provider.logo_empresa %}avatar-image{% endif %}"
                 {% if provider.foto_perfil or provider.logo_empresa
-                %}style="background-image:url('/static/uploads/{{ provider.foto_perfil or provider.logo_empresa }}')" {%
+                %}style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')" {%
                 endif %}>{% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or
                 provider.nome)[0]|upper }}{% endif %}</div>
             <div><span
                     class="presence-label {{ 'online' if provider.id in online_users or provider.online else 'offline' }}"><i
-                        class="online-dot"></i> {{ 'Online agora' if provider.id in online_users or provider.online else
+                        class="online-dot"></i> {{ 'Disponível agora' if provider.id in online_users or provider.online else
                     'Offline' }}</span>
-                <h2>{{ provider.empresa_nome or provider.nome }}</h2>
+                <h2><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h2>
                 <p class="provider-role">{{ 'Empresa' if provider.tipo == 'empresa' else 'Profissional' }} · {{
-                    provider.especialidade or 'Serviços gerais' }}</p>
+                    provider.especialidade or 'Especialidade não informada' }}</p>
             </div>
         </div><!-- BEGIN CHANGE -->
         <div class="form-actions" style="justify-content: space-between; align-items: center;">
-            <p class="provider-rating">★ {{ provider.rating if provider.rating is not none else 'Novo' }} <span>({{
-                    provider.rating_count }} avaliações)</span></p>{% if provider.recommendation_score >= 45 %}<span
+            {% if provider.rating is not none and provider.rating_count %}<p class="provider-rating">★ {{ provider.rating }} <span>({{
+                    provider.rating_count }} avaliações)</span></p>{% endif %}{% if provider.recommendation_score >= 45 %}<span
                 class="status-pill">Recomendado</span>{% endif %}
         </div><!-- END CHANGE -->
-        <p>{{ provider.bio or 'Perfil profissional disponível para novos serviços.' }}</p>
-        <p class="provider-meta">⌖ {{ provider.cidade or 'Cidade não informada' }} · {{ provider.completed_services }}
-            serviços concluídos · {{ provider.availability_count }} disponibilidade(s)</p>
+        {% if provider.bio %}<p>{{ provider.bio }}</p>{% endif %}
+        <p class="provider-meta">⌖ {{ provider.cidade or 'Cidade não informada' }}{% if provider.completed_services %} · {{ provider.completed_services }}
+            serviços concluídos{% endif %}{% if provider.availability_count %} · {{ provider.availability_count }} disponibilidade(s){% endif %}</p>
         <div class="form-actions"><a
                 href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
                 class="button button-secondary">Ver perfil</a>{% set is_authenticated = session.get('user_id') %}{% set
-            is_client = session.get('user_type') == 'cliente' %}{% if is_authenticated and is_client %}<a
-                href="/solicitar-servico/{{ provider.id }}" class="button button-primary">Solicitar</a>{% endif %}</div>
+            is_client = session.get('user_type') == 'cliente' %}{% if not is_authenticated or is_client %}<a
+                href="/solicitar-servico/{{ provider.id }}" class="button button-primary">Pedir orçamento</a>{% endif %}</div>
     </article>{% endfor %}</div>{% else %}<section class="form-card empty-state">
     <h2>Nenhum prestador encontrado.</h2>
-    <p>Tente remover filtros ou volte em alguns minutos para ver novos profissionais online.</p>
+    {% if search or category or city %}<p>Nenhum profissional encontrado para esta busca. Ajuste os termos ou filtros e tente novamente.</p>
+    {% else %}<p>Os primeiros profissionais em destaque aparecerão aqui em breve.</p>{% endif %}
 </section>{% endif %}
+</div>
 {% endblock %}
