@@ -18,17 +18,16 @@ public-main
 
     <div class="hero-copy">
 
-        <span class="eyebrow">
-            Marketplace de serviços
+        <span class="hero-kicker">
+            SERVIÇOS SOB DEMANDA
         </span>
 
         <h1>
-            Encontre profissionais confiáveis para qualquer serviço
+            Encontre quem resolve.
         </h1>
 
         <p>
-            Conectamos clientes, profissionais e empresas em uma plataforma
-            simples, rápida e segura.
+            Encontre profissionais e empresas para realizar o serviço que você precisa, na sua cidade.
         </p>
 
         <form action="/profissionais" method="get" class="marketplace-search">
@@ -36,7 +35,7 @@ public-main
             <div class="form-group">
 
                 <label for="service-search">
-                    O que você precisa?
+                    Serviço
                 </label>
 
                 <input class="form-control" id="service-search" name="categoria" list="service-options"
@@ -58,10 +57,11 @@ public-main
             <div class="form-group">
 
                 <label for="city-search">
-                    Cidade
+                    Localização
                 </label>
 
-                <input class="form-control" id="city-search" name="cidade" placeholder="Sua cidade" autocomplete="address-level2">
+                <input class="form-control" id="city-search" name="cidade" placeholder="Sua cidade"
+                    autocomplete="address-level2">
 
             </div>
 
@@ -71,49 +71,105 @@ public-main
 
         </form>
 
-
-
-
     </div>
 
     <div class="hero-art" aria-hidden="true">
 
-        <div class="hero-orb orb-one"></div>
+        <div class="platform-visual">
 
-        <div class="hero-orb orb-two"></div>
+            <div class="platform-topbar">
 
-        <article class="hero-preview">
+                <span class="platform-brand">
+                    ZENVIX
+                </span>
 
-            <span class="preview-label">ILUSTRAÇÃO DA PLATAFORMA</span>
+                <span class="platform-status">
+                    <i></i>
+                    Plataforma
+                </span>
 
-            <div class="preview-user">
+            </div>
 
-                <div class="preview-avatar">
-                    ⚡
+            <div class="platform-search">
+
+                <span>⌕</span>
+
+                <span>
+                    Encontre um serviço
+                </span>
+
+                <strong>
+                    Localização
+                </strong>
+
+            </div>
+
+            <div class="platform-card">
+
+                <div class="platform-avatar">
+                    P
                 </div>
 
-                <div>
+                <div class="platform-provider">
 
                     <strong>
-                        Encontre o serviço certo
+                        Profissional
                     </strong>
 
+                    <span>
+                        Serviços especializados
+                    </span>
+
                     <small>
-                        Pesquise por categoria e cidade
+                        Perfil e informações do serviço
                     </small>
 
                 </div>
 
             </div>
 
-            <div class="preview-line"></div>
-            <small class="preview-note">Os perfis e avaliações aparecem quando houver dados reais.</small>
+            <div class="platform-card platform-card-secondary">
 
-        </article>
+                <div class="platform-avatar avatar-alt">
+                    E
+                </div>
+
+                <div class="platform-provider">
+
+                    <strong>
+                        Empresa
+                    </strong>
+
+                    <span>
+                        Soluções para diferentes necessidades
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="platform-footer">
+
+                <span>
+                    Categoria
+                </span>
+
+                <strong>
+                    Localização
+                </strong>
+
+                <strong>
+                    Perfil
+                </strong>
+
+            </div>
+
+        </div>
 
     </div>
 
 </section>
+
 
 <!-- ========================================================= -->
 <!-- CATEGORIAS -->
@@ -179,6 +235,8 @@ public-main
     </div>
 
 </section>
+
+
 <!-- ========================================================= -->
 <!-- PROFISSIONAIS EM DESTAQUE -->
 <!-- ========================================================= -->
@@ -216,7 +274,8 @@ public-main
         <article class="featured-provider">
 
             <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
-                role="img" aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
+                role="img"
+                aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
                 {% if provider.foto_perfil or provider.logo_empresa %}
                 style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')" {%
                 endif %}>
@@ -229,7 +288,12 @@ public-main
 
             <div class="provider-info">
 
-                <h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
+                <h3>
+                    <a class="provider-name-link"
+                        href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">
+                        {{ provider.empresa_nome or provider.nome }}
+                    </a>
+                </h3>
 
                 <p>
                     {{ provider.especialidade or 'Especialidade não informada' }}
@@ -240,16 +304,41 @@ public-main
                     <span>
                         ⌖ {{ provider.cidade or 'Localização não informada' }}
                     </span>
+
                     {% if provider.rating is not none and provider.rating_count %}
+
                     <span>
                         ★ {{ provider.rating }} ({{ provider.rating_count }})
                     </span>
+
                     {% endif %}
+
                 </div>
-                {% if provider.online %}<span class="presence-label online"><i class="online-dot"></i> Disponível agora</span>{% endif %}
+
+                {% if provider.online %}
+
+                <span class="presence-label online">
+                    <i class="online-dot"></i>
+                    Disponível agora
+                </span>
+
+                {% endif %}
+
                 <div class="provider-card-actions">
-                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}" class="button button-secondary button-small">Ver perfil</a>
-                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}<a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">Pedir orçamento</a>{% endif %}
+
+                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
+                        class="button button-secondary button-small">
+                        Ver perfil
+                    </a>
+
+                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}
+
+                    <a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">
+                        Pedir orçamento
+                    </a>
+
+                    {% endif %}
+
                 </div>
 
             </div>
@@ -271,6 +360,7 @@ public-main
     </div>
 
 </section>
+
 
 <!-- ========================================================= -->
 <!-- PROFISSIONAIS ONLINE -->
@@ -313,26 +403,41 @@ public-main
         <article class="featured-provider online-provider">
 
             <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
-                role="img" aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
+                role="img"
+                aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
                 {% if provider.foto_perfil or provider.logo_empresa %}
                 style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')" {%
                 endif %}>
 
                 {% if not provider.foto_perfil and not provider.logo_empresa %}
+
                 {{ (provider.empresa_nome or provider.nome)[0]|upper }}
+
                 {% endif %}
 
             </div>
 
             <div class="provider-info">
 
-                <span class="presence-label online"><i class="online-dot"></i> Disponível agora</span>
-                <h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
+                <span class="presence-label online">
+
+                    <i class="online-dot"></i>
+
+                    Disponível agora
+
+                </span>
+
+                <h3>
+
+                    <a class="provider-name-link"
+                        href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">
+                        {{ provider.empresa_nome or provider.nome }}
+                    </a>
+
+                </h3>
 
                 <p>
-
                     {{ provider.especialidade or 'Especialidade não informada' }}
-
                 </p>
 
                 <div class="provider-detail">
@@ -340,17 +445,32 @@ public-main
                     <span>
                         ⌖ {{ provider.cidade or 'Localização não informada' }}
                     </span>
+
                     {% if provider.rating is not none and provider.rating_count %}
+
                     <span>
                         ★ {{ provider.rating }} ({{ provider.rating_count }})
                     </span>
+
                     {% endif %}
 
                 </div>
 
                 <div class="provider-card-actions">
-                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}" class="button button-secondary button-small">Ver perfil</a>
-                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}<a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">Pedir orçamento</a>{% endif %}
+
+                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
+                        class="button button-secondary button-small">
+                        Ver perfil
+                    </a>
+
+                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}
+
+                    <a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">
+                        Pedir orçamento
+                    </a>
+
+                    {% endif %}
+
                 </div>
 
             </div>
@@ -372,6 +492,8 @@ public-main
     </div>
 
 </section>
+
+
 <!-- ========================================================= -->
 <!-- COMO FUNCIONA -->
 <!-- ========================================================= -->
@@ -394,7 +516,9 @@ public-main
 
         <article>
 
-            <span>01</span>
+            <span>
+                01
+            </span>
 
             <h3>
                 Escolha o serviço
@@ -408,7 +532,9 @@ public-main
 
         <article>
 
-            <span>02</span>
+            <span>
+                02
+            </span>
 
             <h3>
                 Encontre um profissional
@@ -422,7 +548,9 @@ public-main
 
         <article>
 
-            <span>03</span>
+            <span>
+                03
+            </span>
 
             <h3>
                 Contrate com segurança
@@ -437,6 +565,7 @@ public-main
     </div>
 
 </section>
+
 
 <!-- ========================================================= -->
 <!-- BENEFÍCIOS -->
@@ -470,11 +599,17 @@ public-main
 
             <ul>
 
-                <li>Profissionais avaliados</li>
+                <li>
+                    Profissionais avaliados
+                </li>
 
-                <li>Mais segurança ao contratar</li>
+                <li>
+                    Mais segurança ao contratar
+                </li>
 
-                <li>Praticidade para resolver</li>
+                <li>
+                    Praticidade para resolver
+                </li>
 
             </ul>
 
@@ -492,11 +627,17 @@ public-main
 
             <ul>
 
-                <li>Mais oportunidades para encontrar clientes</li>
+                <li>
+                    Mais oportunidades para encontrar clientes
+                </li>
 
-                <li>Divulgação do seu trabalho</li>
+                <li>
+                    Divulgação do seu trabalho
+                </li>
 
-                <li>Mais crescimento no mercado</li>
+                <li>
+                    Mais crescimento no mercado
+                </li>
 
             </ul>
 
@@ -505,6 +646,7 @@ public-main
     </div>
 
 </section>
+
 
 <!-- ========================================================= -->
 <!-- CHAMADA FINAL (CTA) -->
@@ -534,6 +676,7 @@ public-main
 
 </section>
 
+
 <!-- ========================================================= -->
 <!-- RODAPÉ -->
 <!-- ========================================================= -->
@@ -541,8 +684,10 @@ public-main
 <footer class="public-footer" id="contato">
 
     <a class="logo" href="/" aria-label="Zenvix Connect — início">
-    <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Zenvix Connect">
-</a>
+
+        <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Zenvix Connect">
+
+    </a>
 
     <p>
         O marketplace que aproxima pessoas e bons serviços.
