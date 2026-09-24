@@ -55,9 +55,21 @@
 }
 
 .marketplace-hero {
-    background: linear-gradient(125deg, rgba(14, 165, 233, .16), rgba(30, 41, 59, .84) 50%, rgba(15, 23, 42, .96));
-    border: 1px solid var(--border-strong);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(15, 23, 42, .96) 0%,
+            rgba(15, 23, 42, .82) 32%,
+            rgba(15, 23, 42, .42) 62%,
+            rgba(15, 23, 42, .20) 100%
+        ),
+        url('/static/images/home/hero.jpg') center center / cover no-repeat;
+
+    border: 1px solid rgba(56, 189, 248, .18);
     border-radius: 28px;
+    box-shadow:
+        0 30px 70px rgba(2, 6, 23, .34),
+        0 0 45px rgba(14, 165, 233, .06);
     display: grid;
     gap: 36px;
     grid-template-columns: 1.1fr .9fr;
@@ -91,13 +103,17 @@
 
 .marketplace-search {
     align-items: end;
-    background: rgba(15, 23, 42, .72);
-    border: 1px solid rgba(148, 163, 184, .22);
-    border-radius: 18px;
+    background: rgba(15, 23, 42, .78);
+    border: 1px solid rgba(148, 163, 184, .20);
+    border-radius: 20px;
+    box-shadow:
+        0 18px 40px rgba(2, 6, 23, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .03);
     display: grid;
     gap: 12px;
     grid-template-columns: 1.25fr .85fr auto;
-    padding: 14px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
 }
 
 .marketplace-search .form-group {
@@ -113,11 +129,15 @@
 
 .marketplace-search .form-control {
     min-width: 0;
-    background: rgba(15, 23, 42, .92);
-    border: 1px solid rgba(148, 163, 184, .18);
+    background: rgba(15, 23, 42, .94);
+    border: 1px solid rgba(148, 163, 184, .16);
     border-radius: 14px;
-    color: var(--text);
-    padding: 12px 14px;
+    color: #F8FAFC;
+    padding: 13px 14px;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
 }
 
 .marketplace-search .form-control:focus {
@@ -476,7 +496,13 @@
 }
 
 .how-section {
-    background: rgba(30, 41, 59, .5);
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(14, 165, 233, .08),
+            transparent 45%
+        ),
+        rgba(30, 41, 59, .5);
     border: 1px solid rgba(148, 163, 184, .12);
     border-radius: 26px;
     padding: clamp(27px, 5vw, 54px);
@@ -484,40 +510,105 @@
 
 .how-grid {
     display: grid;
-    gap: 38px;
+    gap: 20px;
     grid-template-columns: repeat(3, 1fr);
 }
 
 .how-grid article {
+    background: rgba(15, 23, 42, .48);
+    border: 1px solid rgba(148, 163, 184, .12);
+    border-radius: 20px;
+    min-height: 205px;
+    padding: 26px 24px;
     position: relative;
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
 }
 
-.how-grid article:not(:last-child)::after {
-    background: linear-gradient(90deg, var(--brand), transparent);
-    content: '';
-    height: 1px;
-    position: absolute;
-    right: -29px;
-    top: 21px;
-    width: 50px;
+.how-grid article:hover {
+    background: rgba(15, 23, 42, .68);
+    border-color: rgba(56, 189, 248, .30);
+    box-shadow: 0 18px 35px rgba(2, 6, 23, .22);
+    transform: translateY(-4px);
 }
 
 .how-grid span {
-    color: var(--brand-light);
-    font-size: 1.2rem;
+    color: #38BDF8;
+    display: block;
+    font-size: 2rem;
     font-weight: 800;
+    letter-spacing: -.05em;
+    line-height: 1;
 }
 
 .how-grid h3 {
-    font-size: 1.05rem;
-    margin: 15px 0 7px;
+    color: #F8FAFC;
+    font-size: 1.08rem;
+    margin: 28px 0 8px;
 }
 
 .how-grid p {
-    color: var(--text-muted);
+    color: #94A3B8;
     font-size: .9rem;
-    line-height: 1.6;
+    line-height: 1.65;
     margin: 0;
+    max-width: 280px;
+}
+
+.home-split-section {
+    align-items: stretch;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, .14);
+    border-radius: 26px;
+    display: grid;
+    gap: 0;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+.home-split-media {
+    background-position: center;
+    background-size: cover;
+    min-height: 340px;
+}
+
+.home-split-media-client {
+    background-image: url('/static/images/home/cliente-servico.jpg');
+}
+
+.home-split-media-professional {
+    background-image: url('/static/images/home/profissional.jpg');
+}
+
+.home-split-content {
+    align-self: center;
+    padding: clamp(30px, 5vw, 64px);
+}
+
+.home-split-content h2 {
+    font-size: clamp(1.75rem, 3vw, 2.45rem);
+    letter-spacing: -.04em;
+    margin: 9px 0 13px;
+}
+
+.home-split-content p {
+    color: #CBD5E1;
+    line-height: 1.7;
+    margin: 0 0 25px;
+    max-width: 510px;
+}
+
+.home-split-professional .home-split-content {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.home-split-professional .home-split-media {
+    grid-column: 2;
+    grid-row: 1;
 }
 
 .benefits-section {
@@ -799,8 +890,15 @@
 
     .marketplace-hero,
     .auth-layout,
-    .benefits-section {
+    .benefits-section,
+    .home-split-section {
         grid-template-columns: 1fr;
+    }
+
+    .home-split-professional .home-split-content,
+    .home-split-professional .home-split-media {
+        grid-column: auto;
+        grid-row: auto;
     }
 
     .hero-art {
@@ -859,6 +957,28 @@
     .marketplace-search .button {
         width: 100%;
     }
+    
+    .marketplace-search .button-primary {
+    border: 1px solid rgba(125, 211, 252, .45);
+    box-shadow:
+        0 10px 25px rgba(14, 165, 233, .22),
+        0 0 20px rgba(14, 165, 233, .10);
+    min-height: 48px;
+    padding: 12px 18px;
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.marketplace-search .button-primary:hover {
+    border-color: rgba(125, 211, 252, .75);
+    box-shadow:
+        0 14px 30px rgba(14, 165, 233, .30),
+        0 0 28px rgba(14, 165, 233, .16);
+    transform: translateY(-2px);
+}
 
     .public-section {
         margin-top: 56px;
@@ -886,6 +1006,10 @@
 
     .benefits-section {
         gap: 22px;
+    }
+
+    .home-split-content {
+        padding: 30px 24px;
     }
 
     .final-cta {
