@@ -203,22 +203,25 @@ public-main
 
     <div class="category-grid">
 
-        {% for icon, title, description in [
-        ('🧹','Limpeza','Para sua casa ou empresa'),
-        ('⚡','Eletricista','Instalações e reparos'),
-        ('🔧','Encanador','Soluções hidráulicas'),
-        ('🎨','Pintura','Ambientes renovados'),
-        ('💻','Informática','Suporte e tecnologia'),
-        ('🛠','Manutenção','Pequenos e grandes reparos'),
-        ('❄️','Ar-condicionado','Instalação e manutenção'),
-        ('＋','Outros','Encontre mais serviços')
+        {% for icon, title, description, category_class, image_file in [
+        ('🧹','Limpeza','Para sua casa ou empresa','cleaning','limpeza.jpg'),
+        ('⚡','Eletricista','Instalações e reparos','electrician','eletricista.jpg'),
+        ('🔧','Encanador','Soluções hidráulicas','plumbing','encanador.jpg'),
+        ('🎨','Pintura','Ambientes renovados','painting','pintura.jpg'),
+        ('💻','Informática','Suporte e tecnologia','computing','informatica.jpg'),
+        ('🛠','Manutenção','Pequenos e grandes reparos','maintenance','manutencao.jpg'),
+        ('❄️','Ar-condicionado','Instalação e manutenção','air-conditioning','ar-condicionado.jpg'),
+        ('＋','Outros','Encontre mais serviços','other','outros.jpg')
         ] %}
 
-        <a class="marketplace-category" href="/profissionais?categoria={{ title|urlencode }}">
+        <a class="marketplace-category{% if image_file %} category-image category-{{ category_class }}{% endif %}"
+            href="/profissionais?categoria={{ title|urlencode }}">
 
+            {% if not image_file %}
             <span>
                 {{ icon }}
             </span>
+            {% endif %}
 
             <h3>
                 {{ title }}

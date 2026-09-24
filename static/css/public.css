@@ -322,6 +322,59 @@
     transform: translateY(-4px);
 }
 
+.marketplace-category.category-image {
+    background-image: linear-gradient(rgba(15, 23, 42, .58), rgba(15, 23, 42, .72)),
+        var(--category-image);
+    background-position: center;
+    background-size: cover;
+}
+
+.marketplace-category.category-image:hover {
+    background-image: linear-gradient(rgba(14, 165, 233, .22), rgba(15, 23, 42, .68)),
+        var(--category-image);
+}
+
+.marketplace-category.category-image h3 {
+    margin-top: 0;
+}
+
+.marketplace-category.category-image p {
+    color: #E2E8F0;
+    text-shadow: 0 1px 3px rgba(2, 6, 23, .7);
+}
+
+.marketplace-category.category-cleaning {
+    --category-image: url('/static/images/categorias/limpeza.jpg');
+}
+
+.marketplace-category.category-electrician {
+    --category-image: url('/static/images/categorias/eletricista.jpg');
+}
+
+.marketplace-category.category-plumbing {
+    --category-image: url('/static/images/categorias/encanador.jpg');
+}
+
+.marketplace-category.category-painting {
+    --category-image: url('/static/images/categorias/pintura.jpg');
+}
+
+.marketplace-category.category-computing {
+    --category-image: url('/static/images/categorias/informatica.jpg');
+}
+
+.marketplace-category.category-maintenance {
+    --category-image: url('/static/images/categorias/manutencao.jpg');
+}
+
+.marketplace-category.category-air-conditioning {
+    --category-image: url('/static/images/categorias/ar-condicionado.jpg');
+}
+
+.marketplace-category.category-other {
+    --category-image: url('/static/images/categorias/outros.jpg');
+}
+
 .marketplace-category>span {
     align-items: center;
     background: rgba(14, 165, 233, .13);
@@ -1211,22 +1264,68 @@
 }
 
 /* Marketplace layout and mobile content hierarchy. */
-.preview-note { color: var(--text-muted); font-size: .78rem; line-height: 1.45; }
-.provider-search-card h1 { font-size: clamp(1.55rem, 2vw, 2rem); }
-.provider-search-card > p { color: var(--text-muted); }
-.provider-filters { grid-template-columns: 1fr; }
-.provider-filters .online-filter { align-items: center; color: var(--text-muted); display: flex; font-size: .88rem; gap: 8px; min-height: 44px; }
-.provider-filters .online-filter input { accent-color: var(--brand); height: 18px; width: 18px; }
-.provider-result-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+.preview-note {
+    color: var(--text-muted);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+.provider-search-card h1 {
+    font-size: clamp(1.55rem, 2vw, 2rem);
+}
+
+.provider-search-card>p {
+    color: var(--text-muted);
+}
+
+.provider-filters {
+    grid-template-columns: 1fr;
+}
+
+.provider-filters .online-filter {
+    align-items: center;
+    color: var(--text-muted);
+    display: flex;
+    font-size: .88rem;
+    gap: 8px;
+    min-height: 44px;
+}
+
+.provider-filters .online-filter input {
+    accent-color: var(--brand);
+    height: 18px;
+    width: 18px;
+}
+
+.provider-result-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
 
 @media (min-width: 1100px) {
-    .marketplace-page { align-items: start; display: grid; gap: 26px; grid-template-columns: 270px minmax(0, 1fr); max-width: 1400px; }
-    .marketplace-page .provider-search-card { padding: 20px; position: sticky; top: 94px; }
-    .marketplace-page .provider-result-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-top: 0; }
+    .marketplace-page {
+        align-items: start;
+        display: grid;
+        gap: 26px;
+        grid-template-columns: 270px minmax(0, 1fr);
+        max-width: 1400px;
+    }
+
+    .marketplace-page .provider-search-card {
+        padding: 20px;
+        position: sticky;
+        top: 94px;
+    }
+
+    .marketplace-page .provider-result-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        margin-top: 0;
+    }
 }
 
 @media (min-width: 1500px) {
-    .marketplace-page .provider-result-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .marketplace-page .provider-result-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 767px) {
@@ -1304,7 +1403,7 @@
         padding: 26px 18px;
     }
 
-    .marketplace-hero > .hero-copy > p {
+    .marketplace-hero>.hero-copy>p {
         font-size: 1rem;
         margin-bottom: 22px;
     }
