@@ -531,6 +531,30 @@ a {
     display: grid;
     gap: 16px;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-width: 0;
+}
+
+.card-stats {
+    min-width: 0;
+}
+
+.card-stats h3 {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.panel-header {
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.panel-header > div,
+.panel-header > p {
+    min-width: 0;
+}
+
+.panel-header > p {
+    flex: 1 1 260px;
 }
 
 .card-stats {
@@ -619,6 +643,18 @@ a {
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+}
+
+@media (max-width: 1100px) {
+    .card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Tables, states and badges */
