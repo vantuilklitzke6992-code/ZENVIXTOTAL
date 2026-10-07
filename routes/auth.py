@@ -87,6 +87,9 @@ def cadastro():
             return redirect(url_for("auth.cadastro"))
 
         tipo = request.form.get("tipo", "cliente")
+        if tipo not in {"cliente", "profissional", "empresa"}:
+            flash("Tipo de cadastro inválido.", "error")
+            return redirect(url_for("auth.cadastro"))
         nome = request.form.get("nome", "").strip()
         email = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")

@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from flask import Flask
 from flask_socketio import SocketIO
 
-from utils.db import init_db
+from utils.db import init_db, ensure_admin_user
 from utils.security import generate_csrf_token
 from utils.presence import online_users
 from routes import auth_bp, public_bp
@@ -26,11 +26,9 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf"}
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
-
 ADMIN_USER_TYPE = "admin"
 
 DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
-
 PORT = int(os.getenv("PORT", "5000"))
 
 
@@ -75,7 +73,12 @@ def format_brl(value):
 
     formatted = f"R$ {amount:,.2f}"
 
-    return formatted.replace(",", "X").replace(".", ",").replace("X", ".")
+    return (
+        formatted
+        .replace(",", "X")
+        .replace(".", ",")
+        .replace("X", ".")
+    )
 
 
 @app.template_filter("brasil_datetime")
@@ -109,3 +112,4 @@ def open_browser(port=PORT):
 
 with app.app_context():
     init_db()
+    ensure_admin_user()
