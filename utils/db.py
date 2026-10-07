@@ -445,6 +445,25 @@ def init_db():
         )
     """)
 
+    default_categories = [
+        "Eletricista",
+        "Encanador",
+        "Faxineiro",
+        "Pintor",
+        "Pedreiro",
+        "Técnico de Informática",
+        "Mecânico",
+        "Jardineiro",
+        "Fotógrafo",
+        "Profissional de Limpeza",
+        "Outro",
+    ]
+
+    db.executemany(
+        "INSERT OR IGNORE INTO categorias (nome) VALUES (?)",
+        [(category,) for category in default_categories],
+    )
+
     db.execute("""
         CREATE TABLE IF NOT EXISTS bloqueios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
