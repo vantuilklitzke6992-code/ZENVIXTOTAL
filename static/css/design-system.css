@@ -1434,3 +1434,122 @@ a {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+/* =========================================================
+   ZENVIX CHAT — AJUSTE VISUAL
+   Não altera lógica, Socket.IO, mensagens ou horários.
+   ========================================================= */
+
+.chat-main {
+    gap: 14px;
+}
+
+.chat-header {
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.chat-context-banner {
+    padding: 12px 16px;
+}
+
+.chat-window {
+    min-height: 360px;
+    height: min(52vh, 560px);
+    max-height: none;
+    padding: 18px;
+    gap: 6px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    box-shadow: var(--shadow-sm);
+}
+
+.chat-message {
+    max-width: min(78%, 680px);
+    width: fit-content;
+    padding: 12px 15px;
+    margin: 2px 0;
+    border-radius: 17px;
+}
+
+.chat-message-sent {
+    border-bottom-right-radius: 5px;
+}
+
+.chat-message-received {
+    border-bottom-left-radius: 5px;
+}
+
+.chat-message .chat-meta {
+    margin-bottom: 6px;
+    font-size: .72rem;
+}
+
+.chat-message p {
+    line-height: 1.55;
+}
+
+.chat-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    position: static;
+}
+
+.chat-form textarea {
+    box-sizing: border-box;
+    min-height: 54px;
+    max-height: 110px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, .78);
+    color: var(--text);
+    outline: none;
+    resize: none;
+    width: 100%;
+    font: inherit;
+    transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
+}
+
+.chat-form textarea::placeholder {
+    color: #64748B;
+}
+
+.chat-form textarea:focus {
+    background: rgba(15, 23, 42, .98);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, .14);
+}
+
+.chat-form button {
+    min-width: 105px;
+    min-height: 54px;
+    padding: 12px 20px;
+}
+
+@media (max-width: 760px) {
+    .chat-window {
+        height: 55vh;
+        min-height: 320px;
+        padding: 12px;
+    }
+
+    .chat-message {
+        max-width: 88%;
+    }
+
+    .chat-form {
+        grid-template-columns: 1fr;
+    }
+
+    .chat-form button {
+        width: 100%;
+    }
+}
