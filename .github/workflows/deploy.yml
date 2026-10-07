@@ -9,6 +9,8 @@ jobs:
   test:
     name: Testes
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: test-secret-key
 
     steps:
       - name: Baixar código
@@ -54,3 +56,4 @@ jobs:
     steps:
       - name: Acionar deploy do Render
         run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
