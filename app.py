@@ -200,20 +200,15 @@ def get_service_by_id(service_id):
 
 
 def user_can_access_service_chat(user_id, service_id, user_type=None):
-    if not user_id or not service_id:
-        return False
-
     service = get_service_by_id(service_id)
+
     if not service:
         return False
 
-    if user_id in {service["cliente_id"], service["profissional_id"]}:
-        return True
-
-    if user_type in (ADMIN_USER_TYPE, "empresa"):
-        return True
-
-    return False
+    return user_id in {
+        service["cliente_id"],
+        service["profissional_id"],
+    }
 
 
 def get_value_proposal_for_service(service_id):

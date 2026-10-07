@@ -6,7 +6,7 @@
         <div class="sidebar-brand">
             {% if user['logo_empresa'] %}
             <div class="avatar avatar-large avatar-image"
-                style="background-image:url('/static/uploads/{{ user['logo_empresa'] }}')"></div>
+                style="background-image: url('/static/uploads/{{ user['logo_empresa']|e }}');"></div>
             {% else %}
             <div class="avatar avatar-large">{{ user['empresa_nome'][0]|upper if user['empresa_nome'] else
                 user['nome'][0]|upper }}</div>
