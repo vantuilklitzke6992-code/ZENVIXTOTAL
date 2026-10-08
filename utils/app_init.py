@@ -3,6 +3,8 @@ import webbrowser
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
+from dotenv import load_dotenv
+
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -15,6 +17,8 @@ from routes import auth_bp, public_bp
 BASE_DIR = os.path.abspath(
     os.path.dirname(os.path.dirname(__file__))
 )
+
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 UPLOAD_FOLDER = os.path.join(
     BASE_DIR,
