@@ -43,6 +43,21 @@ def allowed_image_file(filename):
     }
 
 
+def has_nonempty_upload(file_storage):
+    if not file_storage or not file_storage.filename.strip():
+        return False
+
+    stream = file_storage.stream
+    try:
+        current_position = stream.tell()
+        stream.seek(0, os.SEEK_END)
+        has_content = stream.tell() > 0
+        stream.seek(current_position)
+        return has_content
+    except (OSError, ValueError):
+        return False
+
+
 def save_uploaded_file(file_storage, file_validator=allowed_file):
     if not file_storage or file_storage.filename == "":
         return None
@@ -177,6 +192,16 @@ def cadastro():
             documento_empresa = None
 
         elif tipo == "profissional":
+            if not has_nonempty_upload(documento):
+                current_step = 3
+                flash(
+                    "O documento de comprovacao e obrigatorio para concluir o cadastro.",
+                    "error",
+                )
+                return _registration_error_redirect(
+                    form_data, tipo, current_step
+                )
+
             if (
                 not estado
                 or not cidade
@@ -200,6 +225,16 @@ def cadastro():
             documento_empresa = None
 
         else:
+            if not has_nonempty_upload(documento_empresa):
+                current_step = 3
+                flash(
+                    "O documento de comprovacao da empresa e obrigatorio para concluir o cadastro.",
+                    "error",
+                )
+                return _registration_error_redirect(
+                    form_data, tipo, current_step
+                )
+
             if (
                 not empresa_nome
                 or not estado

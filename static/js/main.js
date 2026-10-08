@@ -391,6 +391,10 @@ document.addEventListener("DOMContentLoaded", function () {
         companyFields.forEach((el) => el.classList.toggle("hidden", type !== "empresa"));
         professionalFields.forEach((el) => el.classList.toggle("hidden", type !== "profissional"));
         clientFields.forEach((el) => el.classList.toggle("hidden", type !== "cliente"));
+        const specialtySelect = document.getElementById("especialidade");
+        if (specialtySelect) {
+            specialtySelect.required = type === "profissional" && !specialtySelect.disabled;
+        }
         const accountLabel = document.querySelector(".form-group label[for='nome']");
         if (type === "empresa") {
             accountLabel.textContent = "Nome do respons�vel";
@@ -458,6 +462,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 const especialidade = document.getElementById("especialidade").value.trim();
                 const bio = document.getElementById("bio").value.trim();
                 const cpf = document.getElementById("cpf").value.trim();
+                const documento = document.getElementById("documento").files[0];
+
+                if (!documento || documento.size === 0) {
+                    showValidation("Anexe o documento de comprovacao obrigatorio para continuar.");
+                    document.querySelector('[data-trigger-file="documento"]').focus();
+                    return false;
+                }
 
                 if (!especialidade || !bio || !cpf) {
                     showValidation("Preencha todos os dados profissionais obrigat�rios para continuar.");
@@ -468,6 +479,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (type === "empresa") {
                 const cnpj = document.getElementById("cnpj").value.trim();
+                const documentoEmpresa = document.getElementById("documento_empresa").files[0];
+
+                if (!documentoEmpresa || documentoEmpresa.size === 0) {
+                    showValidation("Anexe o documento da empresa obrigatorio para continuar.");
+                    document.querySelector('[data-trigger-file="documento_empresa"]').focus();
+                    return false;
+                }
 
                 if (!cnpj) {
                     showValidation("Preencha os dados da empresa para continuar.");
