@@ -234,42 +234,37 @@ def ensure_admin_user():
     admin_email = os.getenv("ADMIN_EMAIL", "").strip().lower()
     admin_password = os.getenv("ADMIN_PASSWORD")
 
-    # Não cria administrador se as credenciais não estiverem configuradas.
+    # Admin bootstrap is opt-in and requires both configured credentials.
     if not admin_email and not admin_password:
         return
 
-    # Evita configuração incompleta.
-    if not admin_email or not admin_password:
+    if not admin_email or not admin_password or not admin_password.strip():
         raise RuntimeError(
             "ADMIN_EMAIL e ADMIN_PASSWORD devem ser configurados juntos."
         )
 
-    existing = db.execute(
-        "SELECT id, tipo FROM usuarios WHERE email = ?",
+    existing_email = db.execute(
+        "SELECT id, tipo FROM usuarios WHERE lower(email) = ?",
         (admin_email,),
     ).fetchone()
 
-    if existing:
-        senha_segura = generate_password_hash(admin_password)
-
-        db.execute(
-            """
-            UPDATE usuarios
-            SET tipo = ?, senha = ?
-            WHERE id = ?
-            """,
-            (
-                "admin",
-                senha_segura,
-                existing["id"],
-            ),
-        )
-
-        db.commit()
+    if existing_email:
+        if existing_email["tipo"] != "admin":
+            raise RuntimeError(
+                "ADMIN_EMAIL ja pertence a uma conta que nao e administradora."
+            )
         return
 
-    senha_segura = generate_password_hash(admin_password)
+    existing_admin = db.execute(
+        "SELECT id, email FROM usuarios WHERE tipo = 'admin' LIMIT 1"
+    ).fetchone()
 
+    if existing_admin:
+        raise RuntimeError(
+            "Ja existe um administrador com outro email; nenhum novo administrador foi criado."
+        )
+
+    senha_segura = generate_password_hash(admin_password)
     db.execute(
         """
         INSERT INTO usuarios (
@@ -289,7 +284,6 @@ def ensure_admin_user():
             "Ativo",
         ),
     )
-
     db.commit()
 
 

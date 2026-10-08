@@ -3,9 +3,11 @@
 {% block main_class %}marketplace-page{% endblock %}
 {% block content %}
 <section class="form-card provider-search-card"><span class="eyebrow">Marketplace</span>
-    <h1>Encontre quem pode ajudar</h1>
-    <p>Use os filtros para encontrar profissionais e empresas cadastrados na plataforma.</p>
-    <form action="/profissionais" method="get" class="search-form provider-filters"><input name="q" value="{{ search }}"
+    <h1>{{ 'Encontre empresas' if provider_type == 'empresa' else 'Encontre quem pode ajudar' }}</h1>
+    <p>{% if provider_type == 'empresa' %}Consulte empresas disponíveis na plataforma.{% else %}Use os filtros para encontrar profissionais e empresas cadastrados na plataforma.{% endif %}</p>
+    <form action="/profissionais" method="get" class="search-form provider-filters">
+        {% if provider_type %}<input type="hidden" name="tipo" value="{{ provider_type }}">{% endif %}
+        <input name="q" value="{{ search }}"
             placeholder="Nome ou serviço" class="search-input"><input name="categoria" value="{{ category }}"
             placeholder="Categoria" class="search-input"><input name="cidade" value="{{ city }}" placeholder="Cidade"
             class="search-input"><select name="avaliacao" class="search-select">

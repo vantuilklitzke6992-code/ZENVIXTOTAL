@@ -1706,12 +1706,11 @@ def excluir_conta():
 
 @app.route("/profissionais")
 def profissionais():
-    if "user_id" not in session:
-        flash("Faça login para acessar os profissionais.", "error")
-        return redirect(url_for("auth.login"))
-
     search = request.args.get("q", "").strip()
     category = request.args.get("categoria", "").strip()
+    provider_type = request.args.get("tipo", "").strip()
+    if provider_type not in {"profissional", "empresa"}:
+        provider_type = ""
     city = request.args.get("cidade", "").strip()
     online_only = request.args.get("online") == "1"
     min_rating = request.args.get("avaliacao", "").strip()
@@ -1734,6 +1733,8 @@ def profissionais():
     for provider in get_providers(
         search=search, category=category, city=city, online_only=online_only
     ):
+        if provider_type and provider["tipo"] != provider_type:
+            continue
         provider_data = enrich_provider(provider)
         provider_data["recommendation_score"] = get_provider_recommendation_score(
             provider_data, requested_category=category
@@ -1758,6 +1759,7 @@ def profissionais():
         city=city,
         online_only=online_only,
         min_rating=min_rating,
+        provider_type=provider_type,
     )
 
 
