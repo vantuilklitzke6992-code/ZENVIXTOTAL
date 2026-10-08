@@ -289,6 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const accountTypeInput = document.getElementById("account-type-input");
     const accountTypeCards = document.querySelectorAll(".account-type-card");
     const stepCards = document.querySelectorAll(".step-card");
+    const step2Controls = cadastroForm.querySelectorAll('[data-step="2"] input, [data-step="2"] select, [data-step="2"] textarea');
     const stepNumber = document.getElementById("step-number");
     const stepTotal = document.getElementById("step-total");
     const stepProgress = document.getElementById("step-progress");
@@ -309,6 +310,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalSteps = 3;
     const initialStep = parseInt(cadastroForm.dataset.currentStep, 10) || 1;
     const initialAccountType = cadastroForm.dataset.accountType || accountTypeInput.value || "cliente";
+
+    function setStep2ControlsDisabled(disabled) {
+        step2Controls.forEach((control) => {
+            control.disabled = disabled;
+        });
+    }
 
     function populateCityOptions(selectedStateName) {
         if (!stateSelect || !citySelect) {
@@ -368,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stepCards.forEach((card) => {
             card.classList.toggle("step-card-active", card.dataset.step === String(step));
         });
+        setStep2ControlsDisabled(step !== 2);
         currentStep = step;
         updateStepper();
         validationMessage.classList.add("hidden");
@@ -376,6 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function showValidation(message) {
         validationMessage.textContent = message;
         validationMessage.classList.remove("hidden");
+        validationMessage.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function selectAccountType(type) {
@@ -403,6 +412,38 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function getStep2ValidationError() {
+        const type = accountTypeInput.value;
+        const nomeField = document.getElementById("nome");
+        const emailField = document.getElementById("email");
+        const senhaField = document.getElementById("senha");
+        const confirmSenhaField = document.getElementById("confirm_senha");
+        const empresaNomeField = document.getElementById("empresa_nome");
+        const nome = nomeField.value.trim();
+        const email = emailField.value.trim();
+        const senha = senhaField.value;
+        const confirmSenha = confirmSenhaField.value;
+
+        if (type === "empresa" && !empresaNomeField.value.trim()) {
+            return { message: "Informe o nome da empresa para continuar.", field: empresaNomeField };
+        }
+
+        if (!nome || !email || !senha || !confirmSenha) {
+            const field = !nome ? nomeField : !email ? emailField : !senha ? senhaField : confirmSenhaField;
+            return { message: "Preencha todos os campos obrigatórios desta etapa.", field };
+        }
+
+        if (!emailField.checkValidity()) {
+            return { message: "Informe um e-mail válido.", field: emailField };
+        }
+
+        if (senha !== confirmSenha) {
+            return { message: "As senhas não conferem.", field: confirmSenhaField };
+        }
+
+        return null;
+    }
+
     function validateStep(step) {
         const type = accountTypeInput.value;
 
@@ -415,32 +456,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (step === 2) {
-            const nome = document.getElementById("nome").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const senha = document.getElementById("senha").value;
-            const confirmSenha = document.getElementById("confirm_senha").value;
-            const empresaNome = document.getElementById("empresa_nome").value.trim();
-
-            if (type === "empresa" && !empresaNome) {
-                showValidation("Informe o nome da empresa para continuar.");
+            const error = getStep2ValidationError();
+            if (error) {
+                showValidation(error.message);
+                error.field.focus({ preventScroll: true });
+                if (error.field.id === "email") {
+                    error.field.reportValidity();
+                }
                 return false;
             }
-
-            if (!nome || !email || !senha || !confirmSenha) {
-                showValidation("Preencha todos os campos obrigat�rios desta etapa.");
-                return false;
-            }
-
-            if (!email.includes("@") || !email.includes(".")) {
-                showValidation("Informe um e-mail v�lido.");
-                return false;
-            }
-
-            if (senha !== confirmSenha) {
-                showValidation("As senhas n�o conferem.");
-                return false;
-            }
-
             return true;
         }
 
@@ -466,7 +490,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (!documento || documento.size === 0) {
                     showValidation("Anexe o documento de comprovacao obrigatorio para continuar.");
-                    document.querySelector('[data-trigger-file="documento"]').focus();
+                    document.querySelector('[data-trigger-file="documento"]').focus({ preventScroll: true });
                     return false;
                 }
 
@@ -483,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (!documentoEmpresa || documentoEmpresa.size === 0) {
                     showValidation("Anexe o documento da empresa obrigatorio para continuar.");
-                    document.querySelector('[data-trigger-file="documento_empresa"]').focus();
+                    document.querySelector('[data-trigger-file="documento_empresa"]').focus({ preventScroll: true });
                     return false;
                 }
 
@@ -595,8 +619,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     cadastroForm.addEventListener("submit", function (event) {
+        setStep2ControlsDisabled(false);
+
+        if (getStep2ValidationError()) {
+            event.preventDefault();
+            showStep(2);
+            validateStep(2);
+            return;
+        }
+
         if (!validateStep(3)) {
             event.preventDefault();
+            setStep2ControlsDisabled(true);
         }
     });
 
