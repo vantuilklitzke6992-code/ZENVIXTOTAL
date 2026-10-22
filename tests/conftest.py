@@ -13,6 +13,7 @@ import utils.db as db_module
 _test_database_directory = Path(tempfile.mkdtemp(prefix="zenvix-tests-"))
 test_database_path = _test_database_directory / "database.db"
 db_module.DATABASE_PATH = str(test_database_path)
+db_module.FORCE_SQLITE = True
 
 
 def _remove_test_database():

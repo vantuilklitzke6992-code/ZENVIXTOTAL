@@ -1,0 +1,12 @@
+ZENVIX CONNECT — correção incremental para PostgreSQL/Neon
+
+Substitua somente utils/db.py no projeto pelo arquivo desta pasta.
+Esta atualização mantém FORCE_SQLITE para testes locais e corrige a conversão
+SQL das comparações de ultimo_acesso, além de manter a correção de tipagem do
+Pylance para psycopg.connect.
+
+Depois, execute no terminal do projeto:
+    python -m pytest -v
+
+Os testes locais usam SQLite; eles não comprovam, sozinhos, a conexão real com
+Neon. Não publique no Render até executar o teste de conexão PostgreSQL.

@@ -1,18 +1,110 @@
 import os
 import re
 import sqlite3
+from typing import Any, cast
 from flask import g
 from werkzeug.security import generate_password_hash
 
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 DATABASE_PATH = os.path.join(BASE_DIR, "database.db")
+FORCE_SQLITE = False
+
+
+def using_postgres():
+    """Read DATABASE_URL at runtime so dotenv and hosting env vars are honored."""
+    return not FORCE_SQLITE and bool(os.getenv("DATABASE_URL", "").strip())
+
+
+def integrity_error_types():
+    """Return integrity exception types for the active database driver."""
+    if using_postgres():
+        import psycopg
+        return (psycopg.IntegrityError,)
+    return (sqlite3.IntegrityError,)
+
+
+def _translate_sql(sql):
+    """Translate SQLite SQL syntax used by the app to PostgreSQL equivalents."""
+    sql = re.sub(r"INSERT\s+OR\s+IGNORE\s+INTO", "INSERT INTO", sql, flags=re.I)
+
+    # SQLite compares text dates flexibly; PostgreSQL requires an explicit cast
+    # when ultimo_acesso is stored in the legacy TEXT column.
+    sql = re.sub(
+        r"\bultimo_acesso\s*(<=|>=|<|>)\s*datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
+        lambda match: (
+            f"CAST(ultimo_acesso AS TIMESTAMP) {match.group(1)} "
+            "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')"
+        ),
+        sql,
+        flags=re.I,
+    )
+    sql = re.sub(
+        r"datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
+        "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')",
+        sql,
+        flags=re.I,
+    )
+    sql = re.sub(
+        r"datetime\(\s*['\"]now['\"]\s*\)",
+        "CURRENT_TIMESTAMP",
+        sql,
+        flags=re.I,
+    )
+    sql = re.sub(
+        r"INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT",
+        "BIGSERIAL PRIMARY KEY",
+        sql,
+        flags=re.I,
+    )
+    # SQLite LIKE is case-insensitive for ordinary ASCII text by default.
+    sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.I)
+    # Application queries use question marks as parameter placeholders.
+    sql = sql.replace("?", "%s")
+    if re.match(r"\s*INSERT\s+INTO\s+categorias\s*\(", sql, flags=re.I):
+        sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
+    return sql
+
+
+class _PostgresConnection:
+    """Small compatibility layer for the SQLite-style db API used by the app."""
+
+    def __init__(self, connection):
+        self._connection = connection
+
+    def execute(self, sql, params=None):
+        sql = _translate_sql(sql)
+        if params is None:
+            return self._connection.execute(sql)
+        return self._connection.execute(sql, params)
+
+    def executemany(self, sql, seq_of_params):
+       sql = _translate_sql(sql)
+       with self._connection.cursor() as cursor:
+        cursor.executemany(sql, seq_of_params)
+       return cursor
+
+    def __getattr__(self, name):
+        return getattr(self._connection, name)
 
 
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE_PATH)
-        g.db.row_factory = sqlite3.Row
+        if using_postgres():
+            import psycopg
+            from psycopg.rows import dict_row
+
+            # Cast only the callable for Pylance; runtime behavior is unchanged.
+            connect = cast(Any, psycopg.connect)
+            connection = connect(
+                os.getenv("DATABASE_URL", "").strip(),
+                row_factory=dict_row,
+            )
+            g.db = _PostgresConnection(connection)
+        else:
+            g.db = sqlite3.connect(DATABASE_PATH)
+            g.db.row_factory = sqlite3.Row
+
     return g.db
 
 
@@ -24,10 +116,20 @@ def close_db(e=None):
 
 def add_column_if_missing(table, column_name, column_type_def):
     db = get_db()
-    columns = [
-        row["name"]
-        for row in db.execute(f"PRAGMA table_info({table})").fetchall()
-    ]
+    if using_postgres():
+        columns = [
+            row["column_name"]
+            for row in db.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_schema = current_schema() AND table_name = %s",
+                (table,),
+            ).fetchall()
+        ]
+    else:
+        columns = [
+            row["name"]
+            for row in db.execute(f"PRAGMA table_info({table})").fetchall()
+        ]
 
     if column_name not in columns:
         db.execute(
@@ -533,8 +635,9 @@ def init_db():
         )
     """)
 
-    normalize_usuarios_schema()
-    repair_usuarios_foreign_keys()
+    if not using_postgres():
+        normalize_usuarios_schema()
+        repair_usuarios_foreign_keys()
 
     add_column_if_missing("usuarios", "bio", "TEXT")
     add_column_if_missing("usuarios", "especialidade", "TEXT")
@@ -741,33 +844,73 @@ def init_db():
         "ON servico_propostas_valor(servico_id, estado)"
     )
 
-    db.execute("""
-        CREATE TRIGGER IF NOT EXISTS trg_servicos_sync_status_after_confirmation_update
-        AFTER UPDATE OF cliente_confirmou_conclusao, profissional_confirmou_conclusao
-        ON servicos
-        WHEN NEW.cliente_confirmou_conclusao <> OLD.cliente_confirmou_conclusao
-          OR NEW.profissional_confirmou_conclusao <> OLD.profissional_confirmou_conclusao
-        BEGIN
-            UPDATE servicos
-            SET status = CASE
-                WHEN NEW.status = 'Cancelado' THEN 'Cancelado'
-                WHEN NEW.status = 'Concluído' THEN 'Concluído'
-                WHEN NEW.cliente_confirmou_conclusao = 1
-                 AND NEW.profissional_confirmou_conclusao = 1
-                    THEN 'Concluído'
-                WHEN NEW.cliente_confirmou_conclusao = 1
-                  OR NEW.profissional_confirmou_conclusao = 1
-                    THEN 'Aguardando confirmação'
-                ELSE NEW.status
-            END,
-            data_conclusao = CASE
-                WHEN NEW.cliente_confirmou_conclusao = 1
-                 AND NEW.profissional_confirmou_conclusao = 1
-                    THEN datetime('now')
-                ELSE NULL
-            END
-            WHERE id = NEW.id;
-        END;
-    """)
-
+    if using_postgres():
+        db.execute("""
+            CREATE OR REPLACE FUNCTION sync_servicos_status_after_confirmation()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                UPDATE servicos
+                SET status = CASE
+                    WHEN NEW.status = 'Cancelado' THEN 'Cancelado'
+                    WHEN NEW.status = 'Concluído' THEN 'Concluído'
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                     AND NEW.profissional_confirmou_conclusao = 1
+                        THEN 'Concluído'
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                      OR NEW.profissional_confirmou_conclusao = 1
+                        THEN 'Aguardando confirmação'
+                    ELSE NEW.status
+                END,
+                data_conclusao = CASE
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                     AND NEW.profissional_confirmou_conclusao = 1
+                        THEN CURRENT_TIMESTAMP
+                    ELSE NULL
+                END
+                WHERE id = NEW.id;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql
+        """)
+        db.execute("DROP TRIGGER IF EXISTS trg_servicos_sync_status_after_confirmation_update ON servicos")
+        db.execute("""
+            CREATE TRIGGER trg_servicos_sync_status_after_confirmation_update
+            AFTER UPDATE OF cliente_confirmou_conclusao, profissional_confirmou_conclusao
+            ON servicos
+            FOR EACH ROW
+            WHEN (
+                NEW.cliente_confirmou_conclusao IS DISTINCT FROM OLD.cliente_confirmou_conclusao
+                OR NEW.profissional_confirmou_conclusao IS DISTINCT FROM OLD.profissional_confirmou_conclusao
+            )
+            EXECUTE FUNCTION sync_servicos_status_after_confirmation()
+        """)
+    else:
+        db.execute("""
+            CREATE TRIGGER IF NOT EXISTS trg_servicos_sync_status_after_confirmation_update
+            AFTER UPDATE OF cliente_confirmou_conclusao, profissional_confirmou_conclusao
+            ON servicos
+            WHEN NEW.cliente_confirmou_conclusao <> OLD.cliente_confirmou_conclusao
+              OR NEW.profissional_confirmou_conclusao <> OLD.profissional_confirmou_conclusao
+            BEGIN
+                UPDATE servicos
+                SET status = CASE
+                    WHEN NEW.status = 'Cancelado' THEN 'Cancelado'
+                    WHEN NEW.status = 'Concluído' THEN 'Concluído'
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                     AND NEW.profissional_confirmou_conclusao = 1
+                        THEN 'Concluído'
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                      OR NEW.profissional_confirmou_conclusao = 1
+                        THEN 'Aguardando confirmação'
+                    ELSE NEW.status
+                END,
+                data_conclusao = CASE
+                    WHEN NEW.cliente_confirmou_conclusao = 1
+                     AND NEW.profissional_confirmou_conclusao = 1
+                        THEN datetime('now')
+                    ELSE NULL
+                END
+                WHERE id = NEW.id;
+            END;
+        """)
     db.commit()

@@ -1,4 +1,4 @@
-﻿.venv/
+.venv/
 .git/
 .github/
 __pycache__/
@@ -9,3 +9,6 @@ __pycache__/
 .env
 .vscode/
 database_*.db
+database.db
+static/uploads/*
+!static/uploads/.gitkeep

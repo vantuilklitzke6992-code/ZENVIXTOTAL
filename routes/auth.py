@@ -15,8 +15,24 @@ from utils.security import validate_csrf_token
 from utils.presence import online_users
 import json
 import os
+import re
 
 auth_bp = Blueprint("auth", __name__)
+
+
+def _normalize_document(value, digit_count, formatted_pattern):
+    if re.fullmatch(rf"[0-9]{{{digit_count}}}", value):
+        return value
+    if re.fullmatch(formatted_pattern, value):
+        return re.sub(r"[^0-9]", "", value)
+    return None
+
+
+def _is_valid_phone(value):
+    return bool(
+        re.fullmatch(r"[0-9]{10,11}", value)
+        or re.fullmatch(r"\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}", value)
+    )
 
 
 def _registration_error_redirect(form_data, tipo, current_step):
@@ -48,6 +64,7 @@ def has_nonempty_upload(file_storage):
         return False
 
     stream = file_storage.stream
+
     try:
         current_position = stream.tell()
         stream.seek(0, os.SEEK_END)
@@ -61,15 +78,20 @@ def has_nonempty_upload(file_storage):
 def save_uploaded_file(file_storage, file_validator=allowed_file):
     if not file_storage or file_storage.filename == "":
         return None
+
     if not file_validator(file_storage.filename):
         return None
+
     filename = secure_filename(file_storage.filename)
     upload_folder = current_app.config.get("UPLOAD_FOLDER")
+
     if not upload_folder:
         return None
+
     os.makedirs(upload_folder, exist_ok=True)
     filepath = os.path.join(upload_folder, filename)
     file_storage.save(filepath)
+
     return filename
 
 
@@ -77,6 +99,7 @@ def get_brazilian_location_data():
     base_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir)
     )
+
     data_path = os.path.join(
         base_dir,
         "static",
@@ -102,9 +125,11 @@ def cadastro():
             return redirect(url_for("auth.cadastro"))
 
         tipo = request.form.get("tipo", "cliente")
+
         if tipo not in {"cliente", "profissional", "empresa"}:
             flash("Tipo de cadastro inválido.", "error")
             return redirect(url_for("auth.cadastro"))
+
         nome = request.form.get("nome", "").strip()
         email = request.form.get("email", "").strip().lower()
         senha = request.form.get("senha", "")
@@ -162,7 +187,8 @@ def cadastro():
         db = get_db()
 
         existing = db.execute(
-            "SELECT * FROM usuarios WHERE email = ?", (email,)
+            "SELECT * FROM usuarios WHERE email = ?",
+            (email,),
         ).fetchone()
 
         if existing:
@@ -255,6 +281,41 @@ def cadastro():
             cpf = None
             documento = None
 
+        if not _is_valid_phone(telefone):
+            current_step = 3
+            flash("Informe um telefone com DDD e 10 ou 11 dígitos.", "error")
+            return _registration_error_redirect(
+                form_data, tipo, current_step
+            )
+
+        if tipo == "profissional":
+            cpf = _normalize_document(
+                cpf,
+                11,
+                r"[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}",
+            )
+
+            if cpf is None:
+                current_step = 3
+                flash("Informe um CPF com 11 dígitos.", "error")
+                return _registration_error_redirect(
+                    form_data, tipo, current_step
+                )
+
+        if tipo == "empresa":
+            cnpj = _normalize_document(
+                cnpj,
+                14,
+                r"[0-9]{2}\.[0-9]{3}\.[0-9]{3}/[0-9]{4}-[0-9]{2}",
+            )
+
+            if cnpj is None:
+                current_step = 3
+                flash("Informe um CNPJ com 14 dígitos.", "error")
+                return _registration_error_redirect(
+                    form_data, tipo, current_step
+                )
+
         if documento and documento.filename and not allowed_file(
             documento.filename
         ):
@@ -311,10 +372,12 @@ def cadastro():
 
         documento_filename = save_uploaded_file(documento)
         documento_empresa_filename = save_uploaded_file(documento_empresa)
+
         foto_perfil = save_uploaded_file(
             foto_perfil_file,
             allowed_image_file,
         )
+
         logo_empresa = save_uploaded_file(
             logo_empresa_file,
             allowed_image_file,
@@ -368,10 +431,11 @@ def cadastro():
             online_users.add(user_id)
 
             db.execute(
-                'UPDATE usuarios SET status_online = "online", '
-                'ultimo_acesso = datetime("now") WHERE id = ?',
-                (user_id,),
+                "UPDATE usuarios SET status_online = ?, "
+                "ultimo_acesso = datetime('now') WHERE id = ?",
+                ("online", user_id),
             )
+
             db.commit()
 
             flash(
@@ -449,10 +513,11 @@ def login():
         online_users.add(user["id"])
 
         db.execute(
-            'UPDATE usuarios SET status_online = "online", '
-            'ultimo_acesso = datetime("now") WHERE id = ?',
-            (user["id"],),
+            "UPDATE usuarios SET status_online = ?, "
+            "ultimo_acesso = datetime('now') WHERE id = ?",
+            ("online", user["id"]),
         )
+
         db.commit()
 
         flash(

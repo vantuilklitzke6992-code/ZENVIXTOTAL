@@ -1,4 +1,4 @@
-﻿from flask import (
+from flask import (
     render_template,
     request,
     redirect,
@@ -25,7 +25,7 @@ from utils.app_init import (
     UPLOAD_FOLDER,
     ALLOWED_EXTENSIONS,
 )
-from utils.db import get_db, close_db
+from utils.db import get_db, close_db, integrity_error_types
 from utils.security import generate_csrf_token, validate_csrf_token
 from utils.presence import online_users
 
@@ -765,9 +765,9 @@ def iniciar_conversa(partner_id):
     if conversation_id is None:
         db = get_db()
         cursor = db.execute(
-            "INSERT INTO conversas (criado_em) VALUES (datetime('now'))"
+            "INSERT INTO conversas (criado_em) VALUES (datetime('now')) RETURNING id"
         )
-        conversation_id = cursor.lastrowid
+        conversation_id = cursor.fetchone()["id"]
         db.execute(
             "INSERT INTO conversa_participantes (conversa_id, usuario_id) VALUES (?, ?)",
             (conversation_id, user_id),
@@ -1570,7 +1570,7 @@ def admin_add_category():
         db.execute("INSERT INTO categorias (nome) VALUES (?)", (nome,))
         db.commit()
         flash("Categoria adicionada com sucesso.", "success")
-    except sqlite3.IntegrityError:
+    except integrity_error_types():
         flash("Esta categoria já existe.", "error")
     return redirect(url_for("admin_panel"))
 
@@ -1880,7 +1880,7 @@ def solicitar_servico(provider_id):
             return redirect(url_for("servico_chat", service_id=existing_service["id"]))
 
         cursor = db.execute(
-            "INSERT INTO servicos (cliente_id, profissional_id, categoria, descricao, status, valor, data_solicitacao, cliente_confirmou_conclusao, profissional_confirmou_conclusao) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 0, 0)",
+            "INSERT INTO servicos (cliente_id, profissional_id, categoria, descricao, status, valor, data_solicitacao, cliente_confirmou_conclusao, profissional_confirmou_conclusao) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 0, 0) RETURNING id",
             (
                 session["user_id"],
                 provider_id,
@@ -1890,7 +1890,7 @@ def solicitar_servico(provider_id):
                 valor_real,
             ),
         )
-        service_id = cursor.lastrowid
+        service_id = cursor.fetchone()["id"]
 
         admin = db.execute(
             "SELECT id, nome FROM usuarios WHERE tipo = ? LIMIT 1", (ADMIN_USER_TYPE,)

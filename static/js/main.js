@@ -301,6 +301,69 @@ document.addEventListener("DOMContentLoaded", function () {
     const step2Next = document.getElementById("step2-next");
     const step3Prev = document.getElementById("step3-prev");
     const validationMessage = document.getElementById("form-validation-message");
+    const formatNumericField = (field, kind) => {
+        if (!field) {
+            return;
+        }
+
+        const format = (value) => {
+            const limit = kind === "cpf" ? 11 : kind === "cnpj" ? 14 : 11;
+            const digits = value.replace(/\D/g, "").slice(0, limit);
+
+            if (kind === "cpf") {
+                return digits
+                    .replace(/^(\d{3})(\d)/, "$1.$2")
+                    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+                    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            }
+
+            if (kind === "cnpj") {
+                return digits
+                    .replace(/^(\d{2})(\d)/, "$1.$2")
+                    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+                    .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+            }
+
+            if (digits.length <= 2) {
+                return digits ? `(${digits}` : "";
+            }
+            const area = digits.slice(0, 2);
+            const subscriber = digits.slice(2);
+            const subscriberLength = digits.length > 10 ? 5 : 4;
+            const local = subscriber.slice(0, subscriberLength);
+            const suffix = subscriber.slice(subscriberLength);
+            return `(${area}) ${local}${suffix ? `-${suffix}` : ""}`;
+        };
+
+        const applyMask = (preserveCaret) => {
+            const oldValue = field.value;
+            const oldCaret = preserveCaret ? field.selectionStart : null;
+            const digitsBeforeCaret = oldCaret === null
+                ? 0
+                : oldValue.slice(0, oldCaret).replace(/\D/g, "").length;
+            const newValue = format(oldValue);
+            field.value = newValue;
+
+            if (oldCaret !== null) {
+                let newCaret = 0;
+                let digitsSeen = 0;
+                while (newCaret < newValue.length && digitsSeen < digitsBeforeCaret) {
+                    if (/\d/.test(newValue[newCaret])) {
+                        digitsSeen += 1;
+                    }
+                    newCaret += 1;
+                }
+                field.setSelectionRange(newCaret, newCaret);
+            }
+        };
+
+        applyMask(false);
+        field.addEventListener("input", () => applyMask(true));
+    };
+    formatNumericField(document.getElementById("cpf"), "cpf");
+    formatNumericField(document.getElementById("cnpj"), "cnpj");
+    formatNumericField(document.getElementById("telefone"), "telefone");
     const stateSelect = document.getElementById("estado");
     const citySelect = document.getElementById("cidade");
     const brazilianLocationsElement = document.getElementById("brazilian-locations-data");
@@ -631,6 +694,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!validateStep(3)) {
             event.preventDefault();
             setStep2ControlsDisabled(true);
+            return;
+        }
+
+        if (accountTypeInput.value === "profissional") {
+            document.getElementById("cpf").value = document.getElementById("cpf").value.replace(/\D/g, "");
+        } else if (accountTypeInput.value === "empresa") {
+            document.getElementById("cnpj").value = document.getElementById("cnpj").value.replace(/\D/g, "");
         }
     });
 
