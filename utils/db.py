@@ -24,33 +24,9 @@ def integrity_error_types():
     return (sqlite3.IntegrityError,)
 
 
-def _translate_sql(sql):
-    """Translate SQLite SQL syntax used by the app to PostgreSQL equivalents."""
+def _translate_sql_code(sql):
+    """Translate syntax in a SQL code fragment with no quoted regions."""
     sql = re.sub(r"INSERT\s+OR\s+IGNORE\s+INTO", "INSERT INTO", sql, flags=re.I)
-
-    # SQLite compares text dates flexibly; PostgreSQL requires an explicit cast
-    # when ultimo_acesso is stored in the legacy TEXT column.
-    sql = re.sub(
-        r"\bultimo_acesso\s*(<=|>=|<|>)\s*datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
-        lambda match: (
-            f"CAST(ultimo_acesso AS TIMESTAMP) {match.group(1)} "
-            "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')"
-        ),
-        sql,
-        flags=re.I,
-    )
-    sql = re.sub(
-        r"datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
-        "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')",
-        sql,
-        flags=re.I,
-    )
-    sql = re.sub(
-        r"datetime\(\s*['\"]now['\"]\s*\)",
-        "CURRENT_TIMESTAMP",
-        sql,
-        flags=re.I,
-    )
     sql = re.sub(
         r"INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT",
         "BIGSERIAL PRIMARY KEY",
@@ -61,6 +37,129 @@ def _translate_sql(sql):
     sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.I)
     # Application queries use question marks as parameter placeholders.
     sql = sql.replace("?", "%s")
+    return sql
+
+
+def _translate_sql(sql):
+    """Translate SQLite SQL syntax without rewriting quoted or commented text."""
+    translated = []
+    code_start = 0
+    index = 0
+
+    recent_access_pattern = re.compile(
+        r"\bultimo_acesso\s*(<=|>=|<|>)\s*datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
+        flags=re.I,
+    )
+    datetime_pattern = re.compile(
+        r"datetime\(\s*['\"]now['\"]\s*(?:,\s*['\"]-5 minutes['\"]\s*)?\)",
+        flags=re.I,
+    )
+
+    while index < len(sql):
+        # Recognize date expressions only in SQL code. Their quoted arguments
+        # are part of this known expression, not arbitrary string contents.
+        match = recent_access_pattern.match(sql, index)
+        if match:
+            translated.append(_translate_sql_code(sql[code_start:index]))
+            translated.append(
+                f"CAST(ultimo_acesso AS TIMESTAMP) {match.group(1)} "
+                "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')"
+            )
+            index = match.end()
+            code_start = index
+            continue
+
+        match = datetime_pattern.match(sql, index)
+        if match:
+            translated.append(_translate_sql_code(sql[code_start:index]))
+            if "," in match.group(0):
+                translated.append("(CURRENT_TIMESTAMP - INTERVAL '5 minutes')")
+            else:
+                translated.append("CURRENT_TIMESTAMP")
+            index = match.end()
+            code_start = index
+            continue
+
+        char = sql[index]
+        protected_end = None
+
+        if char == "'":
+            escaped_string = (
+                index > 0
+                and sql[index - 1] in "eE"
+                and (index < 2 or not (sql[index - 2].isalnum() or sql[index - 2] == "_"))
+            )
+            cursor = index + 1
+            while cursor < len(sql):
+                if escaped_string and sql[cursor] == "\\":
+                    cursor += 2
+                elif sql[cursor] == "'":
+                    if cursor + 1 < len(sql) and sql[cursor + 1] == "'":
+                        cursor += 2
+                    else:
+                        cursor += 1
+                        break
+                else:
+                    cursor += 1
+            protected_end = min(cursor, len(sql))
+
+        elif char == '"':
+            cursor = index + 1
+            while cursor < len(sql):
+                if sql[cursor] == '"':
+                    if cursor + 1 < len(sql) and sql[cursor + 1] == '"':
+                        cursor += 2
+                    else:
+                        cursor += 1
+                        break
+                else:
+                    cursor += 1
+            protected_end = min(cursor, len(sql))
+
+        elif sql.startswith("--", index):
+            cursor = index + 2
+            while cursor < len(sql) and sql[cursor] not in "\r\n":
+                cursor += 1
+            protected_end = cursor
+
+        elif sql.startswith("/*", index):
+            cursor = index + 2
+            depth = 1
+            while cursor < len(sql) and depth:
+                if sql.startswith("/*", cursor):
+                    depth += 1
+                    cursor += 2
+                elif sql.startswith("*/", cursor):
+                    depth -= 1
+                    cursor += 2
+                else:
+                    cursor += 1
+            protected_end = cursor
+
+        elif char == "$":
+            delimiter_end = sql.find("$", index + 1)
+            if delimiter_end != -1:
+                tag = sql[index + 1:delimiter_end]
+                valid_tag = not tag or (
+                    (tag[0].isalpha() or tag[0] == "_")
+                    and all(character.isalnum() or character == "_" for character in tag[1:])
+                )
+                if valid_tag:
+                    delimiter = sql[index:delimiter_end + 1]
+                    closing = sql.find(delimiter, delimiter_end + 1)
+                    protected_end = len(sql) if closing == -1 else closing + len(delimiter)
+
+        if protected_end is None:
+            index += 1
+            continue
+
+        translated.append(_translate_sql_code(sql[code_start:index]))
+        translated.append(sql[index:protected_end])
+        index = protected_end
+        code_start = index
+
+    translated.append(_translate_sql_code(sql[code_start:]))
+    sql = "".join(translated)
     if re.match(r"\s*INSERT\s+INTO\s+categorias\s*\(", sql, flags=re.I):
         sql = sql.rstrip().rstrip(";") + " ON CONFLICT DO NOTHING"
     return sql
@@ -79,10 +178,9 @@ class _PostgresConnection:
         return self._connection.execute(sql, params)
 
     def executemany(self, sql, seq_of_params):
-       sql = _translate_sql(sql)
-       with self._connection.cursor() as cursor:
-        cursor.executemany(sql, seq_of_params)
-       return cursor
+        sql = _translate_sql(sql)
+        with self._connection.cursor() as cursor:
+            cursor.executemany(sql, seq_of_params)
 
     def __getattr__(self, name):
         return getattr(self._connection, name)
