@@ -12,11 +12,18 @@ from utils.db import get_db
 def setup_module():
     with app.app_context():
         db = get_db()
+        db.execute("DELETE FROM denuncias")
+        db.execute("DELETE FROM servico_propostas_valor")
+        db.execute("DELETE FROM avaliacoes")
         db.execute("DELETE FROM mensagens")
+        db.execute("DELETE FROM conversa_mensagens")
+        db.execute("DELETE FROM conversa_participantes")
         db.execute("DELETE FROM servicos")
         db.execute("DELETE FROM conversas")
-        db.execute("DELETE FROM conversa_participantes")
-        db.execute("DELETE FROM conversa_mensagens")
+        db.execute(
+            "DELETE FROM usuario_categorias WHERE usuario_id IN "
+            "(SELECT id FROM usuarios WHERE email LIKE 'chat_%@test.com')"
+        )
         db.execute("DELETE FROM usuarios WHERE email LIKE 'chat_%@test.com'")
         db.commit()
 

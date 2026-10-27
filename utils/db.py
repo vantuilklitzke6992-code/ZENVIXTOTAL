@@ -639,7 +639,23 @@ def init_db():
         )
     """)
 
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS usuario_categorias (
+            usuario_id BIGINT NOT NULL,
+            categoria_id BIGINT NOT NULL,
+            PRIMARY KEY (usuario_id, categoria_id),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+            FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE
+        )
+    """)
+
     default_categories = [
+        "Alvenaria e construção",
+        "Instalações elétricas",
+        "Instalações hidráulicas",
+        "Pintura",
+        "Acabamentos e revestimentos",
+        "Reformas e ampliações",
         "Eletricista",
         "Encanador",
         "Faxineiro",
