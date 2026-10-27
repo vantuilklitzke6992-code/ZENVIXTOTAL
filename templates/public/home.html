@@ -1,691 +1,242 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}
-Zenvix Connect | Serviços confiáveis
-{% endblock %}
+{% block title %}Zenvix Connect | Construção e reformas em São Gabriel da Palha{% endblock %}
 
-{% block main_class %}
-public-main
-{% endblock %}
+{% block main_class %}public-main{% endblock %}
 
 {% block content %}
-
-<!-- ========================================================= -->
-<!-- HERO -->
-<!-- ========================================================= -->
-
 <section class="marketplace-hero" id="inicio">
-
     <div class="hero-copy">
-
         <span class="hero-kicker">
-            SERVIÇOS SOB DEMANDA
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Atuação inicial em São Gabriel da Palha, Espírito Santo.
         </span>
-
-        <h1>
-            Encontre quem resolve.
-        </h1>
-
-        <p>
-            Encontre profissionais e empresas para realizar o serviço que você precisa, na sua cidade.
-        </p>
+        <h1>Construção e reformas<br><span>em São Gabriel da Palha.</span></h1>
+        <h2>Encontre profissionais para construir e reformar.</h2>
+        <p class="hero-description">Consulte profissionais autônomos e empresas por especialidade<br class="desktop-break"> e pela cidade onde será realizada a obra.</p>
 
         <form action="/profissionais" method="get" class="marketplace-search">
-
-            <div class="form-group">
-
-                <label for="service-search">
-                    Serviço
-                </label>
-
+            <div class="home-search-field">
+                <label class="home-sr-only" for="service-search">Especialidade</label>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>
                 <input class="form-control" id="service-search" name="categoria" list="service-options"
-                    placeholder="Ex.: eletricista, limpeza ou informática" autocomplete="off">
-
+                    placeholder="Especialidade" autocomplete="off">
                 <datalist id="service-options">
+                    <option value="Pedreiro">
                     <option value="Eletricista">
                     <option value="Encanador">
-                    <option value="Limpeza">
-                    <option value="Pintura">
-                    <option value="Informática">
-                    <option value="Manutenção">
-                    <option value="Ar-condicionado">
-                    <option value="Outros">
+                    <option value="Pintor">
                 </datalist>
-
             </div>
-
-            <div class="form-group">
-
-                <label for="city-search">
-                    Localização
-                </label>
-
-                <input class="form-control" id="city-search" name="cidade" placeholder="Sua cidade"
-                    autocomplete="address-level2">
-
+            <div class="home-search-field">
+                <label class="home-sr-only" for="city-search">Cidade da obra ou serviço</label>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <input class="form-control" id="city-search" name="cidade"
+                    placeholder="Cidade da obra ou serviço" autocomplete="address-level2">
             </div>
-
             <button class="button button-primary" type="submit">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
                 Buscar profissionais
             </button>
-
         </form>
-
+        <p class="home-location-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Atuação inicial em <strong>São Gabriel da Palha, Espírito Santo.</strong> Informe a cidade da sua obra para pesquisar.
+        </p>
     </div>
-
-    <div class="hero-art" aria-hidden="true">
-
-        <div class="platform-visual">
-
-            <div class="platform-topbar">
-
-                <span class="platform-brand">
-                    ZENVIX
-                </span>
-
-                <span class="platform-status">
-                    <i></i>
-                    Plataforma
-                </span>
-
-            </div>
-
-            <div class="platform-search">
-
-                <span>⌕</span>
-
-                <span>
-                    Encontre um serviço
-                </span>
-
-                <strong>
-                    Localização
-                </strong>
-
-            </div>
-
-            <div class="platform-card">
-
-                <div class="platform-avatar">
-                    P
-                </div>
-
-                <div class="platform-provider">
-
-                    <strong>
-                        Profissional
-                    </strong>
-
-                    <span>
-                        Serviços especializados
-                    </span>
-
-                    <small>
-                        Perfil e informações do serviço
-                    </small>
-
-                </div>
-
-            </div>
-
-            <div class="platform-card platform-card-secondary">
-
-                <div class="platform-avatar avatar-alt">
-                    E
-                </div>
-
-                <div class="platform-provider">
-
-                    <strong>
-                        Empresa
-                    </strong>
-
-                    <span>
-                        Soluções para diferentes necessidades
-                    </span>
-
-                </div>
-
-            </div>
-
-            <div class="platform-footer">
-
-                <span>
-                    Categoria
-                </span>
-
-                <strong>
-                    Localização
-                </strong>
-
-                <strong>
-                    Perfil
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
 </section>
 
-
-<!-- ========================================================= -->
-<!-- CATEGORIAS -->
-<!-- ========================================================= -->
-
-<section class="public-section" id="servicos">
-
-    <div class="section-heading">
-
+<section class="public-section home-categories" id="servicos">
+    <div class="home-section-heading">
         <div>
-
-            <span class="eyebrow">
-                Encontre o que precisa
-            </span>
-
-            <h2>
-                Categorias de serviço
-            </h2>
-
-            <p>
-                Soluções para o seu dia a dia, em poucos cliques.
-            </p>
-
+            <span class="eyebrow">Construção e reformas</span>
+            <h2>Encontre por especialidade</h2>
+            <p>Escolha uma categoria para consultar profissionais cadastrados.</p>
         </div>
-
-        <a href="/profissionais" class="button button-secondary">
-            Ver todos
-        </a>
-
+        <a href="/profissionais" class="home-text-link">Ver todos <span aria-hidden="true">→</span></a>
     </div>
 
     <div class="category-grid">
-
-        {% for icon, title, description, category_class, image_file in [
-        ('🧹','Limpeza','Para sua casa ou empresa','cleaning','limpeza.jpg'),
-        ('⚡','Eletricista','Instalações e reparos','electrician','eletricista.jpg'),
-        ('🔧','Encanador','Soluções hidráulicas','plumbing','encanador.jpg'),
-        ('🎨','Pintura','Ambientes renovados','painting','pintura.jpg'),
-        ('💻','Informática','Suporte e tecnologia','computing','informatica.jpg'),
-        ('🛠','Manutenção','Pequenos e grandes reparos','maintenance','manutencao.jpg'),
-        ('❄️','Ar-condicionado','Instalação e manutenção','air-conditioning','ar-condicionado.jpg'),
-        ('＋','Outros','Encontre mais serviços','other','outros.jpg')
-        ] %}
-
-        <a class="marketplace-category{% if image_file %} category-image category-{{ category_class }}{% endif %}"
-            href="/profissionais?categoria={{ title|urlencode }}">
-
-            {% if not image_file %}
-            <span>
-                {{ icon }}
-            </span>
-            {% endif %}
-
-            <h3>
-                {{ title }}
-            </h3>
-
-            <p>
-                {{ description }}
-            </p>
-
+        <a class="marketplace-category home-category-card" href="/profissionais?categoria=Pedreiro">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5h8v5H3zM13 5h8v5h-8zM3 12h5v5H3zM10 12h11v5H10zM3 19h8M13 19h8"/></svg></span>
+            <h3>Alvenaria e<br>construção</h3>
+            <p>Pedreiros e profissionais<br>de alvenaria</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
         </a>
-
-        {% endfor %}
-
-    </div>
-
-</section>
-
-
-<!-- ========================================================= -->
-<!-- PROFISSIONAIS EM DESTAQUE -->
-<!-- ========================================================= -->
-
-<section class="public-section" id="profissionais">
-
-    <div class="section-heading">
-
-        <div>
-
-            <span class="eyebrow">
-                Escolhas da plataforma
-            </span>
-
-            <h2>
-                Profissionais em destaque
-            </h2>
-
-            <p>
-                Perfis com histórico real na plataforma.
-            </p>
-
-        </div>
-
-        <a href="/profissionais" class="button button-secondary">
-            Explorar perfis
+        <a class="marketplace-category home-category-card" href="/profissionais?categoria=Eletricista">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m13.5 2-9 12h7l-1 8 9-12h-7l1-8Z"/></svg></span>
+            <h3>Instalações elétricas</h3>
+            <p>Instalações elétricas<br>para sua obra</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
         </a>
-
-    </div>
-
-    <div class="featured-provider-grid">
-
-        {% for provider in featured_providers %}
-
-        <article class="featured-provider">
-
-            <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
-                role="img"
-                aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
-                {% if provider.foto_perfil or provider.logo_empresa %}
-                style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')" {%
-                endif %}>
-
-                {% if not provider.foto_perfil and not provider.logo_empresa %}
-                {{ (provider.empresa_nome or provider.nome)[0]|upper }}
-                {% endif %}
-
-            </div>
-
-            <div class="provider-info">
-
-                <h3>
-                    <a class="provider-name-link"
-                        href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">
-                        {{ provider.empresa_nome or provider.nome }}
-                    </a>
-                </h3>
-
-                <p>
-                    {{ provider.especialidade or 'Especialidade não informada' }}
-                </p>
-
-                <div class="provider-detail">
-
-                    <span>
-                        ⌖ {{ provider.cidade or 'Localização não informada' }}
-                    </span>
-
-                    {% if provider.rating is not none and provider.rating_count %}
-
-                    <span>
-                        ★ {{ provider.rating }} ({{ provider.rating_count }})
-                    </span>
-
-                    {% endif %}
-
-                </div>
-
-                {% if provider.online %}
-
-                <span class="presence-label online">
-                    <i class="online-dot"></i>
-                    Disponível agora
-                </span>
-
-                {% endif %}
-
-                <div class="provider-card-actions">
-
-                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
-                        class="button button-secondary button-small">
-                        Ver perfil
-                    </a>
-
-                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}
-
-                    <a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">
-                        Pedir orçamento
-                    </a>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+        <a class="marketplace-category home-category-card" href="/profissionais?categoria=Encanador">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2C9.5 6 5 10.1 5 14a7 7 0 0 0 14 0c0-3.9-4.5-8-7-12Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg></span>
+            <h3>Instalações hidráulicas</h3>
+            <p>Instalações e serviços<br>hidráulicos</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="marketplace-category home-category-card" href="/profissionais?categoria=Pintor">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM8 10v3a2 2 0 0 0 2 2h4v7M8 7h8"/></svg></span>
+            <h3>Pintura</h3>
+            <p>Pintura de ambientes<br>e superfícies</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
+        </a>
+        <article class="marketplace-category home-category-card home-category-card-unfiltered">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+            <h3>Acabamentos e<br>revestimentos</h3>
+            <p>Serviços de acabamento<br>para sua obra</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
         </article>
-
-        {% else %}
-
-        <div class="empty-state">
-
-            <p>
-                Os primeiros profissionais em destaque aparecerão aqui em breve.
-            </p>
-
-        </div>
-
-        {% endfor %}
-
-    </div>
-
-</section>
-
-
-<!-- ========================================================= -->
-<!-- PROFISSIONAIS ONLINE -->
-<!-- ========================================================= -->
-
-<section class="public-section online-section">
-
-    <div class="section-heading">
-
-        <div>
-
-            <span class="eyebrow">
-
-                <i class="online-dot"></i>
-
-                Disponíveis agora
-
-            </span>
-
-            <h2>
-                Profissionais online agora
-            </h2>
-
-            <p>
-                Perfis que estiveram ativos nos últimos minutos.
-            </p>
-
-        </div>
-
-        <a href="/profissionais?online=1" class="button button-secondary">
-            Ver disponíveis
-        </a>
-
-    </div>
-
-    <div class="featured-provider-grid">
-
-        {% for provider in online_providers %}
-
-        <article class="featured-provider online-provider">
-
-            <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
-                role="img"
-                aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
-                {% if provider.foto_perfil or provider.logo_empresa %}
-                style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')" {%
-                endif %}>
-
-                {% if not provider.foto_perfil and not provider.logo_empresa %}
-
-                {{ (provider.empresa_nome or provider.nome)[0]|upper }}
-
-                {% endif %}
-
-            </div>
-
-            <div class="provider-info">
-
-                <span class="presence-label online">
-
-                    <i class="online-dot"></i>
-
-                    Disponível agora
-
-                </span>
-
-                <h3>
-
-                    <a class="provider-name-link"
-                        href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">
-                        {{ provider.empresa_nome or provider.nome }}
-                    </a>
-
-                </h3>
-
-                <p>
-                    {{ provider.especialidade or 'Especialidade não informada' }}
-                </p>
-
-                <div class="provider-detail">
-
-                    <span>
-                        ⌖ {{ provider.cidade or 'Localização não informada' }}
-                    </span>
-
-                    {% if provider.rating is not none and provider.rating_count %}
-
-                    <span>
-                        ★ {{ provider.rating }} ({{ provider.rating_count }})
-                    </span>
-
-                    {% endif %}
-
-                </div>
-
-                <div class="provider-card-actions">
-
-                    <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"
-                        class="button button-secondary button-small">
-                        Ver perfil
-                    </a>
-
-                    {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}
-
-                    <a href="/solicitar-servico/{{ provider.id }}" class="button button-primary button-small">
-                        Pedir orçamento
-                    </a>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+        <article class="marketplace-category home-category-card home-category-card-unfiltered">
+            <span class="home-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v11h14V10M9 21v-7h6v7"/></svg></span>
+            <h3>Reformas e ampliações</h3>
+            <p>Serviços para reformar<br>e ampliar espaços</p>
+            <span class="home-category-arrow" aria-hidden="true">→</span>
         </article>
-
-        {% else %}
-
-        <div class="empty-state">
-
-            <p>
-                Os primeiros profissionais online aparecerão aqui em breve.
-            </p>
-
-        </div>
-
-        {% endfor %}
-
     </div>
-
 </section>
 
+<section class="public-section home-listing-section" id="profissionais">
+    <div class="home-listing-layout">
+        <div class="home-listing-copy">
+            <span class="eyebrow">Perfis cadastrados na plataforma</span>
+            <h2>Perfis profissionais cadastrados</h2>
+            <p>Veja especialidade, cidade, avaliações e perfil quando essas informações estiverem disponíveis.</p>
+            <a href="/profissionais" class="button button-primary">Explorar perfis <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="home-listing-results">
+            {% for provider in featured_providers %}
+            <article class="home-provider-card">
+                <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
+                    role="img"
+                    aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
+                    {% if provider.foto_perfil or provider.logo_empresa %}
+                    style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>
+                    {% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or provider.nome)[0]|upper }}{% endif %}
+                </div>
+                <div class="home-provider-info">
+                    <h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
+                    <p>{{ provider.especialidade or 'Especialidade não informada' }}</p>
+                    <div class="home-provider-meta">
+                        <span>{{ provider.cidade or 'Localização não informada' }}</span>
+                        {% if provider.rating is not none and provider.rating_count %}<span>★ {{ provider.rating }} ({{ provider.rating_count }})</span>{% endif %}
+                    </div>
+                    <div class="home-provider-actions">
+                        <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">Ver perfil</a>
+                        {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}<a href="/solicitar-servico/{{ provider.id }}">Pedir orçamento</a>{% endif %}
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="home-empty-state">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="18" cy="16" r="7"/><path d="M5 40v-4a13 13 0 0 1 26 0v4M32 12a7 7 0 0 1 0 14M36 29a10 10 0 0 1 7 10v1"/></svg>
+                <p>Não há profissionais em destaque<br>para exibir neste momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
-<!-- ========================================================= -->
-<!-- COMO FUNCIONA -->
-<!-- ========================================================= -->
+<section class="public-section home-listing-section home-activity-section">
+    <div class="home-listing-layout">
+        <div class="home-listing-copy">
+            <span class="eyebrow">Atividade recente</span>
+            <h2>Perfis com atividade recente</h2>
+            <p>A atividade recente não garante disponibilidade para novos serviços.</p>
+            <a href="/profissionais?online=1" class="button button-secondary">Ver perfis online <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="home-listing-results">
+            {% for provider in online_providers %}
+            <article class="home-provider-card">
+                <div class="provider-photo {% if not provider.foto_perfil and not provider.logo_empresa %}provider-photo-placeholder{% endif %}"
+                    role="img"
+                    aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
+                    {% if provider.foto_perfil or provider.logo_empresa %}
+                    style="background-image: url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>
+                    {% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or provider.nome)[0]|upper }}{% endif %}
+                </div>
+                <div class="home-provider-info">
+                    <h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
+                    <p>{{ provider.especialidade or 'Especialidade não informada' }}</p>
+                    <div class="home-provider-meta">
+                        <span>{{ provider.cidade or 'Localização não informada' }}</span>
+                        {% if provider.rating is not none and provider.rating_count %}<span>★ {{ provider.rating }} ({{ provider.rating_count }})</span>{% endif %}
+                    </div>
+                    <div class="home-provider-actions">
+                        <a href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">Ver perfil</a>
+                        {% if not session.get('user_id') or session.get('user_type') == 'cliente' %}<a href="/solicitar-servico/{{ provider.id }}">Pedir orçamento</a>{% endif %}
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="home-empty-state">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18"/><path d="M24 13v12l8 5"/></svg>
+                <p>Não há atividade recente<br>para exibir neste momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
 <section class="public-section how-section" id="como-funciona">
-
-    <div class="section-heading centered">
-
-        <span class="eyebrow">
-            Simples do início ao fim
-        </span>
-
-        <h2>
-            Como funciona
-        </h2>
-
+    <div class="home-how-inner">
+        <div class="home-section-heading">
+            <div><span class="eyebrow">Da busca ao orçamento</span><h2>Como funciona</h2></div>
+        </div>
+        <div class="how-grid home-how-grid">
+            <article>
+                <div class="home-step-head"><span class="home-step-number">01</span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="13" cy="13" r="9"/><path d="m20 20 9 9"/></svg></div>
+                <h3>Pesquise especialidade e cidade</h3><p>Informe a especialidade e a cidade onde a obra ou o serviço será realizado.</p><span class="home-step-arrow" aria-hidden="true">→</span>
+            </article>
+            <article>
+                <div class="home-step-head"><span class="home-step-number">02</span><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="10" r="5"/><path d="M2 29v-3a10 10 0 0 1 20 0v3M22 7a5 5 0 0 1 0 10M24 21a8 8 0 0 1 6 8"/></svg></div>
+                <h3>Compare profissionais</h3><p>Consulte os perfis cadastrados e compare as informações disponíveis.</p><span class="home-step-arrow" aria-hidden="true">→</span>
+            </article>
+            <article>
+                <div class="home-step-head"><span class="home-step-number">03</span><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="3" width="22" height="26" rx="2"/><path d="M10 11h12M10 17h12M10 23h7"/></svg></div>
+                <h3>Escolha e peça um orçamento</h3><p>Escolha um profissional específico e solicite um orçamento.</p><span class="home-step-arrow" aria-hidden="true">→</span>
+            </article>
+            <article>
+                <div class="home-step-head"><span class="home-step-number">04</span><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 6h24v17H17l-7 6v-6H4z"/><path d="M10 14h.1M16 14h.1M22 14h.1"/></svg></div>
+                <h3>Combine os detalhes diretamente</h3><p>Alinhe o serviço e o pagamento diretamente com o profissional escolhido.</p>
+            </article>
+        </div>
     </div>
-
-    <div class="how-grid">
-
-        <article>
-
-            <span>
-                01
-            </span>
-
-            <h3>
-                Escolha o serviço
-            </h3>
-
-            <p>
-                Encontre a categoria e o serviço que você precisa.
-            </p>
-
-        </article>
-
-        <article>
-
-            <span>
-                02
-            </span>
-
-            <h3>
-                Encontre quem resolve
-            </h3>
-
-            <p>
-                Veja profissionais e empresas disponíveis.
-            </p>
-
-        </article>
-
-        <article>
-
-            <span>
-                03
-            </span>
-
-            <h3>
-                Contrate e acompanhe
-            </h3>
-
-            <p>
-                Solicite o serviço e acompanhe o andamento.
-            </p>
-
-        </article>
-
-    </div>
-
 </section>
 
-
-<!-- ========================================================= -->
-<!-- PRECISA DE UM SERVIÇO? -->
-<!-- ========================================================= -->
-
-<section class="public-section home-split-section home-split-client" id="sobre">
-
-    <div class="home-split-media home-split-media-client" role="img"
-        aria-label="Ambiente organizado após a realização de um serviço">
-    </div>
-
-    <div class="home-split-content">
-
-        <span class="eyebrow">
-            Para sua rotina
-        </span>
-
-        <h2>
-            Precisa de um serviço?
-        </h2>
-
-        <p>
-            Encontre profissionais e empresas para resolver o que você precisa de forma simples e prática.
-        </p>
-
-        <a href="/profissionais" class="button button-primary">
-            Encontrar profissional
-        </a>
-
-    </div>
-
+<section class="public-section home-cta-grid" id="sobre">
+    <article class="home-cta-card home-cta-client">
+        <svg class="home-cta-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M13 18a11 11 0 0 1 22 0v7H13zM9 25h30v6H9zM24 31v7M17 38h14M17 18v-3a7 7 0 0 1 14 0v3"/><path d="M8 29v8a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-8"/></svg>
+        <div><span>Para sua obra</span><h2>Encontre profissionais para sua obra</h2>
+            <p>Busque por especialidade e informe a cidade onde o serviço será realizado.</p>
+            <a href="/profissionais" class="button button-primary">Encontrar profissionais <span aria-hidden="true">→</span></a></div>
+    </article>
+    <article class="home-cta-card home-cta-professional">
+        <svg class="home-cta-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="14" width="38" height="27" rx="4"/><path d="M17 14V9a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v5M5 25h38M20 25v4h8v-4"/></svg>
+        <div><span>Para profissionais e empresas</span><h2>Apresente seu trabalho</h2>
+            <p>Cadastre-se para apresentar seu trabalho a clientes que procuram serviços de construção e reformas.</p>
+            <a href="/cadastro" class="button button-primary">Quero trabalhar <span aria-hidden="true">→</span></a></div>
+    </article>
 </section>
-
-
-<!-- ========================================================= -->
-<!-- PARA PROFISSIONAIS -->
-<!-- ========================================================= -->
-
-<section class="public-section home-split-section home-split-professional">
-
-    <div class="home-split-content">
-
-        <span class="eyebrow">
-            Para quem realiza
-        </span>
-
-        <h2>
-            Para profissionais
-        </h2>
-
-        <p>
-            Divulgue seu trabalho, encontre novas oportunidades e conecte-se a clientes que precisam dos seus serviços.
-        </p>
-
-        <a href="/cadastro" class="button button-primary">
-            Quero trabalhar
-        </a>
-
-    </div>
-
-    <div class="home-split-media home-split-media-professional" role="img"
-        aria-label="Profissional em seu ambiente de trabalho">
-    </div>
-
-
-</section>
-
-
-<!-- ========================================================= -->
-<!-- CHAMADA FINAL (CTA) -->
-<!-- ========================================================= -->
-
-<section class="final-cta">
-
-    <div>
-
-        <span class="eyebrow">
-            Comece agora
-        </span>
-
-        <h2>
-            Pronto para resolver?
-        </h2>
-
-        <p>
-            Encontre profissionais e empresas para o serviço que você precisa.
-        </p>
-
-    </div>
-
-    <a href="/profissionais" class="button button-primary">
-        Encontrar um serviço
-    </a>
-
-</section>
-
-
-<!-- ========================================================= -->
-<!-- RODAPÉ -->
-<!-- ========================================================= -->
 
 <footer class="public-footer" id="contato">
-
-    <a class="logo" href="/" aria-label="Zenvix Connect — início">
-
-        <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Zenvix Connect">
-
-    </a>
-
-    <p>
-        O marketplace que aproxima pessoas e bons serviços.
-    </p>
-
-    <a href="mailto:ismaelklitzke07@gmail.com">
-        ismaelklitzke07@gmail.com
-    </a>
-
+    <div class="home-footer-brand">
+        <a class="logo" href="/" aria-label="Zenvix Connect — início">
+            <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Zenvix Connect">
+        </a>
+        <p>Conexões entre clientes e profissionais<br>de construção e reformas.</p>
+    </div>
+    <div class="home-footer-links-social">
+        <nav class="home-footer-nav" aria-label="Navegação do rodapé">
+            <a href="/#inicio">Início</a><a href="/#servicos">Serviços</a><a href="/profissionais">Profissionais</a>
+            <a href="/profissionais?tipo=empresa">Empresas</a><a href="/#como-funciona">Como funciona</a>
+            <a href="/#sobre">Sobre</a><a href="mailto:ismaelklitzke07@gmail.com">Contato</a>
+        </nav>
+        <div class="home-footer-social" aria-hidden="true">
+            <span class="home-social-facebook">f</span>
+            <span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".8" class="social-fill"/></svg></span>
+            <span><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.7 2.8 2.1 4.2 4.8 5l1.1-1.2 2 .9-.2 1.4c-.1.8-1.1 1.3-1.8 1.2-4.7-.8-7.7-3.8-8.5-8.5-.1-.7.4-1.7 1.2-1.8L9 5.3l.9 2z"/></svg></span>
+        </div>
+    </div>
 </footer>
-
 {% endblock %}
