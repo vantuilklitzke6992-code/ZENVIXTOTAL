@@ -1165,6 +1165,7 @@ def dashboard_cliente():
     return render_template(
         "cliente/dashboard.html",
         user=user,
+        recent_services=services[:3],
         total_services=len(services),
         in_progress_services=len(active_services),
         completed_services=len(history_services),

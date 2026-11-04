@@ -7,12 +7,14 @@
             href="/#contato">Contato</a>
     </nav>
     {% endif %}
+    {% if request.path not in ['/login', '/cadastro'] %}
     <nav class="header-actions {{ 'header-actions-authenticated' if session.get('user_id') else 'header-actions-visitor' }}" aria-label="Ações da conta">
         {% if session.get('user_id') %}<a href="/chat" class="button button-secondary header-chat">Chat</a><a href="/dashboard"
             class="button button-primary header-dashboard">Meu painel</a><a href="/logout" class="button button-secondary header-logout">Sair</a>{%
         else %}<a href="/login" class="button button-ghost header-login">Entrar</a><a href="/cadastro"
             class="button button-primary header-signup">Criar conta</a>{% endif %}
     </nav>
+    {% endif %}
     {% if session.get('user_id') %}
     <div class="header-mobile-account" aria-label="Ações da conta">
         <a href="/chat" class="header-mobile-icon" aria-label="Abrir chat e notificações de mensagens" title="Chat">

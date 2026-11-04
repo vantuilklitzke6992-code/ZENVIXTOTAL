@@ -1,27 +1,20 @@
-{% set compact_header = true %}{% extends "layouts/base.html" %}
+{% extends "layouts/base.html" %}
 {% set form_data = form_data if form_data is defined else {} %}{% set tipo = tipo if tipo is defined else 'cliente' %}{%
 set current_step = current_step if current_step is defined else 1 %}
-{% block title %}Criar conta | Zenvix Connect{% endblock %}{% block main_class %}auth-page{% endblock %}
+{% block title %}Criar conta | Zenvix Connect{% endblock %}{% block main_class %}auth-page auth-register-page{% endblock %}
 {% block content %}
 <div class="auth-layout registration-layout">
         <section class="auth-brand-panel">
-                <div class="auth-brand-content"><span class="eyebrow">Criar sua conta</span>
-                        <h1>Uma nova forma de encontrar e oferecer serviços.</h1>
-                        <p>Leva poucos minutos. Escolha seu perfil e informe apenas o que precisamos para começar.</p>
-                        <div class="auth-benefits"><span>✓ Cadastro gratuito</span><span>✓ Fluxo simples e
-                                        protegido</span><span>✓
-                                        Feito para você crescer</span></div>
+                <div class="auth-brand-content">
+                        <h1>Faça parte do<br><strong>Zenvix Connect</strong></h1>
+                        <p>Conecte-se a profissionais qualificados e transforme seus projetos em realidade.</p>
+                        <div class="auth-benefits"><span><b>♢</b> Segurança em todas as etapas</span><span><b>ϟ</b> Conexão rápida e eficiente</span><span><b>⌁</b> Profissionais qualificados</span></div>
+                        <em>Construa seus projetos<br>com quem entende.</em>
                 </div>
         </section>
         <section class="auth-form-panel">
-                <div class="auth-form-header"><span class="eyebrow">Cadastro em etapas</span>
-                        <h1>Crie sua conta</h1>
-                        <p>Preencha seus dados e avance com segurança.</p>
-                </div>
-                <div class="registration-brand-mark" aria-label="Zenvix Connect">
-                        <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Logo oficial da Zenvix"
-                                class="registration-logo">
-                </div>
+                <div class="auth-tabs" role="tablist"><a class="auth-tab" href="/login">▣ <span>Entrar</span></a><a class="auth-tab active" href="/cadastro" aria-selected="true">♙ <span>Cadastrar</span></a></div>
+                <div class="auth-form-header"><h1>Crie sua conta no Zenvix Connect</h1><p>Preencha os dados abaixo para começar.</p></div>
                 <script id="brazilian-locations-data"
                         type="application/json">{{ brazilian_locations | tojson | safe }}</script>
                 <div class="stepper"><span class="stepper-label">Etapa <strong id="step-number">1</strong> de <strong
@@ -53,23 +46,24 @@ set current_step = current_step if current_step is defined else 1 %}
                                                 empresa</label><input class="form-control" id="empresa_nome"
                                                 name="empresa_nome" value="{{ form_data.empresa_nome or '' }}"
                                                 placeholder="Nome da empresa"></div>
-                                <div class="form-group"><label for="nome">Nome</label><input class="form-control"
+                                <div class="form-row registration-account-grid">
+                                <div class="form-group"><label for="nome">Nome</label><div class="auth-input-wrap"><svg class="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.2 3-5 7-5s6.2 1.8 7 5"/></svg><input class="form-control"
                                                 id="nome" name="nome" value="{{ form_data.nome or '' }}"
                                                 autocomplete="name" placeholder="Seu nome completo" required>
-                                </div>
-                                <div class="form-group"><label for="email">E-mail</label><input class="form-control"
+                                </div></div>
+                                <div class="form-group"><label for="email">E-mail</label><div class="auth-input-wrap"><svg class="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg><input class="form-control"
                                                 id="email" name="email" value="{{ form_data.email or '' }}"
                                                 autocomplete="email" type="email" placeholder="voce@email.com" required>
-                                </div>
+                                </div></div>
                                 <div class="form-row">
-                                        <div class="form-group"><label for="senha">Senha</label><input
+                                        <div class="form-group"><label for="senha">Senha</label><div class="auth-input-wrap"><svg class="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input
                                                         class="form-control" id="senha" name="senha"
                                                         autocomplete="new-password" type="password"
-                                                        placeholder="Crie uma senha" required></div>
-                                        <div class="form-group"><label for="confirm_senha">Confirmar senha</label><input
+                                                        placeholder="Crie uma senha" required><button type="button" class="password-toggle" data-password-toggle="senha" aria-label="Mostrar senha" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.2"/><path class="eye-slash" d="m4 4 16 16"/></svg></button></div></div>
+                                        <div class="form-group"><label for="confirm_senha">Confirmar senha</label><div class="auth-input-wrap"><svg class="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input
                                                         class="form-control" id="confirm_senha" name="confirm_senha"
                                                         autocomplete="new-password" type="password"
-                                                        placeholder="Repita sua senha" required></div>
+                                                        placeholder="Repita sua senha" required><button type="button" class="password-toggle" data-password-toggle="confirm_senha" aria-label="Mostrar senha" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.2"/><path class="eye-slash" d="m4 4 16 16"/></svg></button></div></div>
                                 </div>
                                 <div class="step-actions"><button type="button" id="step2-prev"
                                                 class="button button-secondary">Voltar</button><button type="button"
@@ -260,4 +254,5 @@ set current_step = current_step if current_step is defined else 1 %}
                 <p class="auth-form-footer">Já possui uma conta? <a href="/login">Entrar</a></p>
         </section>
 </div>
+{% include "components/auth_footer.html" %}
 {% endblock %}

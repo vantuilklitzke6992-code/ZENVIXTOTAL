@@ -708,3 +708,19 @@ document.addEventListener("DOMContentLoaded", function () {
     selectAccountType(initialAccountType);
     showStep(initialStep);
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+        toggle.addEventListener("click", function () {
+            const input = document.getElementById(this.dataset.passwordToggle);
+            if (!input) return;
+            const visible = input.type === "password";
+            input.type = visible ? "text" : "password";
+            this.setAttribute("aria-label", visible ? "Ocultar senha" : "Mostrar senha");
+            if (this.closest("#cadastro-form")) {
+                this.classList.toggle("is-visible", visible);
+                this.setAttribute("aria-pressed", String(visible));
+            }
+        });
+    });
+});

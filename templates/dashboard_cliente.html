@@ -1,261 +1,119 @@
 {% extends "layouts/base.html" %}
 
+{% block title %}Dashboard do Cliente | Zenvix Connect{% endblock %}
+{% block header %}{% endblock %}
+{% block main_class %}client-dashboard-page{% endblock %}
+
 {% block content %}
-<div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
-        <div class="sidebar-brand">
-            <div class="avatar avatar-large">{{ user['nome'][0]|upper }}</div>
-            <div>
-                <h2>{{ user['nome'] }}</h2>
-                <p>{{ user['tipo']|capitalize }} • {{ user['cidade'] or 'Cidade não informada' }}</p>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a href="#overview">Visão geral</a>
-            <a href="#solicitacoes">Solicitações</a>
-            <a href="#ativos">Serviços ativos</a>
-            <a href="#historico">Histórico</a>
-            <a href="#favoritos">Favoritos</a>
-            <a href="/chat">Chat</a>
-            <a href="/perfil">Configurações</a>
+<svg class="client-icon-sprite" aria-hidden="true">
+    <symbol id="client-icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="client-icon-bag" viewBox="0 0 24 24"><path d="M5 8h14a2 2 0 0 1 2 2v9H3v-9a2 2 0 0 1 2-2Zm4 0V6a3 3 0 0 1 6 0v2M3 13h18"/></symbol>
+    <symbol id="client-icon-heart" viewBox="0 0 24 24"><path d="M20.8 8.6c0 5.1-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.6A4.6 4.6 0 0 1 12 6.3a4.6 4.6 0 0 1 8.8 2.3Z"/></symbol>
+    <symbol id="client-icon-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Zm4 5h8m-8 3h5"/></symbol>
+    <symbol id="client-icon-bell" viewBox="0 0 24 24"><path d="M6 17h12l-1.5-2v-4a4.5 4.5 0 0 0-9 0v4L6 17Zm4 3h4"/></symbol>
+    <symbol id="client-icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
+    <symbol id="client-icon-settings" viewBox="0 0 24 24"><path d="m9.5 3 .5 2a7.5 7.5 0 0 1 4 0l.5-2 2 .8-.7 2a7.5 7.5 0 0 1 2.8 2.8l2-.7.8 2-2 .5a7.5 7.5 0 0 1 0 4l2 .5-.8 2-2-.7a7.5 7.5 0 0 1-2.8 2.8l.7 2-2 .8-.5-2a7.5 7.5 0 0 1-4 0l-.5 2-2-.8.7-2a7.5 7.5 0 0 1-2.8-2.8l-2 .7-.8-2 2-.5a7.5 7.5 0 0 1 0-4l-2-.5.8-2 2 .7A7.5 7.5 0 0 1 8.5 5l-.7-2 1.7-.7ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></symbol>
+    <symbol id="client-icon-logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5m5-4 4-4-4-4m4 4H9"/></symbol>
+</svg>
+<div class="client-dashboard">
+    <aside class="client-sidebar" aria-label="Navegação do cliente">
+        <a class="client-brand" href="{{ url_for('dashboard_cliente') }}" aria-label="Zenvix Connect - Dashboard">
+            <img src="{{ url_for('static', filename='logo_oficial.png') }}" alt="Zenvix Connect">
+        </a>
+        <nav class="client-nav">
+            <a class="is-active" href="#overview"><span class="client-nav-icon"><svg><use href="#client-icon-home"/></svg></span><span>Dashboard</span></a>
+            <a href="{{ url_for('meus_servicos') }}"><span class="client-nav-icon"><svg><use href="#client-icon-bag"/></svg></span><span>Meus Serviços</span></a>
+            <a href="#favoritos"><span class="client-nav-icon"><svg><use href="#client-icon-heart"/></svg></span><span>Favoritos</span></a>
+            <a href="{{ url_for('chat_index') }}"><span class="client-nav-icon"><svg><use href="#client-icon-chat"/></svg></span><span>Mensagens</span></a>
+            <a class="is-disabled" href="#notificacoes" aria-disabled="true"><span class="client-nav-icon"><svg><use href="#client-icon-bell"/></svg></span><span>Notificações</span></a>
+            <a href="{{ url_for('perfil') }}"><span class="client-nav-icon"><svg><use href="#client-icon-user"/></svg></span><span>Meu Perfil</span></a>
+            <a href="{{ url_for('perfil') }}"><span class="client-nav-icon"><svg><use href="#client-icon-settings"/></svg></span><span>Configurações</span></a>
         </nav>
-
-        <div class="sidebar-card">
-            <h3>Configurações</h3>
-            <ul>
-                <li><a href="/perfil">Editar perfil</a></li>
-                <li><a href="/perfil/alterar-senha">Alterar senha</a></li>
-                <li><a href="/perfil/excluir-conta" class="danger-link">Solicitar exclusão</a></li>
-            </ul>
+        <a class="client-logout" href="{{ url_for('logout') }}"><span class="client-nav-icon"><svg><use href="#client-icon-logout"/></svg></span><span>Sair</span></a>
+        <div class="client-sidebar-account-links">
+            <a href="{{ url_for('perfil') }}">Editar perfil</a>
+            <a href="{{ url_for('alterar_senha') }}">Alterar senha</a>
+            <a class="is-danger" href="{{ url_for('excluir_conta') }}">Solicitar exclusão</a>
+        </div>
+        <div class="client-sidebar-cta">
+            <span class="client-hardhat" aria-hidden="true">⌁</span>
+            <strong>Precisa de um serviço?</strong>
+            <p>Encontre profissionais qualificados perto de você.</p>
+            <a href="{{ url_for('profissionais') }}" class="client-button client-button-orange">Buscar serviços <span aria-hidden="true">→</span></a>
         </div>
     </aside>
 
-    <main class="dashboard-main">
-        <section class="section-header" id="overview">
-            <div>
-                <span class="section-badge">Dashboard</span>
-                <h1>Olá, {{ user['nome'].split(' ')[0] }}</h1>
-                <p>Este é o seu painel de cliente. Aqui você acompanha solicitações, serviços ativos, histórico e
-                    favoritos.</p>
+    <main class="client-dashboard-main" id="overview">
+        <header class="client-topbar">
+            <div class="client-user-summary">
+                <div class="client-user-avatar">{{ user['nome'][0]|upper }}</div>
+                <div><strong>Olá, {{ user['nome'] }}!</strong><span>Cliente</span></div>
             </div>
-            <div class="hero-actions">
-                <a href="/profissionais" class="button button-primary">Buscar profissional</a>
-                <a href="/meus-servicos" class="button button-secondary">Ver serviços</a>
+            <div class="client-topbar-actions">
+                <span class="client-topbar-notice" title="Notificações não disponíveis nesta conta" aria-label="Notificações não disponíveis"><svg><use href="#client-icon-bell"/></svg></span>
+                <a href="{{ url_for('perfil') }}" class="client-topbar-account" aria-label="Abrir meu perfil">{{ user['nome'][0]|upper }}</a>
+            </div>
+        </header>
+
+        <section class="client-welcome-banner">
+            <img src="{{ url_for('static', filename='images/home/hero.jpg') }}" alt="Construção civil" class="client-welcome-image">
+            <div class="client-welcome-content">
+                <p class="client-eyebrow">Zenvix Connect</p>
+                <h1>Bem-vindo ao seu painel,<br><span>{{ user['nome'].split(' ')[0] }}!</span></h1>
+                <p>Gerencie seus serviços, acompanhe suas solicitações<br class="desktop-only"> e encontre os melhores profissionais.</p>
+                <a href="{{ url_for('profissionais') }}" class="client-button client-button-orange">Buscar um serviço <span aria-hidden="true">→</span></a>
             </div>
         </section>
 
-        <div class="card-grid">
-            <article class="card card-stats">
-                <h3>Solicitações</h3>
-                <strong>{{ total_services }}</strong>
-                <span>Total enviado</span>
-            </article>
-            <article class="card card-stats">
-                <h3>Em andamento</h3>
-                <strong>{{ in_progress_services }}</strong>
-                <span>Serviços ativos</span>
-            </article>
-            <article class="card card-stats">
-                <h3>Concluídos</h3>
-                <strong>{{ completed_services }}</strong>
-                <span>Serviços finalizados</span>
-            </article>
-            <article class="card card-stats">
-                <h3>Avaliações</h3>
-                <strong>{{ review_count }}</strong>
-                <span>Feitas por você</span>
-            </article>
+        <section class="client-stat-grid" aria-label="Resumo da conta">
+            <article class="client-stat-card"><span class="client-stat-icon">▣</span><div><span>Meus Serviços</span><strong>{{ total_services }}</strong><small>Solicitações enviadas</small></div></article>
+            <article class="client-stat-card"><span class="client-stat-icon">★</span><div><span>Avaliações</span><strong>{{ review_count }}</strong><small>Avaliações realizadas</small></div></article>
+            <article class="client-stat-card"><span class="client-stat-icon">▰</span><div><span>Conta</span><strong>Ativa</strong><small>Perfil de cliente</small></div></article>
+            <article class="client-stat-card"><span class="client-stat-icon">◉</span><div><span>Suporte</span><strong>Chat</strong><small><a href="{{ url_for('chat_index') }}">Acessar mensagens</a></small></div></article>
+        </section>
+
+        <section class="client-panel client-availability-panel" id="disponiveis">
+            <div class="client-panel-heading"><div><span class="client-panel-kicker">Disponíveis agora</span><h2>Prestadores online</h2></div><span class="client-live-label"><i></i> Ativos nos últimos minutos</span></div>
+            <div class="client-provider-columns">
+                <div><h3>Profissionais disponíveis</h3>{% for provider in online_professionals %}<a class="client-provider-row" href="{{ url_for('perfil_publico_profissional', provider_id=provider.id) }}"><span class="client-provider-avatar {% if provider.foto_perfil %}has-image{% endif %}"{% if provider.foto_perfil %} style="background-image:url('/static/uploads/{{ provider.foto_perfil }}')"{% endif %}>{{ '' if provider.foto_perfil else provider.nome[0]|upper }}</span><span><strong>{{ provider.nome }}</strong><small>{{ provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{ provider.cidade }}{% endif %}</small></span><i></i></a>{% else %}<p class="client-muted-message">Nenhum profissional online agora.</p>{% endfor %}</div>
+                <div><h3>Empresas disponíveis</h3>{% for provider in online_companies %}<a class="client-provider-row" href="{{ url_for('perfil_publico_empresa', provider_id=provider.id) }}"><span class="client-provider-avatar {% if provider.logo_empresa or provider.foto_perfil %}has-image{% endif %}"{% if provider.logo_empresa or provider.foto_perfil %} style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>{{ '' if provider.logo_empresa or provider.foto_perfil else (provider.empresa_nome or provider.nome)[0]|upper }}</span><span><strong>{{ provider.empresa_nome or provider.nome }}</strong><small>{{ provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{ provider.cidade }}{% endif %}</small></span><i></i></a>{% else %}<p class="client-muted-message">Nenhuma empresa online agora.</p>{% endfor %}</div>
+            </div>
+        </section>
+
+        <section class="client-dashboard-details client-pending-panel" id="solicitacoes-pendentes">
+            <div class="client-details-heading"><div><span class="client-panel-kicker">Solicitações pendentes</span><h2>Solicitações aguardando atendimento</h2></div></div>
+            {% if pending_requests %}<div class="client-pending-list">{% for service in pending_requests %}<div class="client-pending-row"><div><strong>{{ service.profissional_nome or 'Profissional ainda não definido' }}</strong><small>{{ service.categoria or service.descricao or 'Solicitação de serviço' }}</small></div><span>{{ service.data_solicitacao or 'Data não informada' }}</span><em>{{ service.status or 'Pendente' }}</em></div>{% endfor %}</div>{% else %}<p class="client-muted-message">Você não tem solicitações pendentes no momento.</p>{% endif %}
+        </section>
+
+        <div class="client-content-grid">
+            <section class="client-panel client-recent-panel" id="servicos-recentes">
+                <div class="client-panel-heading"><div><span class="client-panel-kicker">Acompanhe suas solicitações</span><h2>Seus Serviços Recentes</h2></div><a href="{{ url_for('meus_servicos') }}">Ver todos <span aria-hidden="true">→</span></a></div>
+                {% if recent_services %}
+                <div class="client-recent-list">
+                    {% for service in recent_services %}
+                    <a class="client-recent-item" href="{{ url_for('meus_servicos') }}">
+                        <span class="client-service-thumb">{{ (service.categoria or service.descricao or 'S')[0]|upper }}</span>
+                        <span class="client-service-info"><strong>{{ service.categoria or service.descricao or 'Solicitação de serviço' }}</strong><small>Solicitado em {{ service.data_solicitacao or 'data não informada' }}{% if service.profissional_nome %} · {{ service.profissional_nome }}{% endif %}</small></span>
+                        <span class="client-status client-status-{{ service.status|lower|replace(' ', '-') }}">{{ service.status or 'Sem status' }}</span><span class="client-item-arrow" aria-hidden="true">›</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}<div class="client-empty-state"><strong>Nenhum serviço recente</strong><span>Busque um profissional para começar.</span><a href="{{ url_for('profissionais') }}">Buscar um serviço →</a></div>{% endif %}
+            </section>
+            <aside class="client-security-card"><span class="client-security-icon" aria-hidden="true">✓</span><h2>Sua segurança<br>é nossa prioridade!</h2><p>Conte com uma plataforma segura, transparente e confiável.</p><a href="{{ url_for('perfil') }}" class="client-button client-button-blue">Ver meu perfil <span aria-hidden="true">→</span></a></aside>
         </div>
 
-        <section class="dashboard-panel availability-panel">
-            <div class="panel-header">
-                <div><span class="panel-label"><i class="online-dot"></i> Disponíveis agora</span>
-                    <h2>Prestadores online</h2>
-                </div>
-                <p>Profissionais e empresas que estiveram ativos nos últimos minutos.</p>
-            </div>
-            <div class="online-dashboard-grid">
-                <div>
-                    <h3>Profissionais disponíveis</h3>{% for provider in online_professionals %}<a
-                        class="online-mini-card" href="/profissional/{{ provider.id }}"><span class="avatar {% if provider.foto_perfil %}avatar-image{% endif %}"
-                            {% if provider.foto_perfil %}style="background-image:url('/static/uploads/{{ provider.foto_perfil }}')"{% endif %}>{{
-                            '' if provider.foto_perfil else provider.nome[0]|upper }}</span><span><strong>{{ provider.nome }}</strong><small>{{
-                                provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{ provider.cidade }}{% endif
-                                %}</small></span><i class="online-dot" aria-label="Disponível agora"></i></a>{% else %}<p class="provider-role">Nenhum
-                        profissional online agora.</p>{% endfor %}
-                </div>
-                <div>
-                    <h3>Empresas disponíveis</h3>{% for provider in online_companies %}<a class="online-mini-card"
-                        href="/empresa/{{ provider.id }}"><span class="avatar {% if provider.logo_empresa or provider.foto_perfil %}avatar-image{% endif %}"
-                            {% if provider.logo_empresa or provider.foto_perfil %}style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>{{ '' if provider.logo_empresa or provider.foto_perfil else (provider.empresa_nome or provider.nome)[0]|upper }}</span><span><strong>{{ provider.empresa_nome or provider.nome
-                                }}</strong><small>{{ provider.especialidade or 'Especialidade não informada' }}{% if provider.cidade %} · {{
-                                provider.cidade }}{% endif %}</small></span><i class="online-dot" aria-label="Disponível agora"></i></a>{% else %}<p
-                        class="provider-role">Nenhuma empresa online agora.</p>{% endfor %}
-                </div>
+        <section class="client-dashboard-details" id="solicitacoes">
+            <div class="client-details-heading"><div><span class="client-panel-kicker">Dados completos</span><h2>Solicitações e serviços</h2></div><a href="{{ url_for('meus_servicos') }}">Abrir meus serviços →</a></div>
+            <div class="client-detail-columns">
+                <article id="ativos"><h3>Serviços em andamento <span>{{ in_progress_services }}</span></h3>{% if active_services %}<ul>{% for service in active_services %}<li><strong>{{ service.categoria or service.descricao or 'Serviço' }}</strong><small>{{ service.status }}{% if service.profissional_nome %} · {{ service.profissional_nome }}{% endif %}</small><a href="{{ url_for('servico_chat', service_id=service.id) }}">Abrir chat</a></li>{% endfor %}</ul>{% else %}<p>Nenhum serviço em andamento no momento.</p>{% endif %}</article>
+                <article id="historico"><h3>Histórico concluído <span>{{ completed_services }}</span></h3>{% if history_services %}<ul>{% for service in history_services %}<li><strong>{{ service.categoria or service.descricao or 'Serviço' }}</strong><small>{{ service.data_solicitacao or 'Data não informada' }}</small>{% if not service.reviewed %}<a href="{{ url_for('avaliar', service_id=service.id) }}">Avaliar</a>{% else %}<em>Avaliado</em>{% endif %}</li>{% endfor %}</ul>{% else %}<p>Ainda não há serviços concluídos.</p>{% endif %}</article>
             </div>
         </section>
 
-        <section class="dashboard-panel" id="solicitacoes">
-            <div class="panel-header">
-                <div>
-                    <span class="panel-label">Solicitações pendentes</span>
-                    <h2>Pendentes</h2>
-                </div>
-                <p>Profissionais escolhidos, descrição e status das suas solicitações.</p>
-            </div>
-            {% if pending_requests %}
-            <div class="table-wrapper">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Profissional</th>
-                            <th>Categoria</th>
-                            <th>Descrição</th>
-                            <th>Data</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for service in pending_requests %}
-                        <tr>
-                            <td>{{ service.profissional_nome }}</td>
-                            <td>{{ service.categoria or '—' }}</td>
-                            <td>{{ service.descricao or '—' }}</td>
-                            <td>{{ service.data_solicitacao or '—' }}</td>
-                            <td><span class="status-pill status-pending">{{ service.status or 'Pendente' }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <p>Você não tem solicitações pendentes no momento.</p>
-            </div>
-            {% endif %}
-        </section>
-
-        <section class="dashboard-panel" id="ativos">
-            <div class="panel-header">
-                <div>
-                    <span class="panel-label">Serviços em andamento</span>
-                    <h2>Ativos</h2>
-                </div>
-                <p>Acompanhe o andamento dos serviços e navegue até o chat para conversar com o profissional.</p>
-            </div>
-            {% if active_services %}
-            <div class="table-wrapper">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Profissional</th>
-                            <th>Serviço</th>
-                            <th>Data</th>
-                            <th>Status</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for service in active_services %}
-                        <tr>
-                            <td>{{ service.profissional_nome }}</td>
-                            <td>{{ service.categoria or service.descricao or '—' }}</td>
-                            <td>{{ service.data_solicitacao or '—' }}</td>
-                            <td><span class="status-pill status-active">{{ service.status }}</span></td>
-                            <td><a href="/servico/{{ service.id }}/chat"
-                                    class="button button-secondary button-small">Chat</a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <p>Não há serviços ativos no momento.</p>
-            </div>
-            {% endif %}
-        </section>
-
-        <section class="dashboard-panel" id="historico">
-            <div class="panel-header">
-                <div>
-                    <span class="panel-label">Histórico</span>
-                    <h2>Serviços concluídos</h2>
-                </div>
-                <p>Veja serviços finalizados, valores e suas avaliações.</p>
-            </div>
-            {% if history_services %}
-            <div class="table-wrapper">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Profissional</th>
-                            <th>Serviço</th>
-                            <th>Valor</th>
-                            <th>Data</th>
-                            <th>Avaliação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for service in history_services %}
-                        <tr>
-                            <td>{{ service.profissional_nome }}</td>
-                            <td>{{ service.categoria or service.descricao or '—' }}</td>
-                            <td>{{ service.valor if service.valor else '—' }}</td>
-                            <td>{{ service.data_solicitacao or '—' }}</td>
-                            <td>{% if service.reviewed %}Avaliado{% else %}<a href="/avaliar/{{ service.id }}"
-                                    class="button button-secondary button-small">Avaliar</a>{% endif %}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <p>Ainda não há serviços concluídos.</p>
-            </div>
-            {% endif %}
-        </section>
-
-        <section class="dashboard-panel" id="favoritos">
-            <div class="panel-header">
-                <div>
-                    <span class="panel-label">Favoritos</span>
-                    <h2>Profissionais salvos</h2>
-                </div>
-                <p>Encontre rapidamente seus profissionais preferidos e solicite novos serviços.</p>
-            </div>
-            {% if favorites %}
-            <div class="provider-grid">
-                {% for provider in favorites %}
-                <article class="provider-card provider-favorite-card">
-                    <div class="avatar provider-result-avatar {% if provider.foto_perfil or provider.logo_empresa %}avatar-image{% endif %}"
-                        role="img" aria-label="{{ 'Logo da empresa' if provider.tipo == 'empresa' else 'Foto de perfil' }} de {{ provider.empresa_nome or provider.nome }}"
-                        {% if provider.foto_perfil or provider.logo_empresa %}style="background-image:url('/static/uploads/{{ provider.logo_empresa or provider.foto_perfil }}')"{% endif %}>{% if not provider.foto_perfil and not provider.logo_empresa %}{{ (provider.empresa_nome or provider.nome)[0]|upper }}{% endif %}</div>
-                    <div><h3><a class="provider-name-link" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}">{{ provider.empresa_nome or provider.nome }}</a></h3>
-                    <p>{{ provider.especialidade or 'Especialidade não informada' }}</p></div>
-                    {% if provider.bio %}<p>{{ provider.bio }}</p>{% endif %}
-                    <div class="provider-meta">
-                        <span>{{ provider.cidade or 'Cidade não informada' }}</span>
-                        {% if provider.rating is not none and provider.rating_count %}<span>★ {{ provider.rating }} ({{ provider.rating_count }} avaliações)</span>{% endif %}
-                    </div>
-                    <div class="provider-actions">
-                        <a href="/solicitar-servico/{{ provider.id }}"
-                            class="button button-primary button-small">Pedir orçamento</a>
-                        <form action="/favorito/{{ provider.id }}/toggle" method="post" class="inline-form">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-                            <button type="submit" class="button button-danger button-small">Remover</button>
-                        </form>
-                    </div>
-                </article>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <p>Você ainda não favoritou nenhum profissional.</p>
-            </div>
-            {% endif %}
+        <section class="client-dashboard-details" id="favoritos">
+            <div class="client-details-heading"><div><span class="client-panel-kicker">Seus profissionais</span><h2>Favoritos</h2></div></div>
+            {% if favorites %}<div class="client-favorite-list">{% for provider in favorites %}<article><a class="client-favorite-main" href="/{{ 'empresa' if provider.tipo == 'empresa' else 'profissional' }}/{{ provider.id }}"><span>{{ (provider.empresa_nome or provider.nome)[0]|upper }}</span><strong>{{ provider.empresa_nome or provider.nome }}</strong><small>{{ provider.especialidade or 'Especialidade não informada' }}</small></a><div class="client-favorite-actions"><a href="{{ url_for('solicitar_servico', provider_id=provider.id) }}">Pedir orçamento</a><form action="{{ url_for('toggle_favorite', provider_id=provider.id) }}" method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token }}"><button type="submit">Remover</button></form></div></article>{% endfor %}</div>{% else %}<p class="client-muted-message">Você ainda não favoritou nenhum profissional.</p>{% endif %}
         </section>
     </main>
 </div>
