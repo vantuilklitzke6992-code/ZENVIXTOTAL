@@ -10,6 +10,7 @@
     <link rel="stylesheet"
         href="{{ url_for('static', filename='css/design-system.css') }}?v={{ config.ASSET_VERSION }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}?v={{ config.ASSET_VERSION }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v={{ config.ASSET_VERSION }}">
 </head>
 
 <body data-authenticated="{{ 'true' if session.get('user_id') else 'false' }}"

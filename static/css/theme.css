@@ -1,0 +1,472 @@
+/* Zenvix Connect official visual theme.
+   The HOME is the source of truth: white surfaces, institutional blue and
+   orange primary actions. This file is loaded last to normalize legacy views. */
+
+:root {
+    --brand: #F47716;
+    --brand-light: #FF8A2A;
+    --ink: #102F4F;
+    --canvas: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-raised: #F3F8FC;
+    --text: #17324E;
+    --text-muted: #5C7187;
+    --border: #DCE8F3;
+    --border-strong: #BFD5E8;
+    --shadow-sm: 0 5px 18px rgba(27, 60, 94, .10);
+    --shadow: 0 16px 36px rgba(27, 60, 94, .14);
+}
+
+body:not(:has(main.public-main)) {
+    background: #fff;
+    color: #17324e;
+}
+
+body:not(:has(main.public-main)) .site-header {
+    background: rgba(255, 255, 255, .97);
+    border-bottom: 1px solid #e3ebf3;
+    box-shadow: 0 2px 12px rgba(23, 50, 78, .04);
+    color: #143b67;
+}
+
+body:not(:has(main.public-main)) .site-header .topbar-nav a,
+body:not(:has(main.public-main)) .site-header .topbar-nav a:not(.button) {
+    color: #183c63;
+}
+
+body:not(:has(main.public-main)) .site-header .topbar-nav a:hover,
+body:not(:has(main.public-main)) .site-header .topbar-nav a:focus-visible {
+    color: #0873cb;
+}
+
+body:not(:has(main.public-main)) .site-header .header-login,
+body:not(:has(main.public-main)) .site-header .header-actions .button-secondary,
+body:not(:has(main.public-main)) .button-secondary,
+body:not(:has(main.public-main)) .btn-secondary {
+    --button-bg: #fff;
+    --button-border: #98b9d8;
+    --button-fg: #164b7d;
+    background: #fff;
+    border-color: #98b9d8;
+    color: #164b7d;
+}
+
+body:not(:has(main.public-main)) .button-secondary:hover,
+body:not(:has(main.public-main)) .btn-secondary:hover {
+    background: #e8f3ff;
+    border-color: #0877c9;
+    color: #0873cb;
+}
+
+body:not(:has(main.public-main)) .site-header .header-signup,
+body:not(:has(main.public-main)) .site-header .header-dashboard,
+body:not(:has(main.public-main)) .button-primary,
+body:not(:has(main.public-main)) .btn-primary,
+body:has(main.auth-page) .auth-form .button-primary,
+body:has(main.auth-page) .registration-layout .button-primary,
+body:not(:has(main.public-main)) .client-button,
+body:not(:has(main.public-main)) .client-button-orange,
+body:not(:has(main.public-main)) .client-button-blue {
+    --button-bg: #f47716;
+    --button-border: #f47716;
+    --button-fg: #fff;
+    background: #f47716;
+    border-color: #f47716;
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(198, 82, 9, .14);
+}
+
+body:not(:has(main.public-main)) .site-header .header-signup:hover,
+body:not(:has(main.public-main)) .button-primary:hover,
+body:not(:has(main.public-main)) .btn-primary:hover,
+body:has(main.auth-page) .auth-form .button-primary:hover,
+body:has(main.auth-page) .registration-layout .button-primary:hover,
+body:not(:has(main.public-main)) .client-button:hover,
+body:not(:has(main.public-main)) .client-button-orange:hover,
+body:not(:has(main.public-main)) .client-button-blue:hover {
+    background: #d85e0b;
+    border-color: #d85e0b;
+}
+
+body:not(:has(main.public-main)) .button,
+body:not(:has(main.public-main)) .btn,
+body:not(:has(main.public-main)) .client-button,
+body:not(:has(main.public-main)) .client-button-orange,
+body:not(:has(main.public-main)) .client-button-blue {
+    border-radius: 9px;
+}
+
+body:not(:has(main.public-main)) .card,
+body:not(:has(main.public-main)) .form-card,
+body:not(:has(main.public-main)) .dashboard-panel,
+body:not(:has(main.public-main)) .empty-state,
+body:not(:has(main.public-main)) .provider-card,
+body:not(:has(main.public-main)) .profile-card,
+body:not(:has(main.public-main)) .notice-card,
+body:not(:has(main.public-main)) .chat-sidebar,
+body:not(:has(main.public-main)) .chat-header,
+body:not(:has(main.public-main)) .chat-window,
+body:not(:has(main.public-main)) .chat-panel,
+body:not(:has(main.public-main)) .chat-card,
+body:not(:has(main.public-main)) .client-panel,
+body:not(:has(main.public-main)) .client-dashboard-details,
+body:not(:has(main.public-main)) .client-stat-card,
+body:not(:has(main.public-main)) .client-recent-list,
+body:not(:has(main.public-main)) .client-favorite-list,
+body:not(:has(main.public-main)) .client-empty-state {
+    background: #fff;
+    border: 1px solid #dce8f3;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(27, 60, 94, .10);
+    color: #17324e;
+}
+
+body:not(:has(main.public-main)) .dashboard-sidebar,
+body:not(:has(main.public-main)) .client-sidebar,
+body:not(:has(main.public-main)) .client-topbar {
+    background: linear-gradient(180deg, #f7fbff, #eef6fc);
+    border-color: #d3e2ef;
+    color: #17324e;
+}
+
+body:not(:has(main.public-main)) .sidebar-nav a,
+body:not(:has(main.public-main)) .client-nav a,
+body:not(:has(main.public-main)) .client-logout {
+    color: #536c85;
+}
+
+body:not(:has(main.public-main)) .sidebar-nav a:hover,
+body:not(:has(main.public-main)) .sidebar-nav a.is-active,
+body:not(:has(main.public-main)) .client-nav a:hover,
+body:not(:has(main.public-main)) .client-nav a.is-active,
+body:not(:has(main.public-main)) .client-logout:hover {
+    background: #e8f3ff;
+    color: #0873cb;
+}
+
+body:not(:has(main.public-main)) .form-group label,
+body:not(:has(main.public-main)) .search-bar label,
+body:not(:has(main.public-main)) .panel-label,
+body:not(:has(main.public-main)) .section-badge,
+body:not(:has(main.public-main)) .eyebrow {
+    color: #15528a;
+}
+
+body:not(:has(main.public-main)) .form-group input,
+body:not(:has(main.public-main)) .form-group select,
+body:not(:has(main.public-main)) .form-group textarea,
+body:not(:has(main.public-main)) .search-input,
+body:not(:has(main.public-main)) .search-select,
+body:not(:has(main.public-main)) .chat-form input,
+body:not(:has(main.public-main)) .chat-form textarea {
+    background: #fff;
+    border-color: #c9dced;
+    color: #183c63;
+}
+
+body:not(:has(main.public-main)) .form-group input:focus,
+body:not(:has(main.public-main)) .form-group select:focus,
+body:not(:has(main.public-main)) .form-group textarea:focus,
+body:not(:has(main.public-main)) .search-input:focus,
+body:not(:has(main.public-main)) .search-select:focus,
+body:not(:has(main.public-main)) .chat-form input:focus,
+body:not(:has(main.public-main)) .chat-form textarea:focus,
+body:has(main.auth-page) .auth-input-wrap:focus-within,
+body:has(main.auth-page) .registration-layout .form-control:focus {
+    background: #fff;
+    border-color: #267dc3;
+    box-shadow: 0 0 0 3px rgba(8, 119, 201, .14);
+    color: #183c63;
+}
+
+body:not(:has(main.public-main)) .table-wrapper {
+    background: #f8fbfe;
+    border-color: #dce8f3;
+}
+
+body:not(:has(main.public-main)) .dashboard-table th,
+body:not(:has(main.public-main)) .services-table th {
+    color: #5c7187;
+}
+
+body:not(:has(main.public-main)) .dashboard-table td,
+body:not(:has(main.public-main)) .services-table td {
+    border-color: #e2ecf4;
+    color: #244765;
+}
+
+body:not(:has(main.public-main)) .flash-success {
+    background: #edf9f1;
+    border-color: #a9dfbb;
+    color: #247443;
+}
+
+body:not(:has(main.public-main)) .flash-error,
+body:not(:has(main.public-main)) .flash-danger {
+    background: #fff3f2;
+    border-color: #efb3ae;
+    color: #a53f3a;
+}
+
+body:not(:has(main.public-main)) .flash-info {
+    background: #eef7ff;
+    border-color: #b9d8f1;
+    color: #15528a;
+}
+
+body:not(:has(main.public-main)) .status-pill,
+body:not(:has(main.public-main)) .status-badge {
+    background: #eef7ff;
+    border-color: #b9d8f1;
+    color: #0873cb;
+}
+
+body:not(:has(main.public-main)) .button-danger,
+body:not(:has(main.public-main)) .btn-danger {
+    background: #fff4f3;
+    border-color: #efaaa4;
+    color: #b7443f;
+}
+
+body:not(:has(main.public-main)) .button-danger:hover,
+body:not(:has(main.public-main)) .btn-danger:hover {
+    background: #ffe8e5;
+    border-color: #d97770;
+    color: #98332f;
+}
+
+body:not(:has(main.public-main)) .button:disabled,
+body:not(:has(main.public-main)) .btn:disabled,
+body:not(:has(main.public-main)) button:disabled,
+body:not(:has(main.public-main)) a[aria-disabled="true"] {
+    cursor: not-allowed;
+    filter: none;
+    opacity: .58;
+}
+
+body:not(:has(main.public-main)) .button:focus-visible,
+body:not(:has(main.public-main)) .btn:focus-visible,
+body:not(:has(main.public-main)) button:focus-visible,
+body:not(:has(main.public-main)) a[role="button"]:focus-visible {
+    outline: 3px solid rgba(8, 119, 201, .22);
+    outline-offset: 2px;
+}
+
+body:has(main.auth-page) .auth-layout {
+    background: #fff !important;
+    background-color: #fff !important;
+    border-color: #dce8f3 !important;
+    box-shadow: 0 16px 36px rgba(27, 60, 94, .14);
+}
+
+body:has(main.auth-page) .auth-brand-panel {
+    background:
+        linear-gradient(90deg, #eff7ff 0%, rgba(239, 247, 255, .95) 45%, rgba(239, 247, 255, .35)),
+        url('/static/images/home/hero.jpg') center / cover !important;
+    border-color: #dce8f3 !important;
+}
+
+body:has(main.auth-page) .auth-form-panel {
+    background: #fff !important;
+    background-color: #fff !important;
+    color: #17324e !important;
+}
+
+body:has(main.auth-page) .auth-brand-content h1,
+body:has(main.auth-page) .auth-brand-content p,
+body:has(main.auth-page) .auth-brand-content em,
+body:has(main.auth-page) .auth-benefits span,
+body:has(main.auth-page) .auth-form-header h1,
+body:has(main.auth-page) .auth-form-header p,
+body:has(main.auth-page) .auth-form-footer,
+body:has(main.auth-page) .auth-options {
+    color: #17324e;
+}
+
+body:has(main.auth-page) .auth-tab,
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-social-button,
+body:has(main.auth-page) .auth-input-wrap,
+body:has(main.auth-page) .registration-layout .form-control,
+body:has(main.auth-page) .registration-layout .account-type-card {
+    background: #fff !important;
+    background-color: #fff !important;
+    border-color: #c9dced;
+    color: #183c63;
+}
+
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-tab:hover,
+body:has(main.auth-page) .auth-register-page .auth-tab:last-child {
+    background: #eef7ff;
+    border-color: #0877c9;
+    color: #0873cb;
+}
+
+body:has(main.auth-page) .auth-input-wrap .form-control,
+body:has(main.auth-page) .registration-layout .form-control {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #183c63;
+    -webkit-text-fill-color: #183c63;
+}
+
+body:has(main.auth-page) .auth-footer {
+    background: #0e2943 !important;
+    color: #fff;
+}
+
+body:not(:has(main.public-main)) .client-stat-icon,
+body:not(:has(main.public-main)) .client-service-thumb {
+    background: #e0f0ff;
+    color: #0877c9;
+}
+
+@media (max-width: 760px) {
+    body:not(:has(main.public-main)) .dashboard-main {
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+
+    body:not(:has(main.public-main)) .dashboard-main > * {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    body:not(:has(main.public-main)) .button,
+    body:not(:has(main.public-main)) .btn,
+    body:not(:has(main.public-main)) .client-button,
+    body:not(:has(main.public-main)) .client-button-orange,
+    body:not(:has(main.public-main)) .client-button-blue {
+        min-height: 46px;
+    }
+}
+
+/* Intentional layout refinement for internal product screens. */
+body:not(:has(main.public-main)) .page-container {
+    margin-inline: auto;
+    max-width: 1280px;
+    width: min(100% - 32px, 1280px);
+}
+
+body:not(:has(main.public-main)) .form-card,
+body:not(:has(main.public-main)) .dashboard-panel,
+body:not(:has(main.public-main)) .card {
+    min-width: 0;
+}
+
+body:not(:has(main.public-main)) .form-card {
+    padding: 28px;
+}
+
+body:not(:has(main.public-main)) .form-card > h1,
+body:not(:has(main.public-main)) .form-card > h2,
+body:not(:has(main.public-main)) .dashboard-panel > .panel-header,
+body:not(:has(main.public-main)) .section-header {
+    margin-bottom: 22px;
+}
+
+body:not(:has(main.public-main)) .form-actions,
+body:not(:has(main.public-main)) .provider-actions,
+body:not(:has(main.public-main)) .table-actions,
+body:not(:has(main.public-main)) .step-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+body:not(:has(main.public-main)) .form-actions > .button,
+body:not(:has(main.public-main)) .provider-actions > .button,
+body:not(:has(main.public-main)) .table-actions > .button,
+body:not(:has(main.public-main)) .step-actions > .button,
+body:not(:has(main.public-main)) .chat-form button {
+    min-height: 44px;
+}
+
+body:not(:has(main.public-main)) .button:not(.button-small),
+body:not(:has(main.public-main)) .btn:not(.btn-sm) {
+    padding-inline: 18px;
+}
+
+body:not(:has(main.public-main)) .marketplace-page {
+    align-items: start;
+    gap: 30px;
+}
+
+body:not(:has(main.public-main)) .marketplace-page .provider-result-grid {
+    align-items: stretch;
+    gap: 18px;
+}
+
+body:not(:has(main.public-main)) .provider-result-card {
+    align-content: start;
+    min-height: 224px;
+    padding: 22px;
+}
+
+body:not(:has(main.public-main)) .provider-result-card .form-actions {
+    align-self: end;
+    margin-top: auto;
+}
+
+body:not(:has(main.public-main)) .public-profile-content,
+body:not(:has(main.public-main)) .profile-content-grid {
+    align-items: stretch;
+}
+
+body:not(:has(main.public-main)) .profile-content-grid > .card {
+    min-height: 150px;
+}
+
+body:not(:has(main.public-main)) .dashboard-main {
+    gap: 26px;
+}
+
+body:not(:has(main.public-main)) .card-grid {
+    gap: 18px;
+}
+
+body:not(:has(main.public-main)) .card-stats {
+    min-height: 148px;
+}
+
+body:not(:has(main.public-main)) .dashboard-panel {
+    padding: 26px;
+}
+
+body:not(:has(main.public-main)) .chat-window {
+    min-height: 360px;
+}
+
+@media (max-width: 760px) {
+    body:not(:has(main.public-main)) .page-container {
+        width: min(100% - 24px, 1280px);
+    }
+
+    body:not(:has(main.public-main)) .form-card,
+    body:not(:has(main.public-main)) .dashboard-panel {
+        padding: 20px;
+    }
+
+    body:not(:has(main.public-main)) .form-actions,
+    body:not(:has(main.public-main)) .provider-actions,
+    body:not(:has(main.public-main)) .step-actions {
+        align-items: stretch;
+    }
+
+    body:not(:has(main.public-main)) .form-actions > .button,
+    body:not(:has(main.public-main)) .provider-actions > .button,
+    body:not(:has(main.public-main)) .step-actions > .button {
+        flex: 1 1 180px;
+    }
+
+    body:not(:has(main.public-main)) .provider-result-card {
+        min-height: 0;
+        padding: 18px;
+    }
+
+    body:not(:has(main.public-main)) .dashboard-panel {
+        padding: 18px;
+    }
+}

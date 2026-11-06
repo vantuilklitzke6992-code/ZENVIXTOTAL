@@ -9,6 +9,677 @@
     padding: 11px 13px;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Shared visual normalization for legacy auth/client components.              */
+/* -------------------------------------------------------------------------- */
+
+body:has(main.auth-page) {
+    background: var(--canvas);
+    color: var(--text);
+}
+
+.auth-layout {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.auth-brand-panel {
+    background:
+        linear-gradient(135deg, rgba(2, 6, 23, .9), rgba(14, 165, 233, .24)),
+        url('/static/images/home/hero.jpg') center / cover;
+    border-right: 1px solid var(--border);
+}
+
+.auth-brand-content h1,
+.auth-brand-content p,
+.auth-brand-content em,
+.auth-benefits span {
+    color: var(--text);
+}
+
+.auth-benefits b {
+    background: var(--brand);
+    color: #fff;
+}
+
+.auth-form-panel {
+    background: linear-gradient(145deg, rgba(30, 41, 59, .98), rgba(15, 23, 42, .98));
+    color: var(--text);
+}
+
+.auth-tabs {
+    border-bottom: 1px solid var(--border);
+}
+
+.auth-tab,
+.auth-tab.active,
+.auth-login-page .auth-tab:first-child,
+.auth-login-page .auth-tab:last-child,
+.auth-register-page .auth-tab:first-child,
+.auth-register-page .auth-tab:last-child {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-muted);
+    box-shadow: none;
+}
+
+.auth-tab:hover,
+.auth-tab.active,
+.auth-login-page .auth-tab:first-child,
+.auth-register-page .auth-tab:last-child {
+    background: rgba(14, 165, 233, .12);
+    border-color: var(--brand-light);
+    color: var(--brand-light);
+}
+
+.auth-form-header h1,
+.auth-form-header p,
+.auth-form-footer,
+.auth-options,
+.auth-options a {
+    color: var(--text);
+}
+
+.auth-form-header p,
+.auth-form-footer {
+    color: var(--text-muted);
+}
+
+.auth-social-button,
+.auth-input-wrap,
+.registration-layout .form-control,
+.registration-layout .account-type-card {
+    background: rgba(15, 23, 42, .78);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+.auth-social-button:hover:not(:disabled),
+.auth-social-button:focus-visible {
+    background: rgba(14, 165, 233, .12);
+    border-color: var(--brand-light);
+}
+
+.auth-social-button:disabled {
+    color: var(--text-muted);
+    opacity: .68;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    background: var(--border);
+}
+
+.auth-divider span,
+.auth-field-icon,
+.password-toggle {
+    color: var(--text-muted);
+}
+
+.auth-input-wrap:focus-within,
+.registration-layout .form-control:focus,
+.registration-layout .account-type-card:focus-visible {
+    background: rgba(15, 23, 42, .98);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, .14);
+}
+
+.auth-input-wrap .form-control,
+.registration-layout .form-control {
+    background: transparent;
+    color: var(--text);
+}
+
+.auth-input-wrap .form-control::placeholder,
+.registration-layout .form-control::placeholder {
+    color: #64748B;
+}
+
+.auth-form .button-primary,
+.registration-layout .button-primary {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.auth-form .button-primary:hover,
+.registration-layout .button-primary:hover {
+    background: var(--brand-light);
+    border-color: var(--brand-light);
+}
+
+.registration-layout .stepper-bar {
+    background: rgba(148, 163, 184, .18);
+}
+
+.registration-layout .stepper-progress {
+    background: linear-gradient(90deg, var(--brand), var(--brand-light));
+}
+
+.registration-layout .button-secondary {
+    background: transparent;
+    border-color: rgba(56, 189, 248, .5);
+    color: var(--brand-light);
+}
+
+.auth-footer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+
+/* Client dashboard legacy palette -> shared Zenvix palette. */
+.client-sidebar,
+.client-topbar,
+.client-welcome-banner,
+.client-security-card {
+    background: linear-gradient(145deg, rgba(30, 41, 59, .98), rgba(15, 23, 42, .98));
+    border-color: var(--border);
+    color: var(--text);
+}
+
+.client-panel,
+.client-dashboard-details,
+.client-stat-card,
+.client-recent-list,
+.client-favorite-list,
+.client-empty-state {
+    background: linear-gradient(145deg, rgba(30, 41, 59, .94), rgba(17, 24, 39, .96));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+}
+
+.client-nav a,
+.client-logout,
+.client-sidebar-account-links a,
+.client-panel p,
+.client-muted-message,
+.client-recent-item small,
+.client-favorite-main small {
+    color: var(--text-muted);
+}
+
+.client-nav a:hover,
+.client-logout:hover,
+.client-nav a.is-active {
+    background: rgba(14, 165, 233, .14);
+    color: var(--brand-light);
+}
+
+.client-nav a.is-active {
+    border: 1px solid rgba(56, 189, 248, .3);
+    box-shadow: var(--shadow-sm);
+}
+
+.client-button,
+.client-button-orange,
+.client-button-blue {
+    background: var(--brand);
+    border: 1px solid var(--brand);
+    color: #fff;
+}
+
+.client-button:hover,
+.client-button-orange:hover,
+.client-button-blue:hover {
+    background: var(--brand-light);
+    border-color: var(--brand-light);
+}
+
+.client-stat-icon,
+.client-service-thumb {
+    background: rgba(14, 165, 233, .14);
+    color: var(--brand-light);
+}
+
+.client-recent-item,
+.client-favorite-list article {
+    border-color: var(--border);
+}
+
+.client-status-concluído,
+.client-status-concluido {
+    background: rgba(34, 197, 94, .12);
+    color: #86EFAC;
+}
+
+.client-status-em-andamento,
+.client-status-aceito {
+    background: rgba(14, 165, 233, .12);
+    color: #7DD3FC;
+}
+
+.client-status-pendente,
+.client-status-negociando {
+    background: rgba(245, 158, 11, .12);
+    color: #FCD34D;
+}
+
+.client-security-icon {
+    background: var(--brand);
+}
+
+@media (max-width: 760px) {
+    .auth-layout {
+        border-radius: var(--radius);
+    }
+
+    .auth-brand-panel,
+    .auth-form-panel {
+        border-radius: 0;
+    }
+
+    .auth-brand-panel {
+        border-bottom: 1px solid var(--border);
+        border-right: 0;
+    }
+
+    .auth-social-button,
+    .client-button,
+    .client-button-orange,
+    .client-button-blue {
+        width: 100%;
+    }
+}
+
+/* Official HOME palette applied to every internal screen. */
+body:not(:has(main.public-main)) {
+    background: #fff !important;
+    color: #17324e !important;
+}
+
+body:not(:has(main.public-main)) .site-header {
+    background: rgba(255, 255, 255, .97) !important;
+    border-bottom: 1px solid #e3ebf3 !important;
+    box-shadow: 0 2px 12px rgba(23, 50, 78, .04) !important;
+    color: #143b67 !important;
+}
+
+body:not(:has(main.public-main)) .site-header .topbar-nav a,
+body:not(:has(main.public-main)) .site-header .topbar-nav a:not(.button) {
+    color: #183c63 !important;
+}
+
+body:not(:has(main.public-main)) .site-header .topbar-nav a:hover,
+body:not(:has(main.public-main)) .site-header .topbar-nav a:focus-visible {
+    color: #0873cb !important;
+}
+
+body:not(:has(main.public-main)) .site-header .header-login,
+body:not(:has(main.public-main)) .site-header .header-actions .button-secondary {
+    --button-bg: #fff !important;
+    --button-border: #98b9d8 !important;
+    --button-fg: #164b7d !important;
+}
+
+body:not(:has(main.public-main)) .site-header .header-signup,
+body:not(:has(main.public-main)) .site-header .header-dashboard,
+body:not(:has(main.public-main)) .button-primary,
+body:not(:has(main.public-main)) .btn-primary {
+    --button-bg: #f47716 !important;
+    --button-border: #f47716 !important;
+    --button-fg: #fff !important;
+    background: #f47716 !important;
+    border-color: #f47716 !important;
+    color: #fff !important;
+    box-shadow: 0 5px 12px rgba(198, 82, 9, .14) !important;
+}
+
+body:not(:has(main.public-main)) .site-header .header-signup:hover,
+body:not(:has(main.public-main)) .button-primary:hover,
+body:not(:has(main.public-main)) .btn-primary:hover {
+    background: #d85e0b !important;
+    border-color: #d85e0b !important;
+}
+
+body:not(:has(main.public-main)) .button,
+body:not(:has(main.public-main)) .btn {
+    border-radius: 9px;
+}
+
+body:not(:has(main.public-main)) .button-secondary,
+body:not(:has(main.public-main)) .btn-secondary {
+    --button-bg: #fff !important;
+    --button-border: #98b9d8 !important;
+    --button-fg: #164b7d !important;
+    background: #fff !important;
+    border-color: #98b9d8 !important;
+    color: #164b7d !important;
+}
+
+body:not(:has(main.public-main)) .button-secondary:hover,
+body:not(:has(main.public-main)) .btn-secondary:hover {
+    background: #e8f3ff !important;
+    border-color: #0877c9 !important;
+    color: #0873cb !important;
+}
+
+body:not(:has(main.public-main)) .button-danger,
+body:not(:has(main.public-main)) .btn-danger {
+    background: #fff4f3 !important;
+    border-color: #efaaa4 !important;
+    color: #b7443f !important;
+}
+
+body:not(:has(main.public-main)) .card,
+body:not(:has(main.public-main)) .form-card,
+body:not(:has(main.public-main)) .dashboard-panel,
+body:not(:has(main.public-main)) .empty-state,
+body:not(:has(main.public-main)) .provider-card,
+body:not(:has(main.public-main)) .profile-card,
+body:not(:has(main.public-main)) .notice-card,
+body:not(:has(main.public-main)) .chat-sidebar,
+body:not(:has(main.public-main)) .chat-header,
+body:not(:has(main.public-main)) .chat-window,
+body:not(:has(main.public-main)) .chat-panel,
+body:not(:has(main.public-main)) .chat-card {
+    background: #fff !important;
+    border-color: #dce8f3 !important;
+    box-shadow: 0 5px 18px rgba(27, 60, 94, .10) !important;
+    color: #17324e !important;
+}
+
+body:not(:has(main.public-main)) .dashboard-sidebar {
+    background: linear-gradient(180deg, #f7fbff, #eef6fc) !important;
+    border-color: #d3e2ef !important;
+    box-shadow: 0 5px 18px rgba(27, 60, 94, .08) !important;
+}
+
+body:not(:has(main.public-main)) .sidebar-brand,
+body:not(:has(main.public-main)) .sidebar-card,
+body:not(:has(main.public-main)) .chat-sidebar {
+    border-color: #dce8f3 !important;
+}
+
+body:not(:has(main.public-main)) .sidebar-nav a,
+body:not(:has(main.public-main)) .sidebar-card,
+body:not(:has(main.public-main)) .sidebar-card p,
+body:not(:has(main.public-main)) .section-header p,
+body:not(:has(main.public-main)) .panel-header > p,
+body:not(:has(main.public-main)) .form-note,
+body:not(:has(main.public-main)) .client-muted-message {
+    color: #5c7187 !important;
+}
+
+body:not(:has(main.public-main)) .sidebar-nav a:hover,
+body:not(:has(main.public-main)) .sidebar-nav a:focus-visible,
+body:not(:has(main.public-main)) .sidebar-nav a.is-active {
+    background: #e8f3ff !important;
+    color: #0873cb !important;
+}
+
+body:not(:has(main.public-main)) .form-group label,
+body:not(:has(main.public-main)) .search-bar label,
+body:not(:has(main.public-main)) .panel-label,
+body:not(:has(main.public-main)) .section-badge,
+body:not(:has(main.public-main)) .eyebrow {
+    color: #15528a !important;
+}
+
+body:not(:has(main.public-main)) .form-group input,
+body:not(:has(main.public-main)) .form-group select,
+body:not(:has(main.public-main)) .form-group textarea,
+body:not(:has(main.public-main)) .search-input,
+body:not(:has(main.public-main)) .search-select,
+body:not(:has(main.public-main)) .chat-form input,
+body:not(:has(main.public-main)) .chat-form textarea {
+    background: #fff !important;
+    border-color: #c9dced !important;
+    color: #183c63 !important;
+}
+
+body:not(:has(main.public-main)) .form-group input::placeholder,
+body:not(:has(main.public-main)) .form-group textarea::placeholder,
+body:not(:has(main.public-main)) .search-input::placeholder,
+body:not(:has(main.public-main)) .chat-form textarea::placeholder {
+    color: #6a8197 !important;
+}
+
+body:not(:has(main.public-main)) .form-group input:focus,
+body:not(:has(main.public-main)) .form-group select:focus,
+body:not(:has(main.public-main)) .form-group textarea:focus,
+body:not(:has(main.public-main)) .search-input:focus,
+body:not(:has(main.public-main)) .search-select:focus,
+body:not(:has(main.public-main)) .chat-form input:focus,
+body:not(:has(main.public-main)) .chat-form textarea:focus {
+    background: #fff !important;
+    border-color: #267dc3 !important;
+    box-shadow: 0 0 0 3px rgba(8, 119, 201, .14) !important;
+    color: #183c63 !important;
+}
+
+body:not(:has(main.public-main)) .table-wrapper {
+    background: #f8fbfe !important;
+    border-color: #dce8f3 !important;
+}
+
+body:not(:has(main.public-main)) .dashboard-table th,
+body:not(:has(main.public-main)) .services-table th {
+    color: #5c7187 !important;
+}
+
+body:not(:has(main.public-main)) .dashboard-table td,
+body:not(:has(main.public-main)) .services-table td {
+    border-color: #e2ecf4 !important;
+    color: #244765 !important;
+}
+
+body:not(:has(main.public-main)) .dashboard-table tbody tr:hover,
+body:not(:has(main.public-main)) .services-table tbody tr:hover {
+    background: #f2f8fd !important;
+}
+
+body:not(:has(main.public-main)) .flash-success {
+    background: #edf9f1 !important;
+    border-color: #a9dfbb !important;
+    color: #247443 !important;
+}
+
+body:not(:has(main.public-main)) .flash-error,
+body:not(:has(main.public-main)) .flash-danger {
+    background: #fff3f2 !important;
+    border-color: #efb3ae !important;
+    color: #a53f3a !important;
+}
+
+body:not(:has(main.public-main)) .flash-info {
+    background: #eef7ff !important;
+    border-color: #b9d8f1 !important;
+    color: #15528a !important;
+}
+
+body:not(:has(main.public-main)) .status-pill,
+body:not(:has(main.public-main)) .status-badge {
+    background: #eef7ff !important;
+    border-color: #b9d8f1 !important;
+    color: #0873cb !important;
+}
+
+body:not(:has(main.public-main)) .status-active,
+body:not(:has(main.public-main)) .status-aceito,
+body:not(:has(main.public-main)) .status-concluído,
+body:not(:has(main.public-main)) .status-concluido {
+    background: #edf9f1 !important;
+    border-color: #a9dfbb !important;
+    color: #247443 !important;
+}
+
+body:not(:has(main.public-main)) .status-pending,
+body:not(:has(main.public-main)) .status-pendente,
+body:not(:has(main.public-main)) .status-warning {
+    background: #fff7e9 !important;
+    border-color: #f1d39a !important;
+    color: #9a6107 !important;
+}
+
+body:not(:has(main.public-main)) .status-recusado,
+body:not(:has(main.public-main)) .status-cancelado {
+    background: #fff3f2 !important;
+    border-color: #efb3ae !important;
+    color: #a53f3a !important;
+}
+
+/* Authentication screens follow the light HOME surface and orange CTA. */
+body:has(main.auth-page) .auth-layout {
+    background: #fff !important;
+    border-color: #dce8f3 !important;
+    box-shadow: 0 16px 36px rgba(27, 60, 94, .14) !important;
+}
+
+body:has(main.auth-page) .auth-brand-panel {
+    background:
+        linear-gradient(90deg, #eff7ff 0%, rgba(239, 247, 255, .95) 45%, rgba(239, 247, 255, .35)),
+        url('/static/images/home/hero.jpg') center / cover !important;
+    border-color: #dce8f3 !important;
+}
+
+body:has(main.auth-page) .auth-brand-content h1,
+body:has(main.auth-page) .auth-brand-content p,
+body:has(main.auth-page) .auth-brand-content em,
+body:has(main.auth-page) .auth-benefits span,
+body:has(main.auth-page) .auth-form-panel,
+body:has(main.auth-page) .auth-form-header h1,
+body:has(main.auth-page) .auth-form-header p,
+body:has(main.auth-page) .auth-form-footer,
+body:has(main.auth-page) .auth-options {
+    color: #17324e !important;
+}
+
+body:has(main.auth-page) .auth-form-panel {
+    background: #fff !important;
+}
+
+body:has(main.auth-page) .auth-tab,
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-login-page .auth-tab:first-child,
+body:has(main.auth-page) .auth-register-page .auth-tab:last-child {
+    background: #fff !important;
+    border-color: #c9dced !important;
+    color: #0873cb !important;
+}
+
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-tab:hover,
+body:has(main.auth-page) .auth-register-page .auth-tab:last-child {
+    background: #eef7ff !important;
+    border-color: #0877c9 !important;
+}
+
+body:has(main.auth-page) .auth-social-button,
+body:has(main.auth-page) .auth-input-wrap,
+body:has(main.auth-page) .registration-layout .form-control,
+body:has(main.auth-page) .registration-layout .account-type-card {
+    background: #fff !important;
+    border-color: #c9dced !important;
+    color: #183c63 !important;
+}
+
+body:has(main.auth-page) .auth-input-wrap .form-control,
+body:has(main.auth-page) .registration-layout .form-control {
+    background: transparent !important;
+    color: #183c63 !important;
+    -webkit-text-fill-color: #183c63 !important;
+}
+
+body:has(main.auth-page) .auth-input-wrap:focus-within,
+body:has(main.auth-page) .registration-layout .form-control:focus,
+body:has(main.auth-page) .registration-layout .account-type-card:focus-visible {
+    border-color: #267dc3 !important;
+    box-shadow: 0 0 0 3px rgba(44, 146, 229, .12) !important;
+}
+
+body:has(main.auth-page) .auth-form .button-primary,
+body:has(main.auth-page) .registration-layout .button-primary {
+    background: #f47716 !important;
+    border-color: #f47716 !important;
+    color: #fff !important;
+}
+
+body:has(main.auth-page) .auth-form .button-primary:hover,
+body:has(main.auth-page) .registration-layout .button-primary:hover {
+    background: #d85e0b !important;
+    border-color: #d85e0b !important;
+}
+
+body:has(main.auth-page) .auth-footer {
+    background: #0e2943 !important;
+    color: #fff !important;
+}
+
+/* Client dashboard keeps its layout but uses HOME cards, blue navigation and orange CTAs. */
+body:not(:has(main.public-main)) .client-sidebar,
+body:not(:has(main.public-main)) .client-topbar,
+body:not(:has(main.public-main)) .client-welcome-banner,
+body:not(:has(main.public-main)) .client-security-card,
+body:not(:has(main.public-main)) .client-panel,
+body:not(:has(main.public-main)) .client-dashboard-details,
+body:not(:has(main.public-main)) .client-stat-card,
+body:not(:has(main.public-main)) .client-recent-list,
+body:not(:has(main.public-main)) .client-favorite-list,
+body:not(:has(main.public-main)) .client-empty-state {
+    background: #fff !important;
+    border-color: #dce8f3 !important;
+    box-shadow: 0 5px 18px rgba(27, 60, 94, .10) !important;
+    color: #17324e !important;
+}
+
+body:not(:has(main.public-main)) .client-sidebar,
+body:not(:has(main.public-main)) .client-topbar {
+    background: linear-gradient(180deg, #f7fbff, #eef6fc) !important;
+}
+
+body:not(:has(main.public-main)) .client-button,
+body:not(:has(main.public-main)) .client-button-orange,
+body:not(:has(main.public-main)) .client-button-blue {
+    background: #f47716 !important;
+    border: 1px solid #f47716 !important;
+    color: #fff !important;
+}
+
+body:not(:has(main.public-main)) .client-button:hover,
+body:not(:has(main.public-main)) .client-button-orange:hover,
+body:not(:has(main.public-main)) .client-button-blue:hover {
+    background: #d85e0b !important;
+    border-color: #d85e0b !important;
+}
+
+body:not(:has(main.public-main)) .client-nav a,
+body:not(:has(main.public-main)) .client-logout {
+    color: #536c85 !important;
+}
+
+body:not(:has(main.public-main)) .client-nav a:hover,
+body:not(:has(main.public-main)) .client-nav a.is-active,
+body:not(:has(main.public-main)) .client-logout:hover {
+    background: #e8f3ff !important;
+    color: #0873cb !important;
+}
+
+body:not(:has(main.public-main)) .client-stat-icon,
+body:not(:has(main.public-main)) .client-service-thumb {
+    background: #e0f0ff !important;
+    color: #0877c9 !important;
+}
+
+@media (max-width: 760px) {
+    body:not(:has(main.public-main)) .page-container {
+        background: #fff;
+    }
+
+    body:not(:has(main.public-main)) .button,
+    body:not(:has(main.public-main)) .btn,
+    body:not(:has(main.public-main)) .client-button,
+    body:not(:has(main.public-main)) .client-button-orange,
+    body:not(:has(main.public-main)) .client-button-blue {
+        min-height: 46px;
+    }
+}
+
 .button-ghost {
     --button-bg: transparent;
     --button-fg: var(--text);
@@ -2142,11 +2813,11 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
 /* Cadastro password inputs: keep typed text and caret visible in every state. */
 .registration-layout #senha,
 .registration-layout #confirm_senha {
-    background: #fff !important;
+    background: rgba(15, 23, 42, .78) !important;
     box-sizing: border-box !important;
     caret-color: #173e65 !important;
-    color: #173e65 !important;
-    -webkit-text-fill-color: #173e65 !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
     opacity: 1 !important;
     text-shadow: none !important;
     visibility: visible !important;
@@ -2154,7 +2825,7 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
 
 .registration-layout #senha::placeholder,
 .registration-layout #confirm_senha::placeholder {
-    color: #607c96;
+    color: #64748B;
     opacity: 1;
 }
 
@@ -3864,5 +4535,143 @@ body:has(main.public-main) .site-header .header-actions .button {
     .public-main .home-footer-brand p,
     .public-main .home-footer-nav a {
         font-size: 14px;
+    }
+}
+
+/* Final cascade pass: remove the remaining legacy light/orange palette. */
+body:has(main.auth-page),
+body:has(main.auth-page) .auth-form-panel {
+    background: var(--canvas) !important;
+    color: var(--text) !important;
+}
+
+body:has(main.auth-page) .auth-brand-panel {
+    background:
+        linear-gradient(135deg, rgba(2, 6, 23, .9), rgba(14, 165, 233, .24)),
+        url('/static/images/home/hero.jpg') center / cover !important;
+    border-color: var(--border) !important;
+}
+
+body:has(main.auth-page) .auth-form-panel,
+body:has(main.auth-page) .auth-social-button,
+body:has(main.auth-page) .auth-input-wrap,
+body:has(main.auth-page) .registration-layout .form-control,
+body:has(main.auth-page) .registration-layout .account-type-card {
+    background-color: rgba(15, 23, 42, .78) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+body:has(main.auth-page) .auth-tab,
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-options,
+body:has(main.auth-page) .auth-options a,
+body:has(main.auth-page) .auth-form-header h1,
+body:has(main.auth-page) .auth-form-header p,
+body:has(main.auth-page) .auth-form-footer {
+    color: var(--text) !important;
+}
+
+body:has(main.auth-page) .auth-form-header p,
+body:has(main.auth-page) .auth-form-footer,
+body:has(main.auth-page) .auth-options a {
+    color: var(--text-muted) !important;
+}
+
+body:has(main.auth-page) .auth-tab.active,
+body:has(main.auth-page) .auth-tab:hover,
+body:has(main.auth-page) .auth-register-page .auth-tab:last-child,
+body:has(main.auth-page) .auth-form .button-primary,
+body:has(main.auth-page) .registration-layout .button-primary {
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
+    color: #fff !important;
+}
+
+body:has(main.auth-page) .auth-form .button-primary:hover,
+body:has(main.auth-page) .registration-layout .button-primary:hover {
+    background: var(--brand-light) !important;
+    border-color: var(--brand-light) !important;
+}
+
+body:has(main.auth-page) .auth-input-wrap:focus-within,
+body:has(main.auth-page) .registration-layout .form-control:focus,
+body:has(main.auth-page) .registration-layout .account-type-card:focus-visible {
+    background: rgba(15, 23, 42, .98) !important;
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, .14) !important;
+}
+
+body:has(main.auth-page) .registration-layout #senha,
+body:has(main.auth-page) .registration-layout #confirm_senha {
+    background: rgba(15, 23, 42, .78) !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+}
+
+body:has(main.auth-page) .auth-footer {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-muted) !important;
+}
+
+.client-sidebar,
+.client-topbar,
+.client-welcome-banner,
+.client-security-card,
+.client-panel,
+.client-dashboard-details,
+.client-stat-card,
+.client-recent-list,
+.client-favorite-list,
+.client-empty-state {
+    background: linear-gradient(145deg, rgba(30, 41, 59, .98), rgba(15, 23, 42, .98)) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+.client-nav a:hover,
+.client-nav a.is-active,
+.client-logout:hover {
+    background: rgba(14, 165, 233, .14) !important;
+    color: var(--brand-light) !important;
+}
+
+.client-button,
+.client-button-orange,
+.client-button-blue {
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
+    color: #fff !important;
+}
+
+.client-button:hover,
+.client-button-orange:hover,
+.client-button-blue:hover {
+    background: var(--brand-light) !important;
+    border-color: var(--brand-light) !important;
+}
+
+.client-stat-icon,
+.client-service-thumb {
+    background: rgba(14, 165, 233, .14) !important;
+    color: var(--brand-light) !important;
+}
+
+@media (max-width: 760px) {
+    body:has(main.auth-page) .auth-layout {
+        border-radius: var(--radius) !important;
+    }
+
+    body:has(main.auth-page) .auth-brand-panel,
+    body:has(main.auth-page) .auth-form-panel {
+        border-radius: 0 !important;
+    }
+
+    body:has(main.auth-page) .auth-social-button,
+    .client-button,
+    .client-button-orange,
+    .client-button-blue {
+        width: 100%;
     }
 }

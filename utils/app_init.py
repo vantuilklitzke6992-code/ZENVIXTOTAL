@@ -42,7 +42,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "static"),
 )
 
-app.config["ASSET_VERSION"] = "1.0"
+app.config["ASSET_VERSION"] = "1.2"
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER

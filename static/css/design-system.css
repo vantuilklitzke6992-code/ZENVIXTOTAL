@@ -1,23 +1,23 @@
 /* Zenvix Connect — reusable SaaS UI system */
 :root {
-    --brand: #0EA5E9;
-    --brand-light: #38BDF8;
-    --ink: #111827;
-    --canvas: #0F172A;
-    --surface: #172033;
-    --surface-raised: #1E293B;
-    --text: #E5E7EB;
-    --text-muted: #94A3B8;
-    --border: rgba(148, 163, 184, .18);
-    --border-strong: rgba(56, 189, 248, .28);
+    --brand: #F47716;
+    --brand-light: #FF8A2A;
+    --ink: #102F4F;
+    --canvas: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-raised: #F3F8FC;
+    --text: #17324E;
+    --text-muted: #5C7187;
+    --border: #DCE8F3;
+    --border-strong: #BFD5E8;
     --danger: #F43F5E;
     --success: #22C55E;
     --warning: #F59E0B;
     --radius-sm: 10px;
     --radius: 14px;
     --radius-lg: 20px;
-    --shadow-sm: 0 4px 14px rgba(2, 6, 23, .16);
-    --shadow: 0 16px 36px rgba(2, 6, 23, .22);
+    --shadow-sm: 0 5px 18px rgba(27, 60, 94, .10);
+    --shadow: 0 16px 36px rgba(27, 60, 94, .14);
     --ease: 180ms ease;
 }
 
