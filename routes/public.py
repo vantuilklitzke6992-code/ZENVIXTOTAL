@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template
-from utils.presence import online_users
-from services.provider_service import get_providers, enrich_provider, get_online_providers
+from services.provider_service import get_providers, enrich_provider
 
 public_bp = Blueprint('public', __name__)
 
@@ -20,7 +19,9 @@ def home():
         reverse=True,
     )[:3]
 
-    online_providers = get_online_providers(limit=4)
+    online_providers = [
+        provider for provider in providers if provider["online"]
+    ][:4]
 
     return render_template(
         'public/home.html',

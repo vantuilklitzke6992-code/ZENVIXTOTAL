@@ -1,4 +1,5 @@
 from flask import (
+    g,
     render_template,
     request,
     redirect,
@@ -20,6 +21,7 @@ from utils.app_init import (
     socketio,
     open_browser,
     DEBUG,
+    DEVELOPMENT,
     PORT,
     ADMIN_USER_TYPE,
     UPLOAD_FOLDER,
@@ -28,6 +30,15 @@ from utils.app_init import (
 from utils.db import get_db, close_db, integrity_error_types
 from utils.security import generate_csrf_token, validate_csrf_token
 from utils.presence import online_users
+from services.provider_service import (
+    enrich_provider,
+    get_availability_for_user,
+    get_online_providers,
+    get_provider_rating,
+    get_provider_recommendation_score,
+    get_providers,
+    get_service_by_id,
+)
 
 
 def query_user_by_email(email):
@@ -43,8 +54,7 @@ def get_user_by_id(user_id):
 @app.context_processor
 def inject_header_user():
     """Provides the signed-in user's existing avatar fields to the shared header."""
-    user_id = session.get("user_id")
-    return {"header_user": get_user_by_id(user_id) if user_id else None}
+    return {"header_user": getattr(g, "header_user", None)}
 
 
 def is_provider_active(user):
@@ -60,143 +70,6 @@ def get_pending_users():
     return db.execute(
         "SELECT * FROM usuarios WHERE tipo IN ('profissional', 'empresa') AND approval_status = 'Pendente' ORDER BY tipo, nome"
     ).fetchall()
-
-
-def get_provider_rating(provider_id):
-    db = get_db()
-    row = db.execute(
-        "SELECT AVG(nota) AS avg_rating, COUNT(*) AS total FROM avaliacoes WHERE profissional_id = ?",
-        (provider_id,),
-    ).fetchone()
-    avg_rating = row["avg_rating"]
-    return (
-        (round(avg_rating, 1), row["total"])
-        if avg_rating is not None
-        else (None, row["total"])
-    )
-
-
-# BEGIN CHANGE
-
-
-def get_provider_recommendation_score(provider, requested_category=None):
-    requested_category = (requested_category or "").strip().lower()
-    rating = provider.get("rating") or 0.0
-    rating_count = provider.get("rating_count") or 0
-    availability_count = provider.get("availability_count") or 0
-    completed_services = provider.get("completed_services") or 0
-    online_bonus = 6 if provider.get("online") else 0
-    category_bonus = 0
-
-    if requested_category:
-        specialty = (provider.get("especialidade") or "").lower()
-        if requested_category in specialty:
-            category_bonus = 20
-
-    score = (
-        (rating * 10)
-        + min(rating_count * 4, 30)
-        + min(availability_count * 8, 24)
-        + min(completed_services * 0.4, 12)
-        + online_bonus
-        + category_bonus
-    )
-    return round(score, 2)
-
-
-# END CHANGE
-
-
-def get_providers(search=None, category=None, city=None, online_only=False):
-    db = get_db()
-    db.execute(
-        "UPDATE usuarios SET status_online = 'offline' WHERE status_online = 'online' AND ultimo_acesso < datetime('now', '-5 minutes')"
-    )
-    db.commit()
-    query = """
-        SELECT *,
-        CASE WHEN status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes') THEN 1 ELSE 0 END AS online
-        FROM usuarios
-        WHERE tipo IN ('profissional', 'empresa') AND (approval_status = 'Ativo' OR approval_status IS NULL)
-    """
-    filters = []
-    params = []
-
-    if search:
-        like_value = f"%{search}%"
-        filters.append(
-            "(nome LIKE ? OR especialidade LIKE ? OR empresa_nome LIKE ? OR bio LIKE ? OR cidade LIKE ?)"
-        )
-        params.extend([like_value] * 5)
-
-    if category:
-        filters.append("especialidade LIKE ?")
-        params.append(f"%{category}%")
-
-    if city:
-        filters.append("cidade LIKE ?")
-        params.append(f"%{city}%")
-
-    if online_only:
-        filters.append(
-            "status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes')"
-        )
-
-    if filters:
-        query += " AND " + " AND ".join(filters)
-
-    return db.execute(query, tuple(params)).fetchall()
-
-
-def enrich_provider(provider):
-    rating, rating_count = get_provider_rating(provider["id"])
-    db = get_db()
-    completed_services = db.execute(
-        "SELECT COUNT(*) AS total FROM servicos WHERE profissional_id = ? AND status = 'Concluído'",
-        (provider["id"],),
-    ).fetchone()["total"]
-    availability = get_availability_for_user(provider["id"])
-    online = (
-        provider["online"]
-        if "online" in provider.keys()
-        else db.execute(
-            "SELECT CASE WHEN status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes') THEN 1 ELSE 0 END AS online FROM usuarios WHERE id = ?",
-            (provider["id"],),
-        ).fetchone()["online"]
-    )
-    provider_data = {
-        **dict(provider),
-        "rating": rating,
-        "rating_count": rating_count,
-        "completed_services": completed_services,
-        "online": bool(online),
-        "availability_count": len(availability),
-    }
-    provider_data["recommendation_score"] = get_provider_recommendation_score(
-        provider_data
-    )
-    return provider_data
-
-
-def get_online_providers(limit=None):
-    providers = [
-        enrich_provider(provider) for provider in get_providers(online_only=True)
-    ]
-    return providers[:limit] if limit else providers
-
-
-def get_service_by_id(service_id):
-    db = get_db()
-    return db.execute(
-        """
-        SELECT s.*, c.nome AS cliente_nome, p.nome AS profissional_nome, p.tipo AS profissional_tipo, c.cidade AS cliente_cidade
-        FROM servicos s
-        LEFT JOIN usuarios c ON s.cliente_id = c.id
-        LEFT JOIN usuarios p ON s.profissional_id = p.id
-        WHERE s.id = ?
-        """,
-        (service_id,),
-    ).fetchone()
 
 
 def user_can_access_service_chat(user_id, service_id, user_type=None):
@@ -366,14 +239,6 @@ def get_messages_for_service(service_id):
         ORDER BY m.id ASC
         """,
         (service_id,),
-    ).fetchall()
-
-
-def get_availability_for_user(user_id):
-    db = get_db()
-    return db.execute(
-        "SELECT * FROM disponibilidade WHERE profissional_id = ? ORDER BY id DESC",
-        (user_id,),
     ).fetchall()
 
 
@@ -972,21 +837,21 @@ def user_has_reviewed_service(service_id):
 
 @app.before_request
 def before_request():
-    get_db()
-    if session.get("user_id"):
-        user = get_user_by_id(session["user_id"])
-        if user:
-            db = get_db()
-            db.execute(
-                "UPDATE usuarios SET status_online = 'online', ultimo_acesso = datetime('now') WHERE id = ?",
-                (user["id"],),
-            )
-            db.commit()
-            # Ensure consistency between memory and DB
-            online_users.add(user["id"])
-            session["approval_status"] = user["approval_status"] or "Ativo"
-            session["user_name"] = user["nome"]
-            session["user_type"] = user["tipo"]
+    g.header_user = None
+    if request.endpoint == "static":
+        return
+
+    user_id = session.get("user_id")
+    if not user_id:
+        return
+
+    user = get_user_by_id(user_id)
+    if user:
+        g.header_user = user
+        online_users.add(user["id"])
+        session["approval_status"] = user["approval_status"] or "Ativo"
+        session["user_name"] = user["nome"]
+        session["user_type"] = user["tipo"]
 
 
 @app.teardown_appcontext
@@ -2458,9 +2323,17 @@ def handle_mensagem_lida(payload):
 
 
 if __name__ == "__main__":
-    threading.Timer(1.0, lambda: open_browser(PORT)).start()
+    if DEVELOPMENT:
+        threading.Timer(1.0, lambda: open_browser(PORT)).start()
     try:
-        socketio.run(app, debug=DEBUG, use_reloader=False, host="0.0.0.0", port=PORT)
+        socketio.run(
+            app,
+            debug=DEBUG,
+            use_reloader=False,
+            host="0.0.0.0",
+            port=PORT,
+            allow_unsafe_werkzeug=DEVELOPMENT,
+        )
     except OSError as exc:
         print(f"Erro ao iniciar o servidor: {exc}")
         if "address already in use" in str(exc).lower():

@@ -3,7 +3,7 @@
     background: rgba(244, 63, 94, .1);
     border: 1px solid rgba(244, 63, 94, .3);
     border-radius: 10px;
-    color: #FECDD3;
+    color: var(--danger-text);
     font-size: .84rem;
     margin: 0;
     padding: 11px 13px;
@@ -245,19 +245,19 @@ body:has(main.auth-page) {
 .client-status-concluído,
 .client-status-concluido {
     background: rgba(34, 197, 94, .12);
-    color: #86EFAC;
+    color: #166534;
 }
 
 .client-status-em-andamento,
 .client-status-aceito {
     background: rgba(14, 165, 233, .12);
-    color: #7DD3FC;
+    color: #075985;
 }
 
 .client-status-pendente,
 .client-status-negociando {
     background: rgba(245, 158, 11, .12);
-    color: #FCD34D;
+    color: #854D0E;
 }
 
 .client-security-icon {
@@ -321,11 +321,11 @@ body:not(:has(main.public-main)) .site-header .header-signup,
 body:not(:has(main.public-main)) .site-header .header-dashboard,
 body:not(:has(main.public-main)) .button-primary,
 body:not(:has(main.public-main)) .btn-primary {
-    --button-bg: #f47716 !important;
-    --button-border: #f47716 !important;
+    --button-bg: var(--brand-action) !important;
+    --button-border: var(--brand-action) !important;
     --button-fg: #fff !important;
-    background: #f47716 !important;
-    border-color: #f47716 !important;
+    background: var(--brand-action) !important;
+    border-color: var(--brand-action) !important;
     color: #fff !important;
     box-shadow: 0 5px 12px rgba(198, 82, 9, .14) !important;
 }
@@ -333,8 +333,8 @@ body:not(:has(main.public-main)) .btn-primary {
 body:not(:has(main.public-main)) .site-header .header-signup:hover,
 body:not(:has(main.public-main)) .button-primary:hover,
 body:not(:has(main.public-main)) .btn-primary:hover {
-    background: #d85e0b !important;
-    border-color: #d85e0b !important;
+    background: var(--brand-action-hover) !important;
+    border-color: var(--brand-action-hover) !important;
 }
 
 body:not(:has(main.public-main)) .button,
@@ -372,7 +372,6 @@ body:not(:has(main.public-main)) .dashboard-panel,
 body:not(:has(main.public-main)) .empty-state,
 body:not(:has(main.public-main)) .provider-card,
 body:not(:has(main.public-main)) .profile-card,
-body:not(:has(main.public-main)) .notice-card,
 body:not(:has(main.public-main)) .chat-sidebar,
 body:not(:has(main.public-main)) .chat-header,
 body:not(:has(main.public-main)) .chat-window,
@@ -437,7 +436,7 @@ body:not(:has(main.public-main)) .form-group input::placeholder,
 body:not(:has(main.public-main)) .form-group textarea::placeholder,
 body:not(:has(main.public-main)) .search-input::placeholder,
 body:not(:has(main.public-main)) .chat-form textarea::placeholder {
-    color: #6a8197 !important;
+    color: var(--text-placeholder) !important;
 }
 
 body:not(:has(main.public-main)) .form-group input:focus,
@@ -491,37 +490,6 @@ body:not(:has(main.public-main)) .flash-info {
     background: #eef7ff !important;
     border-color: #b9d8f1 !important;
     color: #15528a !important;
-}
-
-body:not(:has(main.public-main)) .status-pill,
-body:not(:has(main.public-main)) .status-badge {
-    background: #eef7ff !important;
-    border-color: #b9d8f1 !important;
-    color: #0873cb !important;
-}
-
-body:not(:has(main.public-main)) .status-active,
-body:not(:has(main.public-main)) .status-aceito,
-body:not(:has(main.public-main)) .status-concluído,
-body:not(:has(main.public-main)) .status-concluido {
-    background: #edf9f1 !important;
-    border-color: #a9dfbb !important;
-    color: #247443 !important;
-}
-
-body:not(:has(main.public-main)) .status-pending,
-body:not(:has(main.public-main)) .status-pendente,
-body:not(:has(main.public-main)) .status-warning {
-    background: #fff7e9 !important;
-    border-color: #f1d39a !important;
-    color: #9a6107 !important;
-}
-
-body:not(:has(main.public-main)) .status-recusado,
-body:not(:has(main.public-main)) .status-cancelado {
-    background: #fff3f2 !important;
-    border-color: #efb3ae !important;
-    color: #a53f3a !important;
 }
 
 /* Authentication screens follow the light HOME surface and orange CTA. */
@@ -595,15 +563,15 @@ body:has(main.auth-page) .registration-layout .account-type-card:focus-visible {
 
 body:has(main.auth-page) .auth-form .button-primary,
 body:has(main.auth-page) .registration-layout .button-primary {
-    background: #f47716 !important;
-    border-color: #f47716 !important;
+    background: var(--brand-action) !important;
+    border-color: var(--brand-action) !important;
     color: #fff !important;
 }
 
 body:has(main.auth-page) .auth-form .button-primary:hover,
 body:has(main.auth-page) .registration-layout .button-primary:hover {
-    background: #d85e0b !important;
-    border-color: #d85e0b !important;
+    background: var(--brand-action-hover) !important;
+    border-color: var(--brand-action-hover) !important;
 }
 
 body:has(main.auth-page) .auth-footer {
@@ -636,21 +604,21 @@ body:not(:has(main.public-main)) .client-topbar {
 body:not(:has(main.public-main)) .client-button,
 body:not(:has(main.public-main)) .client-button-orange,
 body:not(:has(main.public-main)) .client-button-blue {
-    background: #f47716 !important;
-    border: 1px solid #f47716 !important;
+    background: var(--brand-action) !important;
+    border: 1px solid var(--brand-action) !important;
     color: #fff !important;
 }
 
 body:not(:has(main.public-main)) .client-button:hover,
 body:not(:has(main.public-main)) .client-button-orange:hover,
 body:not(:has(main.public-main)) .client-button-blue:hover {
-    background: #d85e0b !important;
-    border-color: #d85e0b !important;
+    background: var(--brand-action-hover) !important;
+    border-color: var(--brand-action-hover) !important;
 }
 
 body:not(:has(main.public-main)) .client-nav a,
 body:not(:has(main.public-main)) .client-logout {
-    color: #536c85 !important;
+    color: var(--text-muted);
 }
 
 body:not(:has(main.public-main)) .client-nav a:hover,
@@ -1840,7 +1808,7 @@ body:has(main.auth-page) .site-header .header-signup {
     line-height: 1.02;
     margin: 0 0 24px;
 }
-.auth-brand-content h1 strong { color: #1ca7f4; }
+.auth-brand-content h1 strong { color: var(--link); }
 .auth-brand-content p { color: #fff; font-size: 1.05rem; line-height: 1.34; max-width: 330px; }
 .auth-benefits { gap: 12px; margin-top: 32px; }
 .auth-benefits span { align-items: center; color: #fff; display: flex; font-size: .86rem; gap: 12px; }
@@ -1900,7 +1868,7 @@ body:has(main.auth-page) .site-header .header-signup {
 .registration-layout .account-type-grid { gap: 8px; }
 .registration-layout .account-type-card { background: #f7fbff; border: 1px solid #c9dced; border-radius: 9px; color: #183c63; padding: 10px; }
 .registration-layout .account-type-card.active { background: #eef7ff; border-color: #168be0; }
-.registration-layout .account-type-card small { color: #6a8098; }
+.registration-layout .account-type-card small { color: var(--text-placeholder); }
 .registration-layout .step-actions { margin-top: 12px; }
 .registration-layout .step-actions .button, .registration-layout .step-card > .button { min-height: 40px; }
 .registration-layout .details-section { border-top-color: #deebf6; padding-top: 12px; }
@@ -1909,7 +1877,7 @@ body:has(main.auth-page) .site-header .header-signup {
 
 .auth-footer { align-items: center; background: #092c50; color: #fff; display: flex; gap: 24px; justify-content: space-between; margin: 36px -24px 0; min-height: 90px; padding: 18px 34px; }
 .auth-footer-brand { align-items: center; display: flex; gap: 22px; }
-.auth-footer-brand .logo img { filter: brightness(0) invert(1); height: 42px; width: 118px; object-fit: contain; }
+.auth-footer-brand .logo img { filter: none; height: auto; width: 130px; object-fit: contain; }
 .auth-footer-brand > span { border-left: 1px solid rgba(255,255,255,.7); color: #e4eef8; font-size: .68rem; line-height: 1.35; padding-left: 22px; }
 .auth-footer-nav { display: flex; gap: 22px; }
 .auth-footer-nav a { color: #fff; font-size: .68rem; text-decoration: none; white-space: nowrap; }
@@ -1999,7 +1967,7 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
 .registration-layout .form-control, .registration-layout .auth-input-wrap { min-height: 48px; }
 .registration-layout .stepper { margin-bottom: 21px; }
 .auth-footer { margin-left: -30px; margin-right: -30px; margin-top: 44px; min-height: 104px; padding: 22px 44px; }
-.auth-footer-brand .logo img { height: 50px; width: 140px; }
+.auth-footer-brand .logo img { height: auto; width: 140px; }
 
 @media (max-width: 900px) {
     body:has(main.auth-page) > .site-header { min-height: 86px; padding-left: 20px; padding-right: 20px; }
@@ -2168,8 +2136,8 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
     padding: 25px 14px 18px;
 }
 
-.client-brand { display: block; margin: 0 auto 32px; width: 164px; }
-.client-brand img { display: block; filter: brightness(0) invert(1); height: auto; max-width: 100%; object-fit: contain; }
+.client-brand { background: #fff; border-radius: 10px; display: block; margin: 0 auto 32px; padding: 8px; width: 164px; }
+.client-brand img { display: block; height: auto; max-width: 100%; object-fit: contain; }
 .client-nav { display: grid; gap: 6px; }
 .client-nav a, .client-logout { align-items: center; border-radius: 10px; color: #dbe9f8; display: flex; gap: 14px; min-height: 45px; padding: 10px 13px; text-decoration: none; transition: background .2s ease, color .2s ease; }
 .client-nav a:hover, .client-logout:hover { background: rgba(31, 146, 239, .2); color: #fff; }
@@ -2229,9 +2197,9 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
 .client-service-info strong { color: #17365d; font-size: .81rem; }
 .client-service-info small { color: #61809e; font-size: .71rem; margin-top: 4px; }
 .client-status { border-radius: 18px; font-size: .68rem; font-weight: 800; padding: 8px 11px; white-space: nowrap; }
-.client-status-concluído, .client-status-concluido { background: #d9f5e4; color: #15924e; }
-.client-status-em-andamento, .client-status-aceito { background: #e2f1ff; color: #0878d4; }
-.client-status-pendente, .client-status-negociando { background: #fff0d8; color: #b26700; }
+.client-status-concluído, .client-status-concluido { background: #d9f5e4; color: #166534; }
+.client-status-em-andamento, .client-status-aceito { background: #e2f1ff; color: #075985; }
+.client-status-pendente, .client-status-negociando { background: #fff0d8; color: #854d0e; }
 .client-item-arrow { color: #2670a5; font-size: 1.6rem; }
 .client-security-card { background: linear-gradient(145deg, #092e5c, #071d3c); border-radius: 13px; color: #fff; overflow: hidden; padding: 24px 24px 22px; position: relative; }
 .client-security-card::after { border: 28px solid rgba(38, 137, 221, .15); border-radius: 50%; content: ''; height: 140px; position: absolute; right: -50px; top: 30px; width: 140px; }
@@ -2836,7 +2804,7 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
 }
 
 .provider-name-link:hover {
-    color: var(--brand-light);
+    color: var(--brand-text);
 }
 
 .provider-name-link:focus-visible {
@@ -3169,11 +3137,10 @@ body:has(main.public-main) > .site-header {
 }
 
 body:has(main.public-main) .site-header .logo img {
-    height: 46px;
+    height: auto;
     max-width: none;
-    object-fit: cover;
-    object-position: center 50%;
-    width: 132px;
+    object-fit: contain;
+    width: 120px;
 }
 
 body:has(main.public-main) .site-header .topbar-nav {
@@ -3270,7 +3237,7 @@ body:has(main.public-main) .site-header .header-mobile-avatar {
 .public-main {
     --home-blue: #0877c9;
     --home-navy: #102f4f;
-    --home-orange: #f47716;
+    --home-orange: var(--brand-action);
     --home-text: #17324e;
     --home-muted: #5c7187;
     background: #fff;
@@ -3442,9 +3409,19 @@ body:has(main.public-main) .site-header .header-mobile-avatar {
 
 .public-main .marketplace-search .button-primary:hover,
 .public-main .home-listing-copy .button-primary:hover,
-.public-main .home-cta-card .button-primary:hover {
-    background: #d85e0b;
-    border-color: #d85e0b;
+.public-main .home-cta-card .button-primary:hover,
+.public-main .site-header .header-signup:hover {
+    background: var(--brand-action-hover);
+    border-color: var(--brand-action-hover);
+}
+
+.public-main .marketplace-search .button-primary,
+.public-main .home-listing-copy .button-primary,
+.public-main .home-cta-card .button-primary,
+.public-main .site-header .header-signup {
+    background: var(--brand-action);
+    border-color: var(--brand-action);
+    color: #fff;
 }
 
 .public-main .home-location-note {
@@ -3455,6 +3432,10 @@ body:has(main.public-main) .site-header .header-mobile-avatar {
     gap: 5px;
     line-height: 1.45;
     margin: 9px 0 0;
+}
+
+.public-main .marketplace-hero > .hero-copy > .home-location-note {
+    color: var(--text-muted);
 }
 
 .public-main .home-location-note svg {
@@ -3785,7 +3766,7 @@ body:has(main.public-main) .site-header .header-mobile-avatar {
 
 .public-main .home-provider-actions a:hover,
 .public-main .home-provider-info h3 a:hover {
-    color: #e56c13;
+    color: var(--brand-text);
 }
 
 .public-main .home-activity-section {
@@ -3988,12 +3969,18 @@ body:has(main.public-main) .site-header .header-mobile-avatar {
 }
 
 .public-main .public-footer .logo img {
-    filter: brightness(0) invert(1);
-    height: 43px;
+    filter: none;
+    height: auto;
     max-width: none;
-    object-fit: cover;
-    object-position: center 50%;
+    object-fit: contain;
     width: 130px;
+}
+
+.public-main .public-footer .logo {
+    background: #fff;
+    border-radius: 8px;
+    line-height: 0;
+    padding: 4px 8px;
 }
 
 .public-main .home-footer-brand p {
@@ -4557,8 +4544,8 @@ body:has(main.auth-page) .auth-social-button,
 body:has(main.auth-page) .auth-input-wrap,
 body:has(main.auth-page) .registration-layout .form-control,
 body:has(main.auth-page) .registration-layout .account-type-card {
-    background-color: rgba(15, 23, 42, .78) !important;
-    border-color: var(--border) !important;
+    background-color: var(--surface) !important;
+    border-color: var(--border-strong) !important;
     color: var(--text) !important;
 }
 
@@ -4580,31 +4567,36 @@ body:has(main.auth-page) .auth-options a {
 
 body:has(main.auth-page) .auth-tab.active,
 body:has(main.auth-page) .auth-tab:hover,
-body:has(main.auth-page) .auth-register-page .auth-tab:last-child,
+body:has(main.auth-page) .auth-register-page .auth-tab:last-child {
+    background: #eef7ff !important;
+    border-color: var(--focus) !important;
+    color: var(--link) !important;
+}
+
 body:has(main.auth-page) .auth-form .button-primary,
 body:has(main.auth-page) .registration-layout .button-primary {
-    background: var(--brand) !important;
-    border-color: var(--brand) !important;
+    background: var(--brand-action) !important;
+    border-color: var(--brand-action) !important;
     color: #fff !important;
 }
 
 body:has(main.auth-page) .auth-form .button-primary:hover,
 body:has(main.auth-page) .registration-layout .button-primary:hover {
-    background: var(--brand-light) !important;
-    border-color: var(--brand-light) !important;
+    background: var(--brand-action-hover) !important;
+    border-color: var(--brand-action-hover) !important;
 }
 
 body:has(main.auth-page) .auth-input-wrap:focus-within,
 body:has(main.auth-page) .registration-layout .form-control:focus,
 body:has(main.auth-page) .registration-layout .account-type-card:focus-visible {
-    background: rgba(15, 23, 42, .98) !important;
-    border-color: var(--brand) !important;
-    box-shadow: 0 0 0 4px rgba(14, 165, 233, .14) !important;
+    background: var(--surface) !important;
+    border-color: var(--focus) !important;
+    box-shadow: 0 0 0 3px rgba(8, 119, 201, .2) !important;
 }
 
 body:has(main.auth-page) .registration-layout #senha,
 body:has(main.auth-page) .registration-layout #confirm_senha {
-    background: rgba(15, 23, 42, .78) !important;
+    background: var(--surface) !important;
     color: var(--text) !important;
     -webkit-text-fill-color: var(--text) !important;
 }
@@ -4613,6 +4605,28 @@ body:has(main.auth-page) .auth-footer {
     background: var(--surface) !important;
     border-color: var(--border) !important;
     color: var(--text-muted) !important;
+}
+
+body:has(main.auth-page) .auth-footer-brand > span {
+    border-left-color: var(--border-strong);
+    color: var(--text-muted);
+}
+
+body:has(main.auth-page) .auth-footer-nav a {
+    color: var(--link);
+}
+
+body:has(main.auth-page) .auth-footer-social span {
+    border-color: var(--border-strong);
+    color: var(--text-muted);
+}
+
+body:has(main.auth-page) .registration-layout .stepper {
+    color: var(--text-muted);
+}
+
+body:has(main.auth-page) .registration-layout .stepper-label {
+    color: var(--text-muted);
 }
 
 .client-sidebar,
@@ -4625,7 +4639,7 @@ body:has(main.auth-page) .auth-footer {
 .client-recent-list,
 .client-favorite-list,
 .client-empty-state {
-    background: linear-gradient(145deg, rgba(30, 41, 59, .98), rgba(15, 23, 42, .98)) !important;
+    background: var(--surface) !important;
     border-color: var(--border) !important;
     color: var(--text) !important;
 }
@@ -4633,32 +4647,58 @@ body:has(main.auth-page) .auth-footer {
 .client-nav a:hover,
 .client-nav a.is-active,
 .client-logout:hover {
-    background: rgba(14, 165, 233, .14) !important;
-    color: var(--brand-light) !important;
+    background: #e8f3ff !important;
+    color: var(--link) !important;
 }
 
 .client-button,
 .client-button-orange,
 .client-button-blue {
-    background: var(--brand) !important;
-    border-color: var(--brand) !important;
+    background: var(--brand-action) !important;
+    border-color: var(--brand-action) !important;
     color: #fff !important;
 }
 
 .client-button:hover,
 .client-button-orange:hover,
 .client-button-blue:hover {
-    background: var(--brand-light) !important;
-    border-color: var(--brand-light) !important;
+    background: var(--brand-action-hover) !important;
+    border-color: var(--brand-action-hover) !important;
 }
 
 .client-stat-icon,
 .client-service-thumb {
     background: rgba(14, 165, 233, .14) !important;
-    color: var(--brand-light) !important;
+    color: var(--link) !important;
+}
+
+body:not(:has(main.public-main)) .client-welcome-banner {
+    background: #092e5c !important;
+    color: var(--text-on-dark) !important;
+}
+
+body:not(:has(main.public-main)) .client-welcome-content h1 {
+    color: var(--text-on-dark) !important;
+}
+
+body:not(:has(main.public-main)) .client-security-card {
+    background: linear-gradient(145deg, #092e5c, #071d3c) !important;
+    color: var(--text-on-dark) !important;
+}
+
+@media (max-width: 900px) {
+    body:has(main.auth-page) .auth-layout {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+    }
 }
 
 @media (max-width: 760px) {
+    body:has(main.auth-page) .auth-layout {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+    }
+
     body:has(main.auth-page) .auth-layout {
         border-radius: var(--radius) !important;
     }

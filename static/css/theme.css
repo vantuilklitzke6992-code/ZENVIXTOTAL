@@ -5,21 +5,80 @@
 :root {
     --brand: #F47716;
     --brand-light: #FF8A2A;
+    --brand-action: #B34700;
+    --brand-action-hover: #943C00;
+    --brand-text: #A84300;
     --ink: #102F4F;
     --canvas: #FFFFFF;
     --surface: #FFFFFF;
     --surface-raised: #F3F8FC;
     --text: #17324E;
     --text-muted: #5C7187;
+    --text-subtle: #52677D;
+    --text-on-dark: #F8FAFC;
+    --text-placeholder: #52677D;
+    --link: #075EA8;
+    --focus: #0873CB;
     --border: #DCE8F3;
     --border-strong: #BFD5E8;
+    --danger: #F43F5E;
+    --danger-text: #A53F3A;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --status-info-bg: #EEF7FF;
+    --status-info-border: #B9D8F1;
+    --status-info-text: #075EA8;
+    --status-success-bg: #EDF9F1;
+    --status-success-border: #A9DFBB;
+    --status-success-text: #247443;
+    --status-warning-bg: #FFF7E9;
+    --status-warning-border: #F1D39A;
+    --status-warning-text: #854D0E;
+    --status-danger-bg: #FFF3F2;
+    --status-danger-border: #EFB3AE;
+    --status-danger-text: #A53F3A;
+    --radius-sm: 10px;
+    --radius: 14px;
+    --radius-lg: 20px;
     --shadow-sm: 0 5px 18px rgba(27, 60, 94, .10);
     --shadow: 0 16px 36px rgba(27, 60, 94, .14);
+    --ease: 180ms ease;
+}
+
+.status-pill,
+.status-badge {
+    background: var(--status-info-bg);
+    border-color: var(--status-info-border);
+    color: var(--status-info-text);
+}
+
+.status-active,
+.status-aceito,
+.status-concluído,
+.status-concluido {
+    background: var(--status-success-bg);
+    border-color: var(--status-success-border);
+    color: var(--status-success-text);
+}
+
+.status-pending,
+.status-pendente,
+.status-warning {
+    background: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
+    color: var(--status-warning-text);
+}
+
+.status-recusado,
+.status-cancelado {
+    background: var(--status-danger-bg);
+    border-color: var(--status-danger-border);
+    color: var(--status-danger-text);
 }
 
 body:not(:has(main.public-main)) {
-    background: #fff;
-    color: #17324e;
+    background: var(--canvas);
+    color: var(--text);
 }
 
 body:not(:has(main.public-main)) .site-header {
@@ -36,7 +95,7 @@ body:not(:has(main.public-main)) .site-header .topbar-nav a:not(.button) {
 
 body:not(:has(main.public-main)) .site-header .topbar-nav a:hover,
 body:not(:has(main.public-main)) .site-header .topbar-nav a:focus-visible {
-    color: #0873cb;
+    color: var(--link);
 }
 
 body:not(:has(main.public-main)) .site-header .header-login,
@@ -55,7 +114,7 @@ body:not(:has(main.public-main)) .button-secondary:hover,
 body:not(:has(main.public-main)) .btn-secondary:hover {
     background: #e8f3ff;
     border-color: #0877c9;
-    color: #0873cb;
+    color: var(--link);
 }
 
 body:not(:has(main.public-main)) .site-header .header-signup,
@@ -67,11 +126,11 @@ body:has(main.auth-page) .registration-layout .button-primary,
 body:not(:has(main.public-main)) .client-button,
 body:not(:has(main.public-main)) .client-button-orange,
 body:not(:has(main.public-main)) .client-button-blue {
-    --button-bg: #f47716;
-    --button-border: #f47716;
+    --button-bg: var(--brand-action);
+    --button-border: var(--brand-action);
     --button-fg: #fff;
-    background: #f47716;
-    border-color: #f47716;
+    background: var(--brand-action);
+    border-color: var(--brand-action);
     color: #fff;
     box-shadow: 0 5px 12px rgba(198, 82, 9, .14);
 }
@@ -84,8 +143,8 @@ body:has(main.auth-page) .registration-layout .button-primary:hover,
 body:not(:has(main.public-main)) .client-button:hover,
 body:not(:has(main.public-main)) .client-button-orange:hover,
 body:not(:has(main.public-main)) .client-button-blue:hover {
-    background: #d85e0b;
-    border-color: #d85e0b;
+    background: var(--brand-action-hover);
+    border-color: var(--brand-action-hover);
 }
 
 body:not(:has(main.public-main)) .button,
@@ -94,6 +153,10 @@ body:not(:has(main.public-main)) .client-button,
 body:not(:has(main.public-main)) .client-button-orange,
 body:not(:has(main.public-main)) .client-button-blue {
     border-radius: 9px;
+}
+
+.header-mobile-avatar {
+    background-color: var(--brand-action);
 }
 
 body:not(:has(main.public-main)) .card,
@@ -121,6 +184,30 @@ body:not(:has(main.public-main)) .client-empty-state {
     color: #17324e;
 }
 
+body:not(:has(main.public-main)) .notice-card.notice-warning {
+    background: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
+    color: var(--status-warning-text);
+}
+
+body:not(:has(main.public-main)) .notice-card.notice-warning h2,
+body:not(:has(main.public-main)) .notice-card.notice-warning p {
+    color: var(--status-warning-text);
+}
+
+body:not(:has(main.public-main)) .public-profile {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+body:not(:has(main.public-main)) .card h2,
+body:not(:has(main.public-main)) .card h3,
+body:not(:has(main.public-main)) .form-card h2,
+body:not(:has(main.public-main)) .form-card h3 {
+    color: var(--link);
+}
+
 body:not(:has(main.public-main)) .dashboard-sidebar,
 body:not(:has(main.public-main)) .client-sidebar,
 body:not(:has(main.public-main)) .client-topbar {
@@ -141,7 +228,24 @@ body:not(:has(main.public-main)) .client-nav a:hover,
 body:not(:has(main.public-main)) .client-nav a.is-active,
 body:not(:has(main.public-main)) .client-logout:hover {
     background: #e8f3ff;
-    color: #0873cb;
+    color: var(--link);
+}
+
+body:not(:has(main.public-main)) .client-nav a.is-disabled {
+    color: var(--text-subtle);
+    opacity: 1;
+}
+
+body:not(:has(main.public-main)) .client-sidebar-account-links a {
+    color: var(--text-muted);
+}
+
+body:not(:has(main.public-main)) .client-sidebar-account-links a.is-danger {
+    color: var(--danger-text);
+}
+
+body:not(:has(main.public-main)) .client-topbar-notice {
+    color: var(--text-subtle);
 }
 
 body:not(:has(main.public-main)) .form-group label,
@@ -150,6 +254,12 @@ body:not(:has(main.public-main)) .panel-label,
 body:not(:has(main.public-main)) .section-badge,
 body:not(:has(main.public-main)) .eyebrow {
     color: #15528a;
+}
+
+body:not(:has(main.public-main)) .chat-search-label,
+body:not(:has(main.public-main)) .chat-filters > span,
+body:not(:has(main.public-main)) .chat-search-note {
+    color: var(--text-muted);
 }
 
 body:not(:has(main.public-main)) .form-group input,
@@ -161,7 +271,16 @@ body:not(:has(main.public-main)) .chat-form input,
 body:not(:has(main.public-main)) .chat-form textarea {
     background: #fff;
     border-color: #c9dced;
-    color: #183c63;
+    color: var(--text);
+}
+
+body:not(:has(main.public-main)) .form-group input::placeholder,
+body:not(:has(main.public-main)) .form-group textarea::placeholder,
+body:not(:has(main.public-main)) .search-input::placeholder,
+body:not(:has(main.public-main)) .chat-form input::placeholder,
+body:not(:has(main.public-main)) .chat-form textarea::placeholder {
+    color: var(--text-placeholder);
+    opacity: 1;
 }
 
 body:not(:has(main.public-main)) .form-group input:focus,
@@ -176,7 +295,7 @@ body:has(main.auth-page) .registration-layout .form-control:focus {
     background: #fff;
     border-color: #267dc3;
     box-shadow: 0 0 0 3px rgba(8, 119, 201, .14);
-    color: #183c63;
+    color: var(--text);
 }
 
 body:not(:has(main.public-main)) .table-wrapper {
@@ -186,13 +305,13 @@ body:not(:has(main.public-main)) .table-wrapper {
 
 body:not(:has(main.public-main)) .dashboard-table th,
 body:not(:has(main.public-main)) .services-table th {
-    color: #5c7187;
+    color: var(--text-muted);
 }
 
 body:not(:has(main.public-main)) .dashboard-table td,
 body:not(:has(main.public-main)) .services-table td {
     border-color: #e2ecf4;
-    color: #244765;
+    color: var(--text);
 }
 
 body:not(:has(main.public-main)) .flash-success {
@@ -214,18 +333,11 @@ body:not(:has(main.public-main)) .flash-info {
     color: #15528a;
 }
 
-body:not(:has(main.public-main)) .status-pill,
-body:not(:has(main.public-main)) .status-badge {
-    background: #eef7ff;
-    border-color: #b9d8f1;
-    color: #0873cb;
-}
-
 body:not(:has(main.public-main)) .button-danger,
 body:not(:has(main.public-main)) .btn-danger {
     background: #fff4f3;
     border-color: #efaaa4;
-    color: #b7443f;
+    color: var(--danger-text);
 }
 
 body:not(:has(main.public-main)) .button-danger:hover,
@@ -248,8 +360,37 @@ body:not(:has(main.public-main)) .button:focus-visible,
 body:not(:has(main.public-main)) .btn:focus-visible,
 body:not(:has(main.public-main)) button:focus-visible,
 body:not(:has(main.public-main)) a[role="button"]:focus-visible {
-    outline: 3px solid rgba(8, 119, 201, .22);
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
+}
+
+body:not(:has(main.public-main)) button:disabled,
+body:not(:has(main.public-main)) .button:disabled,
+body:not(:has(main.public-main)) .btn:disabled {
+    background: var(--surface-raised);
+    border-color: var(--border-strong);
+    color: var(--text-muted);
+    filter: none;
+    opacity: 1;
+}
+
+body:not(:has(main.public-main)) a:focus-visible,
+body:has(main.public-main) a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+}
+
+body:has(main.public-main) .public-footer a:focus-visible {
+    outline-color: var(--text-on-dark);
+}
+
+body:not(:has(main.public-main)) input:disabled,
+body:not(:has(main.public-main)) select:disabled,
+body:not(:has(main.public-main)) textarea:disabled {
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    opacity: 1;
+    -webkit-text-fill-color: var(--text-muted);
 }
 
 body:has(main.auth-page) .auth-layout {
@@ -312,8 +453,9 @@ body:has(main.auth-page) .registration-layout .form-control {
 }
 
 body:has(main.auth-page) .auth-footer {
-    background: #0e2943 !important;
-    color: #fff;
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text-muted);
 }
 
 body:not(:has(main.public-main)) .client-stat-icon,
@@ -408,6 +550,26 @@ body:not(:has(main.public-main)) .provider-result-card {
 body:not(:has(main.public-main)) .provider-result-card .form-actions {
     align-self: end;
     margin-top: auto;
+}
+
+body:not(:has(main.public-main)) .provider-role,
+body:not(:has(main.public-main)) .provider-meta,
+body:not(:has(main.public-main)) .provider-rating span {
+    color: var(--text-muted);
+}
+
+body:not(:has(main.public-main)) .provider-rating {
+    color: #854d0e;
+}
+
+body:not(:has(main.public-main)) .presence-label.online {
+    background: #eaf7ed;
+    color: #166534;
+}
+
+body:not(:has(main.public-main)) .presence-label.offline {
+    background: #fff1f2;
+    color: #9f1239;
 }
 
 body:not(:has(main.public-main)) .public-profile-content,

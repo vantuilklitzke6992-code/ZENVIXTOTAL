@@ -15,8 +15,8 @@ set current_step = current_step if current_step is defined else 1 %}
         <section class="auth-form-panel">
                 <div class="auth-tabs" role="tablist"><a class="auth-tab" href="/login">▣ <span>Entrar</span></a><a class="auth-tab active" href="/cadastro" aria-selected="true">♙ <span>Cadastrar</span></a></div>
                 <div class="auth-form-header"><h1>Crie sua conta no Zenvix Connect</h1><p>Preencha os dados abaixo para começar.</p></div>
-                <script id="brazilian-locations-data"
-                        type="application/json">{{ brazilian_locations | tojson | safe }}</script>
+                <script id="brazilian-locations-data" type="application/json"
+                        data-url="{{ url_for('static', filename='data/brazilian_locations.json') }}"></script>
                 <div class="stepper"><span class="stepper-label">Etapa <strong id="step-number">1</strong> de <strong
                                         id="step-total">3</strong></span>
                         <div class="stepper-bar"><span id="step-progress" class="stepper-progress"></span></div>

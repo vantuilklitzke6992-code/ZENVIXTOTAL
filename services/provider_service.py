@@ -1,36 +1,86 @@
+import threading
+import time
+
 from utils.db import get_db
 
 
+_presence_cleanup_lock = threading.Lock()
+_last_presence_cleanup = 0.0
+
+
 def get_providers(search=None, category=None, city=None, online_only=False):
+    global _last_presence_cleanup
+
     db = get_db()
-    db.execute(
-        "UPDATE usuarios SET status_online = 'offline' WHERE status_online = 'online' AND ultimo_acesso < datetime('now', '-5 minutes')"
-    )
-    db.commit()
+    now = time.monotonic()
+    if now - _last_presence_cleanup >= 60:
+        with _presence_cleanup_lock:
+            now = time.monotonic()
+            if now - _last_presence_cleanup >= 60:
+                db.execute(
+                    "UPDATE usuarios SET status_online = 'offline' "
+                    "WHERE status_online = 'online' "
+                    "AND ultimo_acesso < datetime('now', '-5 minutes')"
+                )
+                db.commit()
+                _last_presence_cleanup = now
+
     query = """
-        SELECT *,
-        CASE WHEN status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes') THEN 1 ELSE 0 END AS online
-        FROM usuarios
-        WHERE tipo IN ('profissional', 'empresa') AND (approval_status = 'Ativo' OR approval_status IS NULL)
+        SELECT u.*,
+               CASE WHEN u.status_online = 'online'
+                          AND u.ultimo_acesso >= datetime('now', '-5 minutes')
+                    THEN 1 ELSE 0 END AS online,
+               ratings.avg_rating AS rating,
+               COALESCE(ratings.rating_count, 0) AS rating_count,
+               COALESCE(completed.completed_services, 0) AS completed_services,
+               COALESCE(
+                   availability.availability_count, 0
+               ) AS availability_count
+        FROM usuarios u
+        LEFT JOIN (
+            SELECT profissional_id, AVG(nota) AS avg_rating,
+                   COUNT(*) AS rating_count
+            FROM avaliacoes
+            GROUP BY profissional_id
+        ) ratings ON ratings.profissional_id = u.id
+        LEFT JOIN (
+            SELECT profissional_id, COUNT(*) AS completed_services
+            FROM servicos
+            WHERE status = 'Concluído'
+            GROUP BY profissional_id
+        ) completed ON completed.profissional_id = u.id
+        LEFT JOIN (
+            SELECT profissional_id, COUNT(*) AS availability_count
+            FROM disponibilidade
+            GROUP BY profissional_id
+        ) availability ON availability.profissional_id = u.id
+        WHERE u.tipo IN ('profissional', 'empresa')
+          AND (u.approval_status = 'Ativo' OR u.approval_status IS NULL)
     """
     filters = []
     params = []
 
     if search:
         like_value = f"%{search}%"
-        filters.append("(nome LIKE ? OR especialidade LIKE ? OR empresa_nome LIKE ? OR bio LIKE ? OR cidade LIKE ?)")
+        filters.append(
+            "(u.nome LIKE ? OR u.especialidade LIKE ? "
+            "OR u.empresa_nome LIKE ? OR u.bio LIKE ? OR u.cidade LIKE ?)"
+        )
         params.extend([like_value] * 5)
 
     if category:
-        filters.append("especialidade LIKE ?")
+        filters.append("u.especialidade LIKE ?")
         params.append(f"%{category}%")
 
     if city:
-        filters.append("cidade LIKE ?")
+        filters.append("u.cidade LIKE ?")
         params.append(f"%{city}%")
 
     if online_only:
-        filters.append("status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes')")
+        filters.append(
+            "u.status_online = 'online' "
+            "AND u.ultimo_acesso >= datetime('now', '-5 minutes')"
+        )
 
     if filters:
         query += " AND " + " AND ".join(filters)
@@ -98,19 +148,50 @@ def get_service_by_id(service_id):
 
 
 def enrich_provider(provider):
-    rating, rating_count = get_provider_rating(provider["id"])
-    db = get_db()
-    completed_services = db.execute(
-        "SELECT COUNT(*) AS total FROM servicos WHERE profissional_id = ? AND status = 'Concluído'",
-        (provider["id"],),
-    ).fetchone()["total"]
-    availability = get_availability_for_user(provider["id"])
-    online = provider["online"] if "online" in provider.keys() else db.execute(
-        "SELECT CASE WHEN status_online = 'online' AND ultimo_acesso >= datetime('now', '-5 minutes') THEN 1 ELSE 0 END AS online FROM usuarios WHERE id = ?",
-        (provider["id"],),
-    ).fetchone()["online"]
-    provider_data = {**dict(provider), "rating": rating, "rating_count": rating_count, "completed_services": completed_services, "online": bool(online), "availability_count": len(availability)}
-    provider_data["recommendation_score"] = get_provider_recommendation_score(provider_data)
+    keys = provider.keys()
+    metric_keys = {
+        "rating",
+        "rating_count",
+        "completed_services",
+        "availability_count",
+    }
+    if metric_keys.issubset(keys):
+        rating = provider["rating"]
+        rating = round(rating, 1) if rating is not None else None
+        rating_count = provider["rating_count"]
+        completed_services = provider["completed_services"]
+        availability_count = provider["availability_count"]
+    else:
+        rating, rating_count = get_provider_rating(provider["id"])
+        db = get_db()
+        completed_services = db.execute(
+            "SELECT COUNT(*) AS total FROM servicos "
+            "WHERE profissional_id = ? AND status = 'Concluído'",
+            (provider["id"],),
+        ).fetchone()["total"]
+        availability_count = len(get_availability_for_user(provider["id"]))
+
+    if "online" in keys:
+        online = provider["online"]
+    else:
+        online = get_db().execute(
+            "SELECT CASE WHEN status_online = 'online' "
+            "AND ultimo_acesso >= datetime('now', '-5 minutes') "
+            "THEN 1 ELSE 0 END AS online FROM usuarios WHERE id = ?",
+            (provider["id"],),
+        ).fetchone()["online"]
+
+    provider_data = {
+        **dict(provider),
+        "rating": rating,
+        "rating_count": rating_count,
+        "completed_services": completed_services,
+        "online": bool(online),
+        "availability_count": availability_count,
+    }
+    provider_data["recommendation_score"] = get_provider_recommendation_score(
+        provider_data
+    )
     return provider_data
 
 

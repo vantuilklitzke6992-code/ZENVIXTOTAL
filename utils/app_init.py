@@ -32,8 +32,13 @@ ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 ADMIN_USER_TYPE = "admin"
 
-DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 PORT = int(os.getenv("PORT", "5000"))
+APP_ENV = os.getenv(
+    "APP_ENV",
+    os.getenv("FLASK_ENV", "development"),
+).strip().lower()
+DEVELOPMENT = APP_ENV in {"dev", "development"}
+DEBUG = os.getenv("FLASK_DEBUG", "1" if DEVELOPMENT else "0") == "1"
 
 
 app = Flask(
@@ -43,15 +48,17 @@ app = Flask(
 )
 
 app.config["ASSET_VERSION"] = "1.2"
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+app.config["APP_ENV"] = APP_ENV
+app.config["TEMPLATES_AUTO_RELOAD"] = DEVELOPMENT
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0 if DEVELOPMENT else 31536000
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 app.secret_key = os.getenv("SECRET_KEY")
 
 socketio = SocketIO(
     app,
-    cors_allowed_origins="*"
+    cors_allowed_origins="*",
+    async_mode="threading" if DEVELOPMENT else None,
 )
 
 app.register_blueprint(public_bp)

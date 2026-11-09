@@ -16,6 +16,7 @@ from utils.presence import online_users
 import json
 import os
 import re
+from functools import lru_cache
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -107,9 +108,16 @@ def get_brazilian_location_data():
         "brazilian_locations.json",
     )
 
-    if not os.path.exists(data_path):
+    try:
+        modified_time = os.stat(data_path).st_mtime_ns
+    except OSError:
         return {}
 
+    return _read_brazilian_location_data(data_path, modified_time)
+
+
+@lru_cache(maxsize=1)
+def _read_brazilian_location_data(data_path, _modified_time):
     try:
         with open(data_path, "r", encoding="utf-8") as handle:
             return json.load(handle)

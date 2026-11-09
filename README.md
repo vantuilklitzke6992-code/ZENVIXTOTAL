@@ -20,6 +20,16 @@ pip install -r requirements.txt
 python app.py
 ```
 
+O modo padrão é desenvolvimento (`APP_ENV=development`): usa o SQLite local,
+desativa o cache dos arquivos estáticos e habilita a recarga automática dos
+templates. Ele não conecta ao PostgreSQL mesmo que `DATABASE_URL` esteja definido.
+Para usar PostgreSQL localmente, defina `DATABASE_BACKEND=postgres` e configure
+`DATABASE_URL`.
+
+O Docker define `APP_ENV=production`, preservando o backend de produção quando
+`DATABASE_URL` estiver configurado. No VS Code, o perfil de execução usa o modo
+de desenvolvimento e não reinstala dependências a cada inicialização.
+
 A aplicação ficará disponível em:
 ```text
 http://127.0.0.1:5000/

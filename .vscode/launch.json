@@ -11,13 +11,13 @@
             "args": [],
             "env": {
                 "FLASK_APP": "app.py",
-                "FLASK_ENV": "development"
+                "APP_ENV": "development",
+                "FLASK_DEBUG": "1"
             },
             "cwd": "${workspaceFolder}",
             "purpose": [
                 "debug-in-terminal"
-            ],
-            "preLaunchTask": "Install Requirements If Missing"
+            ]
         }
     ]
 }

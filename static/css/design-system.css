@@ -1,26 +1,4 @@
 /* Zenvix Connect — reusable SaaS UI system */
-:root {
-    --brand: #F47716;
-    --brand-light: #FF8A2A;
-    --ink: #102F4F;
-    --canvas: #FFFFFF;
-    --surface: #FFFFFF;
-    --surface-raised: #F3F8FC;
-    --text: #17324E;
-    --text-muted: #5C7187;
-    --border: #DCE8F3;
-    --border-strong: #BFD5E8;
-    --danger: #F43F5E;
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --radius-sm: 10px;
-    --radius: 14px;
-    --radius-lg: 20px;
-    --shadow-sm: 0 5px 18px rgba(27, 60, 94, .10);
-    --shadow: 0 16px 36px rgba(27, 60, 94, .14);
-    --ease: 180ms ease;
-}
-
 *,
 *::before,
 *::after {
@@ -78,7 +56,7 @@ a {
 
 .button:focus-visible,
 .btn:focus-visible {
-    outline: 3px solid rgba(56, 189, 248, .42);
+    outline: 3px solid var(--focus);
     outline-offset: 2px;
 }
 
@@ -89,42 +67,42 @@ a {
 
 .button-primary,
 .btn-primary {
-    --button-bg: var(--brand);
+    --button-bg: var(--brand-action);
     --button-fg: #fff;
-    --button-border: var(--brand);
+    --button-border: var(--brand-action);
     box-shadow: 0 7px 18px rgba(14, 165, 233, .22);
 }
 
 .button-primary:hover,
 .btn-primary:hover {
-    background: var(--brand-light);
-    border-color: var(--brand-light);
+    background: var(--brand-action-hover);
+    border-color: var(--brand-action-hover);
     box-shadow: 0 10px 22px rgba(14, 165, 233, .3);
 }
 
 .button-secondary,
 .btn-secondary {
     --button-bg: transparent;
-    --button-fg: var(--brand-light);
-    --button-border: rgba(56, 189, 248, .5);
+    --button-fg: var(--brand-text);
+    --button-border: var(--border-strong);
 }
 
 .button-secondary:hover,
 .btn-secondary:hover {
-    background: rgba(14, 165, 233, .12);
-    border-color: var(--brand-light);
+    background: var(--surface-raised);
+    border-color: var(--brand-text);
 }
 
 .button-danger,
 .btn-danger {
-    --button-bg: rgba(244, 63, 94, .12);
-    --button-fg: #FDA4AF;
-    --button-border: rgba(244, 63, 94, .35);
+    --button-bg: #FFF3F2;
+    --button-fg: var(--danger-text);
+    --button-border: #EFB3AE;
 }
 
 .button-danger:hover,
 .btn-danger:hover {
-    background: rgba(244, 63, 94, .22);
+    background: #FFE8E5;
     border-color: var(--danger);
 }
 
@@ -478,8 +456,8 @@ a {
 }
 
 .sidebar-nav a:hover {
-    background: rgba(14, 165, 233, .12);
-    color: var(--brand-light);
+    background: var(--surface-raised);
+    color: var(--brand-text);
 }
 
 .sidebar-card {
@@ -895,7 +873,7 @@ a {
 }
 
 .chat-context-banner strong {
-    color: var(--brand-light);
+    color: var(--brand-text);
 }
 
 .chat-header {
@@ -973,7 +951,7 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: var(--brand-light);
+    color: var(--brand-text);
 }
 
 .chat-phone a {
@@ -1446,7 +1424,7 @@ a {
     .mobile-bottom-nav { align-items: stretch; background: rgba(15, 23, 42, .96); border-top: 1px solid var(--border); bottom: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: calc(64px + env(safe-area-inset-bottom)); padding: 5px 6px env(safe-area-inset-bottom); position: fixed; width: 100%; z-index: 30; }
     .mobile-bottom-nav a { align-items: center; border-radius: 10px; color: var(--text-muted); display: flex; flex-direction: column; font-size: .67rem; font-weight: 700; gap: 2px; justify-content: center; line-height: 1.1; min-height: 50px; padding: 3px; text-align: center; text-decoration: none; }
     .mobile-bottom-nav a span { font-size: 1.2rem; line-height: 1; }
-    .mobile-bottom-nav a.active { background: rgba(14, 165, 233, .14); color: var(--brand-light); }
+    .mobile-bottom-nav a.active { background: var(--surface-raised); color: var(--brand-text); }
     .mobile-bottom-nav a:active, .marketplace-category:active, .button:active { background-color: rgba(14, 165, 233, .18); transform: scale(.98); }
     .page-container { margin-bottom: 24px; padding: 0 16px; }
     .button, .btn, .form-group input, .form-group select, .search-input, .search-select { min-height: 48px; }

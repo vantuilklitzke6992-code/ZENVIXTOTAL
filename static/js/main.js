@@ -1,10 +1,58 @@
-document.addEventListener("DOMContentLoaded", function () {
+const loadSocketIOClient = () => new Promise((resolve, reject) => {
+    if (window.io) {
+        resolve();
+        return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/socket.io-client@4.8.1/dist/socket.io.min.js";
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Não foi possível carregar o cliente Socket.IO."));
+    document.head.appendChild(script);
+});
+
+document.addEventListener("DOMContentLoaded", async function () {
     if (document.body.dataset.authenticated === "true") {
+        const heartbeatKey = `zenvix-presence:${document.body.dataset.userId}`;
         const sendHeartbeat = () => fetch("/presenca/heartbeat", {
             method: "POST", credentials: "same-origin", keepalive: true
-        }).catch(() => { });
-        sendHeartbeat();
-        window.setInterval(sendHeartbeat, 120000);
+        }).catch((error) => {
+            console.warn("A atualização da presença falhou:", error);
+            return null;
+        });
+
+        const sendHeartbeatIfDue = () => {
+            const now = Date.now();
+            try {
+                if (now - Number(sessionStorage.getItem(heartbeatKey) || 0) < 120000) {
+                    return;
+                }
+            } catch (error) {
+                console.warn("Não foi possível limitar o heartbeat nesta sessão:", error);
+            }
+
+            sendHeartbeat().then((response) => {
+                if (!response || !response.ok) {
+                    return;
+                }
+                try {
+                    sessionStorage.setItem(heartbeatKey, String(Date.now()));
+                } catch (error) {
+                    console.warn("Não foi possível armazenar o heartbeat desta sessão:", error);
+                }
+            });
+        };
+
+        sendHeartbeatIfDue();
+        window.setInterval(sendHeartbeatIfDue, 120000);
+
+        try {
+            await loadSocketIOClient();
+        } catch (error) {
+            console.error("As notificações em tempo real não foram iniciadas:", error);
+            return;
+        }
 
         // BEGIN CHANGE
         const socket = io();
@@ -367,7 +415,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const stateSelect = document.getElementById("estado");
     const citySelect = document.getElementById("cidade");
     const brazilianLocationsElement = document.getElementById("brazilian-locations-data");
-    const brazilianLocations = brazilianLocationsElement ? JSON.parse(brazilianLocationsElement.textContent || "{}") : {};
+    let brazilianLocations = {};
+    const brazilianLocationsReady = brazilianLocationsElement
+        ? fetch(brazilianLocationsElement.dataset.url)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Falha ao carregar localidades (${response.status}).`);
+                }
+                return response.json();
+            })
+            .then((locations) => {
+                brazilianLocations = locations;
+            })
+            .catch((error) => {
+                console.error("Não foi possível carregar as localidades brasileiras:", error);
+            })
+        : Promise.resolve();
 
     let currentStep = 1;
     const totalSteps = 3;
@@ -414,16 +477,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (initialState) {
             stateSelect.value = initialState;
             citySelect.dataset.initialCity = initialCity;
-            populateCityOptions(initialState);
+            brazilianLocationsReady.then(() => populateCityOptions(initialState));
         }
 
         stateSelect.addEventListener("change", function () {
             const selectedState = this.value;
             citySelect.dataset.initialCity = "";
-            populateCityOptions(selectedState);
-            if (selectedState) {
-                citySelect.focus();
-            }
+            brazilianLocationsReady.then(() => {
+                populateCityOptions(selectedState);
+                if (selectedState) {
+                    citySelect.focus();
+                }
+            });
         });
     }
 

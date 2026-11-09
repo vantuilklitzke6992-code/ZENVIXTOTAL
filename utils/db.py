@@ -13,7 +13,24 @@ FORCE_SQLITE = False
 
 def using_postgres():
     """Read DATABASE_URL at runtime so dotenv and hosting env vars are honored."""
-    return not FORCE_SQLITE and bool(os.getenv("DATABASE_URL", "").strip())
+    if FORCE_SQLITE:
+        return False
+
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    backend = os.getenv("DATABASE_BACKEND", "").strip().lower()
+    if backend in {"postgres", "postgresql"}:
+        return bool(database_url)
+    if backend == "sqlite":
+        return False
+
+    app_env = os.getenv("APP_ENV", os.getenv("FLASK_ENV", "development"))
+    is_development = app_env.strip().lower() in {
+        "dev",
+        "development",
+        "test",
+        "testing",
+    }
+    return not is_development and bool(database_url)
 
 
 def integrity_error_types():
@@ -956,6 +973,24 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS "
         "idx_servico_propostas_valor_servico "
         "ON servico_propostas_valor(servico_id, estado)"
+    )
+
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS "
+        "idx_avaliacoes_profissional "
+        "ON avaliacoes(profissional_id)"
+    )
+
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS "
+        "idx_servicos_profissional_status "
+        "ON servicos(profissional_id, status)"
+    )
+
+    db.execute(
+        "CREATE INDEX IF NOT EXISTS "
+        "idx_disponibilidade_profissional "
+        "ON disponibilidade(profissional_id)"
     )
 
     if using_postgres():
