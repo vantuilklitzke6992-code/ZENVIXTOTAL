@@ -719,11 +719,11 @@ def visualizar_conversa(conversation_id):
             "criado_em": "Agora",
         }
         socketio.emit(
-            "nova_mensagem_conversa", payload, room=f"conversation_{conversation_id}"
+            "nova_mensagem_conversa", payload, to=f"conversation_{conversation_id}"
         )
         if recipient_id:
-            socketio.emit("nova_notificacao", payload, room=f"user_{recipient_id}")
-            socketio.emit("mensagem_recebida", payload, room=f"user_{recipient_id}")
+            socketio.emit("nova_notificacao", payload, to=f"user_{recipient_id}")
+            socketio.emit("mensagem_recebida", payload, to=f"user_{recipient_id}")
 
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"success": True, "payload": payload})
@@ -741,7 +741,7 @@ def visualizar_conversa(conversation_id):
         socketio.emit(
             "mensagem_lida",
             {"conversation_id": conversation_id, "user_id": user_id},
-            room=f"user_{other_user_id}",
+            to=f"user_{other_user_id}",
         )
 
     return render_template(
@@ -1224,7 +1224,7 @@ def servico_chat(service_id):
             "criado_em": "Agora",
         }
 
-        socketio.emit("nova_mensagem", payload, room=f"service_{service_id}")
+        socketio.emit("nova_mensagem", payload, to=f"service_{service_id}")
 
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return jsonify({"success": True, "payload": payload})
@@ -1777,7 +1777,7 @@ def solicitar_servico(provider_id):
             "mensagem": "Solicitação criada com sucesso.",
             "criado_em": "Agora",
         }
-        socketio.emit("nova_mensagem", payload, room=f"service_{service_id}")
+        socketio.emit("nova_mensagem", payload, to=f"service_{service_id}")
 
         flash("Solicitação enviada com sucesso.", "success")
         return redirect(url_for("servico_chat", service_id=service_id))
@@ -2246,7 +2246,7 @@ def handle_connect(auth=None):
             socketio.emit(
                 "usuario_online",
                 {"id": user["id"], "nome": user["nome"], "tipo": user["tipo"]},
-                room="global",
+                to="global",
             )
 
 
@@ -2278,7 +2278,7 @@ def handle_disconnect():
             (user_id,),
         )
         db.commit()
-        socketio.emit("usuario_offline", {"id": user_id}, room="global")
+        socketio.emit("usuario_offline", {"id": user_id}, to="global")
 
 
 @socketio.on("join_service")
@@ -2318,7 +2318,7 @@ def handle_mensagem_lida(payload):
 
     for participant in participants:
         socketio.emit(
-            "mensagem_lida", payload, room=f"user_{participant['usuario_id']}"
+            "mensagem_lida", payload, to=f"user_{participant['usuario_id']}"
         )
 
 
