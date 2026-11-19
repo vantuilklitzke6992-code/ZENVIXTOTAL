@@ -421,25 +421,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     formatNumericField(document.getElementById("cpf"), "cpf");
     formatNumericField(document.getElementById("cnpj"), "cnpj");
     formatNumericField(document.getElementById("telefone"), "telefone");
-    const stateSelect = document.getElementById("estado");
-    const citySelect = document.getElementById("cidade");
-    const brazilianLocationsElement = document.getElementById("brazilian-locations-data");
-    let brazilianLocations = {};
-    const brazilianLocationsReady = brazilianLocationsElement
-        ? fetch(brazilianLocationsElement.dataset.url)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Falha ao carregar localidades (${response.status}).`);
-                }
-                return response.json();
-            })
-            .then((locations) => {
-                brazilianLocations = locations;
-            })
-            .catch((error) => {
-                console.error("Não foi possível carregar as localidades brasileiras:", error);
-            })
-        : Promise.resolve();
 
     let currentStep = 1;
     const totalSteps = 3;
@@ -449,55 +430,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     function setStep2ControlsDisabled(disabled) {
         step2Controls.forEach((control) => {
             control.disabled = disabled;
-        });
-    }
-
-    function populateCityOptions(selectedStateName) {
-        if (!stateSelect || !citySelect) {
-            return;
-        }
-
-        const stateEntry = Object.values(brazilianLocations).find((entry) => entry && entry.nome === selectedStateName);
-        const cities = stateEntry ? stateEntry.cidades || [] : [];
-
-        citySelect.innerHTML = cities.length
-            ? '<option value="">Selecione a cidade</option>' + cities.map((cidade) => `
-                <option value="${cidade}" ${citySelect.dataset.initialCity === cidade ? "selected" : ""}>${cidade}</option>`).join("")
-            : '<option value="">Selecione o estado primeiro</option>';
-
-        citySelect.disabled = !cities.length;
-        const currentCity = citySelect.dataset.initialCity || "";
-        const validCity = cities.includes(currentCity);
-        if (selectedStateName && !validCity && citySelect.value === "") {
-            citySelect.value = "";
-        }
-        if (selectedStateName && validCity) {
-            citySelect.value = currentCity;
-        }
-        if (!selectedStateName) {
-            citySelect.value = "";
-        }
-        citySelect.dataset.initialCity = "";
-    }
-
-    if (stateSelect && citySelect) {
-        const initialState = stateSelect.dataset.initialState || stateSelect.value || "";
-        const initialCity = citySelect.dataset.initialCity || "";
-        if (initialState) {
-            stateSelect.value = initialState;
-            citySelect.dataset.initialCity = initialCity;
-            brazilianLocationsReady.then(() => populateCityOptions(initialState));
-        }
-
-        stateSelect.addEventListener("change", function () {
-            const selectedState = this.value;
-            citySelect.dataset.initialCity = "";
-            brazilianLocationsReady.then(() => {
-                populateCityOptions(selectedState);
-                if (selectedState) {
-                    citySelect.focus();
-                }
-            });
         });
     }
 

@@ -632,3 +632,44 @@ body:not(:has(main.public-main)) .chat-window {
         padding: 18px;
     }
 }
+
+.auth-page .auth-form .auth-input-wrap {
+    box-sizing: border-box;
+    min-height: 52px;
+}
+
+.auth-page .auth-form .auth-input-wrap #senha,
+.auth-page .auth-form .auth-input-wrap #confirm_senha {
+    appearance: none;
+    background-color: #fff !important;
+    box-sizing: border-box;
+    caret-color: #183c63;
+    color: #183c63 !important;
+    flex: 1 1 0;
+    font-family: inherit;
+    font-size: .94rem;
+    height: 48px;
+    line-height: 1.5;
+    min-height: 48px;
+    min-width: 0;
+    opacity: 1;
+    padding-block: 10px;
+    -webkit-text-fill-color: #183c63 !important;
+    visibility: visible;
+}
+
+.auth-page .auth-form .auth-input-wrap #senha:-webkit-autofill,
+.auth-page .auth-form .auth-input-wrap #confirm_senha:-webkit-autofill,
+.auth-page .auth-form .auth-input-wrap #senha:autofill,
+.auth-page .auth-form .auth-input-wrap #confirm_senha:autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: #183c63;
+}
+
+.registration-layout #cidade[readonly] {
+    background-color: #edf3f8 !important;
+    color: #173e65 !important;
+    cursor: not-allowed;
+    opacity: 1;
+}

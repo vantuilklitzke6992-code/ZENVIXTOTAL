@@ -47,7 +47,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "static"),
 )
 
-app.config["ASSET_VERSION"] = "1.2"
+app.config["ASSET_VERSION"] = "1.3"
 app.config["APP_ENV"] = APP_ENV
 app.config["TEMPLATES_AUTO_RELOAD"] = DEVELOPMENT
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0 if DEVELOPMENT else 31536000

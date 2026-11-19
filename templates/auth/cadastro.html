@@ -15,8 +15,6 @@ set current_step = current_step if current_step is defined else 1 %}
         <section class="auth-form-panel">
                 <div class="auth-tabs" role="tablist"><a class="auth-tab" href="/login">▣ <span>Entrar</span></a><a class="auth-tab active" href="/cadastro" aria-selected="true">♙ <span>Cadastrar</span></a></div>
                 <div class="auth-form-header"><h1>Crie sua conta no Zenvix Connect</h1><p>Preencha os dados abaixo para começar.</p></div>
-                <script id="brazilian-locations-data" type="application/json"
-                        data-url="{{ url_for('static', filename='data/brazilian_locations.json') }}"></script>
                 <div class="stepper"><span class="stepper-label">Etapa <strong id="step-number">1</strong> de <strong
                                         id="step-total">3</strong></span>
                         <div class="stepper-bar"><span id="step-progress" class="stepper-progress"></span></div>
@@ -87,11 +85,10 @@ set current_step = current_step if current_step is defined else 1 %}
                                                         </select>
                                                 </div>
                                                 <div class="form-group"><label for="cidade">Cidade</label>
-                                                        <select class="form-control" id="cidade" name="cidade"
-                                                                data-initial-city="{{ form_data.cidade or '' }}"
-                                                                required disabled>
-                                                                <option value="">Selecione o estado primeiro</option>
-                                                        </select>
+                                                        <input class="form-control" id="cidade" name="cidade"
+                                                                value="{{ initial_city }}" autocomplete="address-level2"
+                                                                readonly aria-readonly="true" required>
+                                                        <small>Cidade disponível nesta fase inicial do Zenvix Connect.</small>
                                                 </div>
                                         </div>
                                         <div class="form-group"><label for="bairro">Endereço ou bairro

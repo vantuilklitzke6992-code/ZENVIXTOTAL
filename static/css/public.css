@@ -2778,25 +2778,6 @@ body:has(main.auth-page) .site-header .topbar-nav { gap: 32px; }
     }
 }
 
-/* Cadastro password inputs: keep typed text and caret visible in every state. */
-.registration-layout #senha,
-.registration-layout #confirm_senha {
-    background: rgba(15, 23, 42, .78) !important;
-    box-sizing: border-box !important;
-    caret-color: #173e65 !important;
-    color: var(--text) !important;
-    -webkit-text-fill-color: var(--text) !important;
-    opacity: 1 !important;
-    text-shadow: none !important;
-    visibility: visible !important;
-}
-
-.registration-layout #senha::placeholder,
-.registration-layout #confirm_senha::placeholder {
-    color: #64748B;
-    opacity: 1;
-}
-
 /* Provider cards reuse the shared avatar, button and presence primitives. */
 .provider-name-link {
     color: inherit;
@@ -4714,4 +4695,31 @@ body:not(:has(main.public-main)) .client-security-card {
     .client-button-blue {
         width: 100%;
     }
+}
+
+.public-main .home-activity-section .button-secondary {
+    --button-bg: #fff;
+    --button-border: #98b9d8;
+    --button-fg: #164b7d;
+    background: #fff;
+    border-color: #98b9d8;
+    color: #164b7d;
+}
+
+.public-main .home-activity-section .button-secondary:hover,
+.public-main .home-activity-section .button-secondary:focus-visible {
+    background: #e8f3ff;
+    border-color: #0877c9;
+    color: #0873cb;
+}
+
+.public-main .home-activity-section .button-secondary:focus-visible {
+    outline: 3px solid rgba(8, 119, 201, .3);
+    outline-offset: 2px;
+}
+
+.public-main .home-activity-section .button-secondary:active {
+    background: #d9eafb;
+    border-color: #075ea8;
+    color: #075ea8;
 }

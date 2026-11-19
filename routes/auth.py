@@ -19,6 +19,7 @@ import re
 from functools import lru_cache
 
 auth_bp = Blueprint("auth", __name__)
+INITIAL_REGISTRATION_CITY = "São Gabriel da Palha"
 
 
 def _normalize_document(value, digit_count, formatted_pattern):
@@ -173,6 +174,19 @@ def cadastro():
         }
 
         current_step = 2
+
+        if cidade.casefold() != INITIAL_REGISTRATION_CITY.casefold():
+            form_data["cidade"] = INITIAL_REGISTRATION_CITY
+            flash(
+                "Nesta fase, os cadastros estão disponíveis apenas em "
+                f"{INITIAL_REGISTRATION_CITY}.",
+                "error",
+            )
+            return _registration_error_redirect(
+                form_data, tipo, current_step=3
+            )
+
+        cidade = INITIAL_REGISTRATION_CITY
 
         if not nome or not email or not senha or not confirm_senha:
             flash("Preencha os dados obrigatórios da conta.", "error")
@@ -478,6 +492,7 @@ def cadastro():
         current_step=current_step,
         categorias=[row["nome"] for row in categorias],
         brazilian_locations=brazilian_locations,
+        initial_city=INITIAL_REGISTRATION_CITY,
     )
 
 
