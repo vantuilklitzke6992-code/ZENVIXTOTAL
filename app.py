@@ -859,6 +859,19 @@ def teardown_appcontext(exception):
     close_db(exception)
 
 
+@app.get("/service-worker.js")
+def service_worker():
+    response = send_from_directory(
+        app.static_folder,
+        "service-worker.js",
+        mimetype="application/javascript",
+        max_age=0,
+    )
+    response.headers["Service-Worker-Allowed"] = "/"
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 # Public and auth routes are provided by blueprints in routes/public.py and routes/auth.py.
 
 

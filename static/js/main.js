@@ -12,6 +12,15 @@ const loadSocketIOClient = () => new Promise((resolve, reject) => {
     document.head.appendChild(script);
 });
 
+if ("serviceWorker" in navigator && window.isSecureContext) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/service-worker.js", { scope: "/" })
+            .catch((error) => {
+                console.error("O Service Worker do Zenvix Connect não foi registrado:", error);
+            });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     if (document.body.dataset.authenticated === "true") {
         const heartbeatKey = `zenvix-presence:${document.body.dataset.userId}`;
