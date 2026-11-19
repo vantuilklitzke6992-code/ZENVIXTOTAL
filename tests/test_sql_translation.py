@@ -43,6 +43,22 @@ def test_translate_sql_supported_syntax(source, expected):
     assert _translate_sql(source) == expected
 
 
+@pytest.mark.parametrize("qualifier", ["", "u."])
+@pytest.mark.parametrize("operator", [">=", ">", "<=", "<"])
+def test_translate_sql_casts_qualified_recent_access(qualifier, operator):
+    source = (
+        f"SELECT * FROM usuarios u WHERE {qualifier}ultimo_acesso {operator} "
+        "datetime('now', '-5 minutes')"
+    )
+    expected = (
+        f"SELECT * FROM usuarios u WHERE CAST({qualifier}ultimo_acesso "
+        f"AS TIMESTAMP) {operator} "
+        "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')"
+    )
+
+    assert _translate_sql(source) == expected
+
+
 def test_translate_sql_preserves_question_marks_in_literals_and_comments():
     source = "SELECT '?' AS literal, id = ? /* ? */ -- ?\n"
     expected = "SELECT '?' AS literal, id = %s /* ? */ -- ?\n"

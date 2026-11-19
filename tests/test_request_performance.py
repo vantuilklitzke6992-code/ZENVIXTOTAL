@@ -136,3 +136,40 @@ def test_provider_enrichment_uses_one_aggregate_query():
             db.set_trace_callback(None)
             db.execute("ROLLBACK TO provider_performance_test")
             db.execute("RELEASE provider_performance_test")
+
+
+def test_online_provider_filter_runs_with_sqlite_syntax():
+    with app_module.app.app_context():
+        db = get_db()
+        token = uuid.uuid4().hex
+
+        assert not db_module.using_postgres()
+        db.execute("SAVEPOINT sqlite_online_provider_test")
+        try:
+            db.execute(
+                """
+                INSERT INTO usuarios (
+                    nome, email, senha, tipo, approval_status,
+                    status_online, ultimo_acesso
+                )
+                VALUES (?, ?, ?, ?, ?, 'online', datetime('now'))
+                """,
+                (
+                    f"Profissional {token}",
+                    f"provider_{token}@test.com",
+                    "x",
+                    "profissional",
+                    "Ativo",
+                ),
+            )
+
+            providers = provider_service.get_providers(online_only=True)
+
+            assert any(
+                provider["email"] == f"provider_{token}@test.com"
+                and provider["online"] == 1
+                for provider in providers
+            )
+        finally:
+            db.execute("ROLLBACK TO sqlite_online_provider_test")
+            db.execute("RELEASE sqlite_online_provider_test")

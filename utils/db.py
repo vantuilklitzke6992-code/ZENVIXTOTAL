@@ -64,7 +64,8 @@ def _translate_sql(sql):
     index = 0
 
     recent_access_pattern = re.compile(
-        r"\bultimo_acesso\s*(<=|>=|<|>)\s*datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
+        r"(?<![\w.])(?P<qualifier>[A-Za-z_]\w*\s*\.\s*)?"
+        r"ultimo_acesso\s*(<=|>=|<|>)\s*datetime\(\s*['\"]now['\"]\s*,\s*['\"]-5 minutes['\"]\s*\)",
         flags=re.I,
     )
     datetime_pattern = re.compile(
@@ -79,7 +80,8 @@ def _translate_sql(sql):
         if match:
             translated.append(_translate_sql_code(sql[code_start:index]))
             translated.append(
-                f"CAST(ultimo_acesso AS TIMESTAMP) {match.group(1)} "
+                f"CAST({match.group('qualifier') or ''}ultimo_acesso AS TIMESTAMP) "
+                f"{match.group(2)} "
                 "(CURRENT_TIMESTAMP - INTERVAL '5 minutes')"
             )
             index = match.end()
